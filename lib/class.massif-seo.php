@@ -16,7 +16,7 @@ class massif_seo
 		$image = 'fb-share.png';
 		$imgSize = @getimagesize(rex_path::frontend() . $image);
 		$logo = rex_yrewrite::getFullPath() . $image;
-		$rewriter_seo = new rex_yrewrite_seo();
+		$rewriter_seo = new rex_massif_yrewrite_seo();
 
 
 		$tags = [];
@@ -33,15 +33,16 @@ class massif_seo
 			$image = rex_yrewrite::getFullPath() . $image;
 			$hasImage = file_exists($image);
 
-			$tags['title'] = $rewriter_seo->getTitleTag();
-			$tags['og:title'] = '<meta property="og:title" content="' . self::normalize($rewriter_seo->getTitle()) . '" />';
-			$tags['twitter:title'] = '<meta name="twitter:title" content="' . self::normalize($rewriter_seo->getTitle()) . '" />';
-			$tags['description'] = $rewriter_seo->getDescriptionTag();
+			$tags['main'] = $rewriter_seo->getTags();
+			// $tags['title'] = $rewriter_seo->getTitleTag();
+			// $tags['og:title'] = '<meta property="og:title" content="' . self::normalize($rewriter_seo->getTitle()) . '" />';
+			// $tags['twitter:title'] = '<meta name="twitter:title" content="' . self::normalize($rewriter_seo->getTitle()) . '" />';
+			// $tags['description'] = $rewriter_seo->getDescriptionTag();
 			$description = self::normalize($rewriter_seo->getDescription());
 			$tags['og:description'] = '<meta property="og:description" content="' . $description . '" />';
 			$tags['twitter:description'] = '<meta name="twitter:description" content="' . $description . '" />';
-			$tags['robots'] = $rewriter_seo->getRobotsTag();
-			$tags['canonical'] = $rewriter_seo->getCanonicalUrlTag();
+			// $tags['robots'] = $rewriter_seo->getRobotsTag();
+			// $tags['canonical'] = $rewriter_seo->getCanonicalUrlTag();
 			$tags['og:url'] = '<meta property="og:url" content="' . self::normalize($rewriter_seo->getCanonicalUrl()) . '" />';
 			$tags['twitter:url'] = '<meta name="twitter:url" content="' . self::normalize($rewriter_seo->getCanonicalUrl()) . '" />';
 			$tags['twitter:card'] = '<meta name="twitter:card" content="summary" />';
@@ -53,9 +54,9 @@ class massif_seo
 				$tags['og:image:width'] = '<meta property="og:image:width" content="' . $imgSize[0] . '" />';
 				$tags['og:image:height'] = '<meta property="og:image:height" content="' . $imgSize[1] . '" />';
 			}
-			if (count(rex_clang::getAll()) > 1) {
-				$tags['hreflang'] = $rewriter_seo->getHreflangTags();
-			}
+			// if (count(rex_clang::getAll()) > 1) {
+			// 	$tags['hreflang'] = $rewriter_seo->getHreflangTags();
+			// }
 			$tagsHtml = implode("\n", $tags);
 		} else {
 			$tagsHtml = $seo->getTags();
