@@ -1,0 +1,8 @@
+# Da R5 nur noch mit UTF8 arbeitet, entfällt der "utf8"-Suffix
+# Die Keys sollten mit dem Addonnamen beginnen, da sie so innerhalb des Addons vereinfacht abgefragt
+# werden können
+
+# zusätzliche Texte für neue yform-Feldtypen
+yform_values_tabs_cluster_label
+yform_values_tabs_cluster_desc = Dient der Gruppierung zusammenhängender Tabs in einer Gruppe (Achtung: keine überlappenden Gruppen!)
+yform_values_tabs_description = Tab-Navigation einfügen

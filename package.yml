@@ -1,0 +1,8 @@
+package: massif
+version: 1.0.0
+author: Yves Torres
+supportpage: massif.ch
+
+page:
+    title: 'MASSIF'
+    perm: massif[]
