@@ -7,10 +7,9 @@ class massif_img
 	public static $loaderHtml = '<div class="img-spinner"><div></div><div></div><div></div></div>';
 
 	protected static $addPrintMarkup = false;
-	protected static $imgMgrPath = 'mediatypes/';
+	protected static $imgMgrPath = 'image/';
 
-	protected static $types = ['auto' => '', 'auto-crop' => '-c', 'square' => '-sq'];
-	protected static $srcsets = ['default-xs' => 272, 'default-s' => 371, 'default' => 480, 'default-m' => 569, 'default-l' => 767, 'default-xl' => 1163, 'default-xxl' => 1559];
+	public static $sizes = [];
 
 	public static function getPlaceholder($width = 0, $height = 0)
 	{
@@ -21,8 +20,11 @@ class massif_img
 	*	get image manager string
 	*/
 
-	public static function getPath($img, $type = 'lightbox', $_params = [])
+	public static function getPath($img, $size, $type = 'auto', $_params = [])
 	{
+		if (!in_array($size, self::$sizes))
+			$size = self::$sizes[0];
+
 		$params = [
 			'absolute' => false,
 			'action' => ''
@@ -31,55 +33,25 @@ class massif_img
 			$params = array_merge($params, $_params);
 			unset($_params);
 		}
-		if (in_array($params['action'], ['cover', 'content'])) {
-			$out = 'media-' . $params['action'] . '/' . $type . '/' . $img;
-		} else {
-			$out = self::$imgMgrPath . $type . '/' . $img;
-		}
+		$out = self::$imgMgrPath . $type . '/' . $size . '/' . $img;
 		return (!$params['absolute']) ? rex_url::frontend() . $out : rex_yrewrite::getCurrentDomain()->getUrl() . $out;
 	}
 
-	public static function getByGroup($group_name)
-	{
-		return rex_yform_manager_table::get('rex_media_manager_type_group')->query()->where('name', $group_name)->findOne();
-	}
-
-	private static function getTypes($group_name)
-	{
-		$group = self::getByGroup($group_name);
-		return rex_yform_manager_table::get('rex_media_manager_type_meta')->query()->where('group_id', $group->getId())->orderBy('prio', 'desc')->find();
-	}
-
-	public static function getSrcset($img, $groupname, $height)
+	public static function getSrcset($img, $height, $type = 'auto')
 	{
 		$srcset = [];
-		$types = self::getTypes($groupname);
 
-		foreach ($types as $key => $type) {
+		$sizes = self::$sizes;
+		array_shift($sizes);
+
+		foreach ($sizes as $key => $size) {
 
 			// Erstellen der Mediendatei
-			if ($type->getValue('min_width') != "") {
-				$srcset[$key] = self::getPath($img, $type->getValue('type')) . ' ' . substr($type->getValue('min_width'), 0, -2) . 'w';
-				if ($key == 0)
-					$srcset[$key] .= ' ' . $height . 'h';
-			}
+			$srcset[] = self::getPath($img, $size, $type) . ' ' . $size . 'w';
+			if ($key == 0)
+				$srcset[$key] .= ' ' . $height . 'h';
 		}
-		/*
-		if (!is_array($type)) {
-			$suffix = self::$types[$type];
-			$count = 0;
-			foreach (self::$srcsets as $size => $w) {
-				$srcset[$count] = self::getPath($img, $size . $suffix) . ' ' . $w . 'w ';
-				if ($count == 0)
-					$srcset[$count] .= $height . 'h';
-				$count++;
-			}
-		} else {
-			foreach ($type as $_type => $size) {
-				$srcset[] = self::getPath($img, $_type) . ' ' . $size . 'w';
-			}
-		}
-		*/
+
 		return implode(', ', $srcset);
 	}
 
@@ -93,13 +65,13 @@ class massif_img
 
 		$params = [
 			'alt' => '',
-			'type' => 'default',
+			'type' => 'auto',
 			'tag' => 'img',
 			'calc' => false,
 			'calc_as' => '',
 			'width' => -1,
 			'height' => -1,
-			'ratio' => 1.388,
+			'ratio' => 0,
 			'classes' => [],
 			'style' => '',
 			'inline-svg' => '',
@@ -109,12 +81,12 @@ class massif_img
 
 		$extensionsExcludeManager = ['svg', 'gif'];
 
-		if (is_array($_params)) {
-			$params = array_merge($params, $_params);
-			unset($_params);
-		}
+		$params = array_merge($params, $_params);
+		unset($_params);
 
 		$rex_media = rex_media::get($img);
+		$media_width = $rex_media->getWidth();
+		$media_height = $rex_media->getHeight();
 
 		$ext = '';
 		if ($rex_media) {
@@ -130,34 +102,20 @@ class massif_img
 			}
 		}
 
-		if (is_array($params['type'])) {
-			$mmType = array_key_first($params['type']);
-		} else {
-			$defMmType = 'default-xs';
-			if ($params['calc_as'] == 'crop') {
-				$defMmType .= '-c';
-			}
-			$mmType = ($params['type'] == 'auto' || $params['type'] == 'auto-crop') ? $defMmType : $params['type'];
-		}
-
 		if ($params['calc'] && $rex_media) {
+			$mmType = is_array($params['type']) ? array_key_first($params['type']) : $params['type'];
 			$media = rex_media_manager::create($mmType, $img)->getMedia();
 			$width = $media->getWidth();
 			$height = $media->getHeight();
-			$ratio = /*($params['ratio']) ? $params['ratio'] : */ $width / $height;
-		} else if ($params['width'] !== -1 && $params['height'] !== -1) {
-			$width = $params['width'];
-			$height = $params['height'];
-			$ratio = ($params['ratio']) ? $params['ratio'] : $width / $height;
-		} else if ($params['ratio']) {
-			$width = 1000;
-			//$height = ($params['ratio'] > 1) ? round($width / $params['ratio']) : round($width * $params['ratio']) ;
-			$height = round($width / $params['ratio']);
-			$ratio = $params['ratio'];
+			$ratio = $width / $height;
+		} else if ($params['width'] || $params['ratio']) {
+			$width = $params['width'] ? $params['width'] : 1000;
+			$ratio = $params['ratio'] ? $params['ratio'] : $media_width / $media_height;
+			$height = round($width / $ratio);
 		} else if ($rex_media) {
-			$width = $rex_media->getWidth();
-			$height = $rex_media->getHeight();
-			$ratio = ($params['ratio']) ? $params['ratio'] : $width / $height;
+			$width = $media_width;
+			$height = $media_height;
+			$ratio = $params['ratio'] ? $params['ratio'] : $width / $height;
 		}
 
 		$focuspoint_css = '';
@@ -181,14 +139,14 @@ class massif_img
 			// if ($params['loading'] == 'lazy')
 			$image .= 'class="lazyload" ';
 			if ($params['type'] && !in_array($ext, $extensionsExcludeManager)) {
-				$lip = 'default-m';
+				$lipSize = self::$sizes[1];
 				if (!rex::isBackend() && $params['loading'] == 'lazy') {
-					$lip = 'lip-' . $params['type'];
+					$lipSize = self::$sizes[0];
 					$image .= 'decoding="async" ';
 					//decoding = "async"
 				}
-				$image .= 'src="' . self::getPath($img, $lip) . '" ';
-				$image .= 'data-srcset="' . self::getSrcset($img, $params['type'], $height) . '" ';
+				$image .= 'src="' . self::getPath($img, $lipSize, $params['type']) . '" ';
+				$image .= 'data-srcset="' . self::getSrcset($img, $height, $params['type']) . '" ';
 			} else {
 				$image .= 'src="' . rex_url::media($img) . '" ';
 			}
@@ -200,7 +158,7 @@ class massif_img
 			$image = '<picture>';
 			if (is_array($params['type'])) {
 				foreach ($params['type'] as $_type => $size) {
-					$image .= '<source srcset="' . self::getPath($img, $_type) . '"';
+					$image .= '<source srcset="' . self::getPath($img, $size, $_type) . '"';
 					if ($size) {
 						$image .= ' media="(max-width: ' . $size . 'px)"';
 					}
@@ -342,3 +300,4 @@ class massif_img
 		return $out;
 	}
 }
+massif_img::$sizes = \rex_effect_auto::getSizes();
