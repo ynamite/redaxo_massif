@@ -10,9 +10,15 @@ if (rex::isBackend() && rex::getUser()) {
     rex_view::addJsFile($this->getAssetsUrl('js/scripts.js'));
 }
 
-// rex_autoload::addDirectory(rex_path::assets('theme/lib'));
-rex_yform::addTemplatePath($this->getPath('ytemplates'));
-rex_fragment::addDirectory($this->getPath('fragments'));
+\rex_fragment::addDirectory(\rex_path::src('fragments'));
+if (\rex_addon::get('yform')->isAvailable()) {
+    \rex_yform::addTemplatePath(\rex_path::src('ytemplates'));
+}
+if (rex_addon::get('media_manager')->isAvailable()) {
+    rex_media_manager::addEffect(\rex_effect_auto::class);
+    rex_extension::register('MEDIA_MANAGER_FILTERSET', '\rex_effect_auto::handle', rex_extension::EARLY);
+}
+
 
 if (\rex::isBackend() && \rex::getUser() && \rex_plugin::get('yform', 'manager')) {
 
