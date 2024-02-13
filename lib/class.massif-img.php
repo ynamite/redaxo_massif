@@ -55,6 +55,22 @@ class massif_img
 		return implode(', ', $srcset);
 	}
 
+	public static function getSizes()
+	{
+		$output = [];
+		$sizes = self::$sizes;
+		array_shift($sizes);
+		$maxSize = array_pop($sizes);
+		$maxWidths = $sizes;
+		array_shift($maxWidths);
+		$maxWidths[] = $maxSize;
+		for ($i = 0; $i < count($sizes); $i++) {
+			$output[] = '(max-width: ' . $maxWidths[$i] . 'px) ' . $sizes[$i] . 'px';
+		}
+		$output[] = $maxSize . 'px';
+		return implode(', ', $output);
+	}
+
 	/*
 	*	build image with lazyload in mind
 	*/
@@ -139,14 +155,20 @@ class massif_img
 			// if ($params['loading'] == 'lazy')
 			$image .= 'class="lazyload" ';
 			if ($params['type'] && !in_array($ext, $extensionsExcludeManager)) {
+				// $lipSize = $width && in_array($width, self::$sizes) ? $width : self::$sizes[1];
 				$lipSize = self::$sizes[1];
+				$srcset = self::getSrcset($img, $height, $params['type']);
+				$image .= 'sizes="' . self::getSizes() . '"';
+				$image .= 'data-sizes="auto"';
 				if (!rex::isBackend() && $params['loading'] == 'lazy') {
 					$lipSize = self::$sizes[0];
 					$image .= 'decoding="async" ';
-					//decoding = "async"
+					$image .= 'data-srcset="' . $srcset . '" ';
+				} else {
+					$image .= 'srcset="' . $srcset . '" ';
+					$image .= 'fetchpriority="high" ';
 				}
 				$image .= 'src="' . self::getPath($img, $lipSize, $params['type']) . '" ';
-				$image .= 'data-srcset="' . self::getSrcset($img, $height, $params['type']) . '" ';
 			} else {
 				$image .= 'src="' . rex_url::media($img) . '" ';
 			}
