@@ -262,7 +262,7 @@ class massif_img
 		if (isset($_params))
 			$params['images'] = (is_array($_params['images'])) ? $_params['images'] : array_filter(explode(',', $_params['images']));
 
-		return massif_utils::parse('swiper', null, ['params' => $params]);
+		return massif_utils::parse('massif-swiper', null, ['params' => $params]);
 	}
 
 	/*
