@@ -95,14 +95,19 @@ class massif_img
 			'caption' => ''
 		];
 
+		$width = $height = $ratio = 0;
+
 		$extensionsExcludeManager = ['svg', 'gif'];
 
 		$params = array_merge($params, $_params);
 		unset($_params);
 
 		$rex_media = rex_media::get($img);
+		if (!$rex_media) return;
 		$media_width = $rex_media->getWidth();
 		$media_height = $rex_media->getHeight();
+		if ($params['width'] == -1) $params['width'] = $media_width;
+		if ($params['height'] == -1) $params['height'] = $media_height;
 
 		$ext = '';
 		if ($rex_media) {
@@ -118,20 +123,25 @@ class massif_img
 			}
 		}
 
-		if ($params['calc'] && $rex_media) {
-			$mmType = is_array($params['type']) ? array_key_first($params['type']) : $params['type'];
-			$media = rex_media_manager::create($mmType, $img)->getMedia();
-			$width = $media->getWidth();
-			$height = $media->getHeight();
-			$ratio = $width / $height;
-		} else if ($params['width'] || $params['ratio']) {
-			$width = $params['width'] ? $params['width'] : 1000;
-			$ratio = $params['ratio'] ? $params['ratio'] : $media_width / $media_height;
-			$height = round($width / $ratio);
-		} else if ($rex_media) {
+		if ($ext !== 'svg') {
+			if ($params['calc'] && $rex_media) {
+				$mmType = is_array($params['type']) ? array_key_first($params['type']) : $params['type'];
+				$media = rex_media_manager::create($mmType, $img)->getMedia();
+				$width = $media->getWidth();
+				$height = $media->getHeight();
+				$ratio = $width / $height;
+			} else if ($params['width'] || $params['ratio']) {
+				$width = $params['width'] ? $params['width'] : 1000;
+				$ratio = $params['ratio'] ? $params['ratio'] : $media_width / $media_height;
+				$height = round($width / $ratio);
+			} else if ($rex_media) {
+				$width = $media_width;
+				$height = $media_height;
+				$ratio = $params['ratio'] ? $params['ratio'] : $width / $height;
+			}
+		} else {
 			$width = $media_width;
 			$height = $media_height;
-			$ratio = $params['ratio'] ? $params['ratio'] : $width / $height;
 		}
 
 		$focuspoint_css = '';
