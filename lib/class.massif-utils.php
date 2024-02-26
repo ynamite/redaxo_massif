@@ -12,6 +12,15 @@ class massif_utils
 	private static $totalCols = 0;
 	public static $maxCols = 12;
 
+	public static function getH1($title, $class = [])
+	{
+		$class[] = 'h1';
+		$hasH1 = rex::getProperty('has-h1');
+		rex::setProperty('has-h1', true);
+		$tag = $hasH1 ? 'h2' : 'h1';
+		return '<' . $tag . ' class="' . implode(' ', $class) . '">' . $title . '</' . $tag . '>';
+	}
+
 	public static function rexVartoArray($value)
 	{
 		return array_filter(rex_var::toArray($value, function ($item) {
@@ -39,15 +48,16 @@ class massif_utils
 
 	public static function isFirstSlice($slice_id)
 	{
-		if (!$slice_id || !is_int($slice_id)) {
+		$id = (int) $slice_id;
+		if (!$id || !is_int($id)) {
 			return -1;
 		}
-		if (!self::$sliceCache[$slice_id]) {
-			self::$sliceCache[$slice_id] = rex_article_slice::getArticleSliceById($slice_id);
-			if (!self::$sliceCache[$slice_id])
+		if (!self::$sliceCache[$id]) {
+			self::$sliceCache[$id] = rex_article_slice::getArticleSliceById($id);
+			if (!self::$sliceCache[$id])
 				return -1;
 		}
-		return self::$sliceCache[$slice_id]->getPriority() == 1;
+		return self::$sliceCache[$id]->getPriority() == 1;
 	}
 
 	public static function readmore($input, $options = ['placeholder' => '[weiterlesen]'])
@@ -482,13 +492,32 @@ class massif_utils
 		return rex_getUrl($id, $clang, $_GET);
 	}
 
+	public static function getCustomLinks($buttons, $align = '')
+	{
+		$buttonSet = [];
+		foreach ($buttons as $button) {
+			$buttonSet[] = self::getCustomLink($button['url'], ['label' => $button['label'], 'style' => isset($button['style']) ? $button['style'] : '']);
+		}
+
+		$buttonSet = array_filter($buttonSet);
+
+		if (count($buttonSet) > 0) {
+			$fragment = new rex_fragment();
+			$fragment->setVar('align', $align, false);
+			$fragment->setVar('buttonSet', $buttonSet, false);
+			return $fragment->parse('massif-buttons.php');
+		}
+	}
+
 	public static function getCustomLink($url, $_params = [])
 	{
 
 		$return = [
 			'url' => '',
 			'target' => '',
-			'type' => ''
+			'type' => '',
+			'label' => '',
+			'style' => ''
 		];
 		// set url
 		if (!isset($url) or empty($url)) return '';
@@ -546,13 +575,15 @@ class massif_utils
 				}
 			}
 		}
+
 		if (isset($params['label']))
 			$return['label'] = $params['label'];
 
-		if (strip_tags($return['label']) == '') {
-			return '';
-		}
-		return '<a href="' . $return['url'] . '"' . $return['target'] . ' class="' . implode(' ', $params['class']) . '">' . $return['label'] . '</a>';
+		if (isset($params['style']))
+			$return['style'] = $params['style'];
+
+		$return['class'] = $params['class'];
+		return $return;
 	}
 
 	public static function formatRange($from = '', $to = '', $opts = [])
