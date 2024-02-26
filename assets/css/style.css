@@ -86,7 +86,7 @@ div.mce-fullscreen {
     position: relative;
     z-index: 3;
 }
-.mform-tabs .thumbnail:hover,
+.mform .thumbnail:hover,
 .yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail:hover,
 #rex-page-sidebar-metainfo .thumbnail:hover {
     transform: scale(3);
