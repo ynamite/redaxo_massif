@@ -161,15 +161,15 @@ class massif_img
 			$params['loading'] = 'eager';
 
 		if ($params['tag'] == 'img' && $img) {
-			$image = '<img width="' . $width . '" height="' . $height . '" loading="' . $params['loading'] . '" data-sizes="auto" data-aspectratio="' . $ratio . '" ';
+			$image = '<img width="' . $width . '" height="' . $height . '" loading="' . $params['loading'] . '" data-aspectratio="' . $ratio . '" ';
 			// if ($params['loading'] == 'lazy')
 			$image .= 'class="lazyload" ';
 			if ($params['type'] && !in_array($ext, $extensionsExcludeManager)) {
 				// $lipSize = $width && in_array($width, self::$sizes) ? $width : self::$sizes[1];
 				$lipSize = self::$sizes[1];
 				$srcset = self::getSrcset($img, $height, $params['type']);
-				$image .= 'sizes="' . self::getSizes() . '"';
-				$image .= 'data-sizes="auto"';
+				$image .= 'sizes="' . self::getSizes() . '" ';
+				$image .= 'data-sizes="auto" ';
 				if (!rex::isBackend() && $params['loading'] == 'lazy') {
 					$lipSize = self::$sizes[0];
 					$image .= 'decoding="async" ';
@@ -225,6 +225,12 @@ class massif_img
 		}
 
 		$out .= '</figure>';
+		// if ($ext !== 'svg') {
+		// 	$out .= '<link rel="preload" ';
+		// 	if ($params['loading'] == 'eager')
+		// 		$out .= 'fetchpriority="high" ';
+		// 	$out .= 'as="image" href="' . self::getPath($img, $lipSize, $params['type']) . '" imagesrcset="' . self::getSrcset($img, $height, $params['type']) . '" imagesizes="' . self::getSizes() . '">';
+		// }
 
 		return $out;
 	}
