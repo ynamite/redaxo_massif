@@ -34,72 +34,30 @@ class massif_utils
 		}));
 	}
 
-	public static function getColumnWidthAndStart($_cols, $_col_start)
-	{
-		$col_start = !$_col_start ? 0 : $_col_start;
-		self::$totalCols += self::$lastColStart + $_cols;
-		if (self::$totalCols >= self::$maxCols) {
-			self::$totalCols = 0;
-		}
-		$rule = $col_start == 0 ? 'span ' . $_cols : $col_start . ' / span ' . $_cols;
-		self::$lastColStart = $col_start;
-		return (rex::isFrontend() ? '--' : '') . 'grid-column: ' . $rule;
-	}
-
-	public static function isFirstSlice($slice_id)
+	public static function isFirstLastSlice($slice_id, $ctype = 1, $firstSliceClass = 'first-row', $lastSliceClass = 'last-row')
 	{
 		$id = (int) $slice_id;
 		if (!$id || !is_int($id)) {
 			return -1;
 		}
-		if (!self::$sliceCache[$id]) {
-			self::$sliceCache[$id] = rex_article_slice::getArticleSliceById($id);
-			if (!self::$sliceCache[$id])
-				return -1;
+		if (count(self::$sliceCache) === 0) {
+			$slice = rex_article_slice::getArticleSliceById($id);
+			$sql = rex_sql::factory();
+			$query = '
+						SELECT *
+            FROM ' . rex::getTable('article_slice') . '
+            WHERE article_id=? AND clang_id=? AND revision=? 
+            ORDER BY priority ';
+			$queryFirst = $query . 'LIMIT 1';
+			$queryLast = $query . 'DESC LIMIT 1';
+			$first = rex_article_slice::fromSql($sql->setQuery($queryFirst, [$slice->getArticleId(), $slice->getClangId(), $slice->getRevision()]));
+			$last = rex_article_slice::fromSql($sql->setQuery($queryLast, [$slice->getArticleId(), $slice->getClangId(), $slice->getRevision()]));
+			self::$sliceCache = ['first' => $first->getId(), 'last' => $last->getId()];
 		}
-		return self::$sliceCache[$id]->getPriority() == 1;
-	}
-
-	public static function readmore($input, $options = ['placeholder' => '[weiterlesen]'])
-	{
-		$content = trim($input);
-		if (!$content || strpos($content, $options['placeholder']) === false) {
-			return $content;
-		}
-		$uid = 'exp-' . uniqid();
-		$button = '<p><a href="javascript:;" data-expand="' . $uid . '"><i class="icon icon-link-arrow"></i> Readmore</a></p>';
-		return str_replace($options['placeholder'], $button . '<div data-expand-id="' . $uid . '" hidden>', $content) . '</div>';
-	}
-
-	/*
-	*	get Modal URL for use in an id attribute
-	*	http://www.w3schools.com/tags/att_standard_id.asp
-	*/
-
-	public static function getModalUrl($id)
-	{
-
-		if ((int) $id == 0)
-			return;
-
-		$url = rex_getUrl($id);
-
-		/*if(rex::getProperty('addon-page-url')) {
-			$url = rex::getProperty('addon-page-url') . self::normalizeArticleNameById($id);
-		}*/
-
-		return $url;
-	}
-
-	public static function getModalRef($id)
-	{
-
-		if ((int) $id == 0)
-			return;
-
-		$url = rex_getUrl($id);
-
-		return str_replace('/', '__', trim($url, '/'));
+		$out = '';
+		if (self::$sliceCache['first'] == $id) $out .= ' ' . $firstSliceClass;
+		if (self::$sliceCache['last'] == $id) $out .= ' ' . $lastSliceClass;
+		return $out;
 	}
 
 	/*
@@ -244,96 +202,6 @@ class massif_utils
 	}
 
 	/*
-	*	get data from database
-	*/
-
-	public static function getData($_options = array())
-	{
-
-		$defaults = array(
-			'table' => 'rex_news',
-			'rowsPerPage' => 100,
-			'fields' => '*', //'rex_news.*, GROUP_CONCAT(rex_tags.title SEPARATOR ",") AS tags, GROUP_CONCAT(rex_tags.id SEPARATOR ",") AS tags_id', 
-			'join' => '', //'JOIN rex_tags_to_news ON rex_news.id = rex_tags_to_news.id_news JOIN rex_tags ON rex_tags.id = rex_tags_to_news.id_tag',
-			'where' => '',
-			'whereUnfiltered' => '',
-			'groupBy' => '', //'rex_news.id',
-			'orderBy' => '',
-			'orderType' => '',
-			'limit' => 0,
-			'whereParams' => array(),
-			'pager' => false,
-		);
-
-		$options = array_merge($defaults, $_options);
-
-		$sql = rex_sql::factory();
-		$query = ' FROM ' . $options['table'] . ' ';
-		if ($options['join']) {
-			$qry = $options['join'] . ' ';
-			$query .= $qry;
-		}
-		$queryWithoutWhere = $query;
-		if ($options['where']) {
-			$qry = 'WHERE ' . $options['where'] . ' ';
-			$query .= $qry;
-		}
-		if ($options['whereUnfiltered']) {
-			$queryWithoutWhere .= 'WHERE ' . $options['whereUnfiltered'] . ' ';
-		}
-		if ($options['groupBy']) {
-			$qry = 'GROUP BY ' . $options['groupBy'] . ' ';
-			$query .= $qry;
-			$queryWithoutWhere .= $qry;
-		}
-		if ($options['orderBy']) {
-			$qry = 'ORDER BY ' . $options['orderBy'] . ' ';
-			if ($options['orderType']) {
-				$qry .= $options['orderType'] . ' ';
-			}
-			$query .= $qry;
-			$queryWithoutWhere .= $qry;
-		}
-
-
-		if ($options['pager']) {
-			$options['limit'] = $options['rowsPerPage'];
-		}
-
-		if ($options['limit']) {
-			$qry = 'LIMIT ' . $options['limit'];
-			$query .= $qry;
-		}
-		if ($options['pager']) {
-			$pager = new massif_pager($options['rowsPerPage'], 'page');
-			$cursor = (rex_request($pager->getCursorName(), 'int', 0) - 1) * $options['rowsPerPage'];
-			if ($cursor < 0) {
-				$cursor = 0;
-			}
-			$query .= ' OFFSET ' . $cursor;
-		}
-		//dump($query);
-
-		$data = $sql->getArray('SELECT SQL_CALC_FOUND_ROWS ' . $options['fields'] . $query);
-		//rex_var_dumper::dump('SELECT ' . $options['fields'] . $query);
-		if (count($data) == 0)
-			return;
-
-		if ($options['pager']) {
-			$sql->setQuery(' SELECT FOUND_ROWS() as num_rows ');
-			$count = (int) $sql->getValue('num_rows');
-			$pager->setRowCount($count);
-			$fragment = new rex_fragment();
-			$fragment->setVar('pager', $pager, false);
-			$fragment->setVar('urlprovider', rex_article::getCurrent());
-			rex::setProperty('massif-pager', $fragment->parse('massif-pager.php'));
-		}
-
-
-		return $data;
-	}
-
-	/*
 	*	sort Array vertically (for CSS columns for example)
 	*/
 
@@ -359,12 +227,6 @@ class massif_utils
 		}
 		unset($temp);
 		return $new;
-	}
-
-	public static function getAnchor($val)
-	{
-		$anchor = '<a id="' . self::normalize($val) . '" class="nav-anchor"></a>';
-		return $anchor;
 	}
 
 	public static function getAnchorNav()
@@ -484,12 +346,6 @@ class massif_utils
 		$parsedUrl = parse_url($url);
 
 		return ['url' => $url, 'host' => isset($parsedUrl['host']) ? $parsedUrl['host'] : '', 'path' => isset($parsedUrl['path']) ? $parsedUrl['path'] : ''];
-	}
-
-	public static function getUrlWithGetParams($id = null, $clang = null)
-	{
-
-		return rex_getUrl($id, $clang, $_GET);
 	}
 
 	public static function getCustomLinks($buttons, $align = '')
@@ -636,7 +492,6 @@ class massif_utils
 
 		return $options;
 	}
-
 
 	/*
 	*	add a wrap
@@ -807,41 +662,16 @@ class massif_utils
 	}
 
 	/*
-	*	Get an array of items from sql
-	*/
-
-	public static function getSqlArray($sql)
-	{
-
-		self::$sql = rex_sql::factory();
-		self::$sql->setQuery($sql);
-
-		echo mysql_error();
-
-		return self::$sql->getArray();
-	}
-
-	/*
 	*	Get parsed file
 	*/
 
-	public static function parse($file, $context = null, $params = [])
+	public static function parse($file, $vars = [])
 	{
 		$fragment = new rex_fragment();
-		$fragment->setVar('context', $context, false);
-		$fragment->setVar('params', $params, false);
+		foreach ($vars as $key => $value) {
+			$fragment->setVar($key, $value, false);
+		}
 		return $fragment->parse($file . ".php");
-	}
-
-	/*
-	*	get REX slice by ID
-	*/
-
-	public static function getSlice($id)
-	{
-
-		$slice = rex_article_slice::getArticleSliceById($id);
-		return $slice->getSlice();
 	}
 
 	/*
@@ -856,87 +686,6 @@ class massif_utils
 		}
 		return $path;
 	}
-
-	/*
-	*	Get all slices from an article by its id
-	*/
-
-	public static function getAllSlicesFromArticle($article_id)
-	{
-		$slice = OOArticleSlice::getFirstSliceForArticle($article_id);
-		while ($slice != null) {
-			$slices[] = $slice;
-			$slice = $slice->getNextSlice();
-		}
-		return $slices;
-	}
-
-	/*
-	*	Get all articles from a category by its module id
-	*/
-
-	public static function getArticlesFromCategoryByModule($article_id, $module_id, $order_by)
-	{
-		global $REX;
-
-		$orderby = ($order_by) ? "ORDER BY " . $order_by : "";
-
-		$sql = rex_sql::getInstance();
-		$query = "SELECT * FROM " . $REX['TABLE_PREFIX'] . "article WHERE id IN (SELECT article_id FROM " . $REX['TABLE_PREFIX'] . "article_slice WHERE modultyp_id=" . $module_id . ") AND (path LIKE '%|" . $article_id . "|%') AND status=1 $orderby";
-		$sql->setQuery($query);
-		$numRows = $sql->getRows();
-
-		if ($numRows != 0) {
-			for ($i = 0; $i < $numRows; $i++) {
-				$articles[$i] = OOArticle::getArticleById($sql->getValue('id'));
-				$sql->next();
-			}
-		}
-		if ($articles && is_array($articles))
-			return $articles;
-		else
-			return false;
-	}
-
-	/*
-	*	Get all images from a media category
-	*/
-
-	public static function getFilesFromCat($catId, $random = false)
-	{
-		$catId = intval($catId);
-
-		$cat = OOMediaCategory::getCategoryById($catId);
-		$files = $cat->getFiles();
-		$count = count($files);
-		if ($count > 0) {
-			if ($random) shuffle($files);
-			foreach ($files as $file)
-				$out[] = $file->getFileName();
-			return $out;
-		} else
-			return false;
-	}
-
-	/*
-	*	Get one random image from a media category
-	*/
-
-	public static function getRandomFileFromCat($catId)
-	{
-		$catId = intval($catId);
-
-		$cat = OOMediaCategory::getCategoryById($catId);
-		$files = $cat->getFiles();
-		$count = count($files);
-		if ($count > 0) {
-			$random = mt_rand(0, $count - 1);
-			$randomFile = $files[$random];
-			return $randomFile->getFileName();
-		} else
-			return false;
-	}
-
 
 	/*
 	*	Create an unordered list from files
@@ -1132,17 +881,17 @@ class massif_utils
 	}
 
 
-	public static function pageSetSubPaths(\rex_be_page $page, \rex_package $package, $prefix = '')
+	public static function bePageSetSubPaths(\rex_be_page $page, \rex_package $package, $prefix = '')
 	{
 		foreach ($page->getSubpages() as $subpage) {
 			if (!$subpage->hasSubPath()) {
 				$subpage->setSubPath($package->getPath('pages/' . $prefix . $subpage->getKey() . '.php'));
 			}
-			self::pageSetSubPaths($subpage, $package, $prefix . $subpage->getKey() . '.');
+			self::bePageSetSubPaths($subpage, $package, $prefix . $subpage->getKey() . '.');
 		}
 	}
 
-	public static function backendNav($head, $pages)
+	public static function beBackendNav($head, $pages)
 	{
 
 		$nav = \rex_be_navigation::factory();
@@ -1173,403 +922,5 @@ class massif_utils
 		$return = $fragment->parse('core/page/header.php');
 
 		return $return;
-	}
-
-	/*
-	*	redaxo backend module JS/CSS for prettier module input ;)
-	*	TODO: move to src folder and use rex::view
-	*/
-
-	public static function getModuleInJsCss()
-	{
-		return '
-		<style type="text/css">
-		.btn-set {
-			display: flex;
-			gap: 20px;
-		}
-		</style>
-		';
-	}
-	public static function OLD_getModuleInJsCss()
-	{
-		return '<script type="text/javascript">
-				/*
-				jQuery(document).ready(function($) {
-					
-					var $dateFields = $(\'input[data-type="date"]\');
-					
-					$dateFields.each(function(i){
-						
-						var $this = $(this);
-													
-						$this.datepicker({
-							dateFormat: "dd.mm.yy",
-							altField: $this.data(\'alt-field\'),
-							altFormat: "yy-mm-dd",
-						    beforeShow: function(input, inst){
-			 					$(inst.dpDiv).css({
-									marginTop: $this.outerHeight(true)
-								});
-			 				    return {};
-						    },
-						    //minDate: new Date(2001, 1 - 1, 1), maxDate: new Date(2010, 12 - 1, 31),
-						    showOn: \'both\'
-				    	});
-				    	
-				    	//$year.after($placeholder.next());
-						
-					});
-					
-				});
-				*/
-			</script>
-			<style type="text/css">
-				
-				.mform-tabs > .nav-tabs {
-					margin: 0;
-				}
-				.mform-tabs > .tab-content .tab-content {
-					padding-top: 20px;
-				}
-				.mform-tabs > .tab-content .mform-tabs .tab-content {
-					padding: 15px;
-					background: white;
-				}
-				.tox .tox-edit-area__iframe {
-					background: #e9ecf2;
-				}
-				.mblock_wrapper > div {
-					border: none;
-				}
-				.panel-edit,
-				.panel-add {
-					position: relative;
-				}
-				hr {
-					border: none;
-					border-bottom: 1px dotted rgba(0,0,0,0.1);
-					margin: -5px 0 10px;
-				}
-				
-				.field-group * {
-					box-sizing: border-box;
-				}
-				
-				.field-title,
-				.section-title {
-					font-size: 16px;
-					padding-bottom: 5px;
-					margin-bottom: 11px;
-					border-bottom: 1px dotted rgba(0,0,0,0.1);
-				}
-			
-				.section-title {
-					font-size: 13px;
-				}
-				
-				.content-group {
-					margin-bottom: 33px;
-				}
-			
-				.attributes-group {
-					background: rgba(0,0,0,0.045);
-					padding: 10px; 
-					margin: 0 -10px;
-				}
-				
-				.anchor {
-					position: absolute;
-					right: 15px; top: 55px;
-					color: #188d12;
-					font-size: 11px;
-				}	
-				.panel-edit .anchor {
-					/*top: 7px;*/
-				}
-				.anchor .label {
-					font-weight: bold;
-					color: #c9302c;
-					font-size: 11px;
-				}
-				.anchor .val {
-					display: inline-block;
-					font-style: italic;
-				}
-			
-						
-			
-				/* 
-				 *	grid 
-				*/
-				
-				.field-group {
-					/*overflow-x: hidden;*/
-				}
-				
-				.field-group .row {
-					/*overflow: hidden;*/
-					/*margin: 0 -15px;*/
-				}
-				
-				.field-group .grid {
-					min-height: 250px;
-					float: left;
-					padding: 0 15px;
-					position: relative;
-				}
-				.field-group .grid:after {
-					content: "";
-					position: absolute;
-					left: 0; top: 0;
-					height: 100%;
-					width: 1px;
-					background: rgba(0,0,0,0.1);
-				}
-				.field-group .grid:first-child:after {
-					display: none;
-				}
-				.field-group .grid-fourth {
-					width: 25%;
-				}
-				.field-group .grid-three-fourths {
-					width: 75%;
-				}
-				.field-group .grid-third {
-					width: 33%;
-				}
-				.field-group .grid-two-thirds {
-					width: 66%;
-				}
-				.field-group .grid-half {
-					width: 50%;
-				}
-				.field-group .grid-full {
-					width: 100%;
-				}
-			
-				/* 
-				 *	fields 
-				*/
-				
-				.field-holder {
-					margin-bottom: 15.5px;
-					/*overflow: hidden;*/
-				}
-				.field-holder.field-media {
-					margin-bottom: 5.5px;
-				}
-				
-				.field-holder label {
-					padding-top: 4px !important;
-					font-weight: bold !important;
-					/*float: left !important;
-					width: 60% !important;*/
-				}
-				
-				.field-holder .field {
-					/*float: left;
-					width: 40%;*/
-					width: 100%;
-				}
-				
-				.field-holder.field-checkbox .field {
-					width: 20px;
-				}
-				.field-holder.field-checkbox label {
-					width: auto !important;
-				}
-				/*
-				.field-holder.field-text label,
-				.field-holder.field-textarea label,
-				.field-holder.field-link label {
-					padding-top: 6px !important;
-					width: 30% !important;
-				}
-				.field-holder.field-text .field,
-				.field-holder.field-textarea .field {
-					width: 70% !important;
-				}
-			
-				.grid-two-thirds .field-holder.field-text label,
-				.grid-two-thirds .field-holder.field-textarea label {
-					width: 20% !important;
-				}
-				.grid-two-thirds .field-holder.field-text .field,
-				.grid-two-thirds .field-holder.field-textarea .field {
-					width: 80% !important;
-				}
-				*/
-				.field-holder.field-text .field input,
-				.field-holder.field-textarea .field textarea {
-					width: 100% !important;
-					padding: 4px !important;
-				}
-				.field-holder.field-textarea .field textarea {
-					min-height: 44px !important;
-				}
-				.field-holder.field-date .field input {
-					width: 100px !important;
-				}
-			
-			
-				.field-holder.field-tiny label,
-				.field-holder.field-tiny .field,
-				.field-holder.field-media label,
-				.field-holder.field-media .field {
-					width: 100% !important;
-					float: none !important;
-				}
-				.field-holder.field-textarea label,
-				.field-holder.field-media label {
-					margin-bottom: 5px;
-				}
-				.field-holder.field-media .field .rex-widget {
-					margin-bottom: 0 !important;
-				}
-				.field-holder.field-media .field select {
-					width: 227px !important;
-				}
-				
-				fieldset.form-horizontal {
-					padding: 15px;
-					background: #f7f7f7;
-				}
-				fieldset.form-horizontal + fieldset.form-horizontal{
-					margin-top: 30px;
-				}
-				fieldset.form-horizontal legend {
-					border: none;
-					position: relative;
-					top: -15px;
-					left: -15px;
-					margin-bottom: 0;
-				}
-
-				/*
-				fieldset.form-horizontal legend {
-					position: relative;
-					top: -11px;
-					margin-bottom: 0;
-				}
-				fieldset.form-horizontal + fieldset.form-horizontal legend {
-					top: -11px;
-				}
-				*/
-
-				fieldset .info {
-					clear: both;
-					padding-top: 0;
-					margin-top: -8px;
-					margin-bottom: 20px;
-					font-size: 11px;
-					font-style: italic;
-					width: auto !important;
-					float: none !important;
-				}
-				fieldset .info ol,
-				fieldset .info ul {
-					padding-left: 20px;
-				}
-
-				.flexed {
-					display: grid; grid-gap: 15px;
-				}
-				.flexed.col-2 {
-					grid-template-columns: 1.3fr 0.7fr;					
-				}
-				.flexed.col-3 {
-					grid-template-columns: 1fr 1fr 1fr;					
-				}
-				.flexed.col-4 {
-					grid-template-columns: 1fr 1fr 1fr 1fr;					
-				}
-				.flexed.data-table {
-					grid-template-columns: 1fr 1fr;					
-				}
-
-				
-				/* 
-				 *	margins 
-				*/
-				
-				.grid-margins .field-holder {
-					padding: 10px;
-				}
-				.margins {
-					margin: 0 auto;
-					width: 150px;
-					height: 150px;
-					position: relative;
-				}
-				
-				.margins .inner,
-				.margins .outer,
-				.field-margin {
-					position: absolute;
-				}
-				
-				.margins .inner,
-				.margins .outer {
-					top: 50%;
-					left: 50%;
-					transform: translate(-50%, -50%);
-				}
-				.margins .inner {
-					width: 40px;
-					height: 40px;
-					border-radius: 3px;
-					background: #f9fde9;
-					z-index: 2;
-					box-shadow: rgba(0,0,0,0.3) 0 1px 1px 0;
-					border-top: 1px solid white;
-				}
-				.margins .outer {
-					width: 80px;
-					height: 80px;
-					border-radius: 5px;
-					background: rgba(0,0,0,0.1);
-					border: 1px solid rgba(0,0,0,0.1);
-					box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.05) inset;
-				}
-				.field-margin {
-					z-index: 2;
-					text-align: center;
-				}
-				.field-margin input {
-					display: block !important;
-					margin: 0 auto;
-				}
-				.field-holder .field-margin label {
-					display: inline-block !important;
-					float: none !important;
-					width: auto !important;
-					padding-top: 0 !important;
-					width: auto !important;
-				}
-				.field-margin-top {
-					top: 0;
-					left: 50%;
-					transform: translateX(-50%);
-				}
-				.field-margin-right {
-					top: 50%;
-					right: -12px;
-					transform: translateY(-50%);
-				}
-				.field-margin-bottom {
-					bottom: -5px;
-					left: 50%;
-					transform: translateX(-50%);
-				}
-				.field-margin-left {
-					top: 50%;
-					left: -5px;
-					transform: translateY(-50%);
-				}
-				
-				
-
-			</style>';
 	}
 }
