@@ -104,23 +104,26 @@ class massif_img
 
 		$rex_media = rex_media::get($img);
 		if (!$rex_media) return;
+		$ext = $rex_media->getExtension();
+
+		if (!$rex_media->isImage()) {
+			if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
+				return massif_utils::parse('massif-vidstack', ['src' => $rex_media->getUrl(), 'title' => $rex_media->getTitle(), 'params' => 'playsinline muted autoplay', 'controls' => ['mute-button']]);
+			}
+		}
+
 		$media_width = $rex_media->getWidth();
 		$media_height = $rex_media->getHeight();
 		if ($params['width'] == -1) $params['width'] = $media_width;
 		if ($params['height'] == -1) $params['height'] = $media_height;
 
-		$ext = '';
-		if ($rex_media) {
 
-			$ext = $rex_media->getExtension();
+		if ($ext == 'json') {
+			return '<div class="lottie" data-json="' . $rex_media->getUrl() . '"></div>';
+		}
 
-			if ($ext == 'json') {
-				return '<div class="lottie" data-json="' . $rex_media->getUrl() . '"></div>';
-			}
-
-			if (!$params['alt']) {
-				$params['alt'] = self::getMeta($img);
-			}
+		if (!$params['alt']) {
+			$params['alt'] = self::getMeta($img);
 		}
 
 		if ($ext !== 'svg') {
@@ -278,7 +281,7 @@ class massif_img
 		if (isset($_params))
 			$params['images'] = (is_array($_params['images'])) ? $_params['images'] : array_filter(explode(',', $_params['images']));
 
-		return massif_utils::parse('massif-swiper', null, ['params' => $params]);
+		return massif_utils::parse('massif-swiper', ['params' => $params]);
 	}
 
 	/*
