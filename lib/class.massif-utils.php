@@ -14,7 +14,8 @@ class massif_utils
 
 	public static function getH1($title, $class = [])
 	{
-		$class[] = 'h1';
+		if (count($class) === 0)
+			$class[] = 'h1';
 		$hasH1 = rex::getProperty('has-h1');
 		rex::setProperty('has-h1', true);
 		$tag = $hasH1 ? 'h2' : 'h1';
