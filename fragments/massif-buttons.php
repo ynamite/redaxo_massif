@@ -5,11 +5,10 @@ $buttonSet = $this->getVar('buttonSet');
 
 <div class="flex gap-8 <?= $align ?>">
   <?php foreach ($buttonSet as $button) {
-    if ($button['style'] == 'grid') {
+    if ($button['style'] == 'simple') {
   ?>
-      <a href="<?= $button['url'] ?>" <?= $button['target'] ?> class="button button-grid">
+      <a href="<?= $button['url'] ?>" <?= $button['target'] ?> class="button rounded-full border-[1px] text-sm border-primary uppercase tracking-widest px-6 py-3">
         <?= $button['label'] ?>
-        <span class="more">Hier lang!</span>
       </a>
     <?php
     } else {
