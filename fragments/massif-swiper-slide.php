@@ -1,6 +1,6 @@
 <?php
-$idx = isset($this->params['idx']) ? $this->params['idx'] : 0;
-$content = $this->params['content'];
+$idx = $this->getVar('idx');
+$content = $this->getVar('content');
 ?>
 <div class="swiper-slide" <?php /*if ($idx == 0) echo ' data-swiper-autoplay="6000"'; */ ?>>
   <div class="swiper-slide-inner">
