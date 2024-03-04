@@ -166,8 +166,8 @@ if (\rex::isBackend() && \rex::getUser()) {
         if (\rex_addon::get('metainfo')) {
             $fields = $sql->getArray('SELECT name FROM `rex_metainfo_field` WHERE `type_id` = 6');
             $fields = \rex_extension::registerPoint(new \rex_extension_point('METAINFO_MEDIA_IS_IN_USE', $fields));
+            $messages = '';
             if (count($fields)) {
-                $messages = '';
                 foreach ($fields as $field) {
                     $items = $sql->getArray('SELECT `id`, `parent_id`, `name` FROM rex_article WHERE ' . $sql->escapeIdentifier($field['name']) . ' = ' . $escapedFilename);
                     if (count($items)) {
