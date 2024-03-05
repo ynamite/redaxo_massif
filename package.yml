@@ -4,5 +4,10 @@ author: Yves Torres
 supportpage: massif.ch
 
 page:
-    title: 'MASSIF'
-    perm: massif[]
+  title: 'MASSIF'
+  perm: massif[]
+  subpages:
+    converter:
+      title: 'MASSIF Redaxo 4 zu 5 Converter'
+      perm: massif_convert[]
+      icon: rex-icon fa-wrench
