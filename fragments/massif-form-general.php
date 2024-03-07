@@ -2,7 +2,7 @@
 
   $response = $this->params['response'];
 
-  $from = 'info@schilt-immobilien.ch';
+  $from = 'studio@massif.ch';
   $fromName = rex::getServerName() . ' ' . rex_category::getCurrent()->getName();
   $recipient = $from;
   $subject = $fromName . ' – Anfrage Webseite';
@@ -56,7 +56,7 @@
     $values = $yform->objparams['value_pool']['email'];
     $form_elements = $yform->objparams['form_elements'];
     $params = ['template' => $email_template, 'send_user_email' => $send_user_mail];
-    massif_utils::send_yform_email_template($from, $fromName, $recipient, $subject, $values, $form_elements, $params);
+    massif_form::send_yform_email_template($from, $fromName, $recipient, $subject, $values, $form_elements, $params);
   } else {
     //echo '<h3 class="h2 centered form-title">Wir freuen uns auf<br />Ihre Kontaktaufnahme!</h3>';
   }
