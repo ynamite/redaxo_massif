@@ -8,6 +8,8 @@ class massif_converter
     'rex_article_slice' => 'yconverter_rex_article_slice',
     'rex_media' => 'yconverter_rex_media',
     'rex_media_category' => 'yconverter_rex_media_category',
+    'rex_module' => 'yconverter_rex_module',
+
   ];
 
   public $columns = [
@@ -28,6 +30,28 @@ class massif_converter
     'rex_article_slice' => [
       'status' => 0,
       'revision' => 0,
+    ],
+    'rex_media' => [
+      'status' => 0,
+      'revision' => 0,
+      'category_id' => 0,
+      'parent_id' => 0,
+    ],
+    'rex_media_category' => [
+      'status' => 0,
+      'revision' => 0,
+      'category_id' => 0,
+      'parent_id' => 0,
+    ],
+    'rex_module' => [
+      'status' => 0,
+      'revision' => 0,
+      'category_id' => 0,
+      'parent_id' => 0,
+      'input' => '',
+      'output' => '',
+      'updateuser' => '',
+      'createuser' => '',
     ]
 
   ];
@@ -104,9 +128,16 @@ class massif_converter
     return $output;
   }
 
-  private function convertTables($tables = []): Bool
+  private function convertTables($tables = [], $deleteExisting = false): Bool
   {
     $sql = rex_sql::factory();
+    if ($deleteExisting) {
+      foreach ($tables as $table) {
+        $sql->setQuery('DELETE FROM `' . $table . '`');
+        // dump('DELETE FROM `' . $table . '`');
+      }
+    }
+
     foreach ($tables as $table) {
       $newRow = [];
       $newColumns = $this->getTableColumns($table);
@@ -135,20 +166,6 @@ class massif_converter
         $sql->setValues($newRow);
         $sql->insert();
       }
-
-      /*
-      foreach ($columns as $column) {
-        if (isset($newColumns[$column['Field']])) {
-          $newRow[$newColumns[$column['Field']]] = $column['Field'];
-        } else {
-          $newRow[$this->columns[$table]][$column['Field']] = $this->columns[$table];
-        }
-      
-
-        $sql->setTable($table);
-        $sql->setValues($newRow);
-        $sql->insert();
-        */
     }
     return true;
   }
@@ -171,16 +188,27 @@ class massif_converter
     return $this->convertTables($tables);
   }
 
+  private function convertModules(): Bool
+  {
+
+    $tables = [
+      'rex_module',
+    ];
+    return $this->convertTables($tables, true);
+  }
+
+
   public function convert(): Bool
   {
-    $convert = $this->convertArticles();
-    if (!$convert) {
-      return false;
-    }
-    // $convert = $this->convertMedia();
-    if (!$convert) {
-      return false;
-    }
+    // $this->convertArticles();
+    // if (!$convert) {
+    //   return false;
+    // }
+    // $this->convertMedia();
+    // if (!$convert) {
+    //   return false;
+    // }
+    // $this->convertModules();
     return true;
   }
 
