@@ -176,7 +176,7 @@ class massif_converter
     $tables = [
       'rex_article', 'rex_article_slice',
     ];
-    return $this->convertTables($tables);
+    return $this->convertTables($tables, true);
   }
 
   private function convertMedia(): Bool
@@ -185,7 +185,7 @@ class massif_converter
     $tables = [
       'rex_media', 'rex_media_category',
     ];
-    return $this->convertTables($tables);
+    return $this->convertTables($tables, true);
   }
 
   private function convertModules(): Bool
@@ -200,15 +200,15 @@ class massif_converter
 
   public function convert(): Bool
   {
-    // $this->convertArticles();
+    $this->convertArticles();
     // if (!$convert) {
     //   return false;
     // }
-    // $this->convertMedia();
+    $this->convertMedia();
     // if (!$convert) {
     //   return false;
     // }
-    // $this->convertModules();
+    $this->convertModules();
     return true;
   }
 
