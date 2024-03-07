@@ -62,7 +62,7 @@ class massif_form
 
 
 
-    $mailBody = sprogdown(\Ynamite\MassifSettings\Utils::replaceStrings(\massif_utils::parse($settings['template'], null, ['values' => $values, 'form_elements' => $form_elements])));
+    $mailBody = sprogdown(\Ynamite\MassifSettings\Utils::replaceStrings(\massif_utils::parse($settings['template'], ['values' => $values, 'form_elements' => $form_elements])));
 
     if ($settings['log'] && $settings['log_table']) {
 
@@ -103,7 +103,7 @@ class massif_form
 
     if ($settings['send_user_email'] && $values['email']) {
       $values['is_user'] = true;
-      $mailBody = sprogdown(\Ynamite\MassifSettings\Utils::replaceStrings(\massif_utils::parse($settings['template_user'], null, ['values' => $values, 'form_elements' => $form_elements])));
+      $mailBody = sprogdown(\Ynamite\MassifSettings\Utils::replaceStrings(\massif_utils::parse($settings['template_user'], ['values' => $values, 'form_elements' => $form_elements])));
       $template['user'] = $template['admin'];
       $template['user']['mail_reply_to'] = $settings['user_reply_to'];
       $template['user']['mail_reply_to_name'] = $fromName;
