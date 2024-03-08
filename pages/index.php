@@ -1,3 +1,4 @@
 <?php
 
-rex_be_controller::includeCurrentPageSubPath();
+$massif_be = new Ynamite\Massif_be\package($this);
+echo $massif_be->getPage();
