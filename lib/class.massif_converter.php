@@ -9,12 +9,14 @@ class massif_converter
     'rex_media' => 'yconverter_rex_media',
     'rex_media_category' => 'yconverter_rex_media_category',
     'rex_module' => 'yconverter_rex_module',
+    'rex_metainfo_field' => 'yconverter_rex_metainfo_field',
 
   ];
 
   public $columns = [
-    'rex_media' => ['file_id' => 'id', 'med_title_1' => 'med_title_2'],
     'rex_article' => ['seo_description' => 'yrewrite_description', 'art_description' => 'yrewrite_description'],
+    'rex_media' => ['file_id' => 'id', 'med_title_1' => 'med_title_2'],
+    'rex_metainfo_field' => ['med_title_1' => 'med_title_2'],
   ];
 
   public $columnsTypes = [
@@ -256,6 +258,14 @@ class massif_converter
     return $this->convertTables($tables, true);
   }
 
+  private function convertMetainfos(): Bool
+  {
+
+    $tables = [
+      'rex_metainfo_field',
+    ];
+    return $this->convertTables($tables, true);
+  }
 
   public function convert(): Bool
   {
@@ -268,6 +278,8 @@ class massif_converter
     //   return false;
     // }
     $this->convertModules();
+    $this->convertMetainfos();
+
     return true;
   }
 
