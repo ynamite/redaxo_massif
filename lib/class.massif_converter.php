@@ -10,6 +10,7 @@ class massif_converter
     'rex_media_category' => 'yconverter_rex_media_category',
     'rex_module' => 'yconverter_rex_module',
     'rex_metainfo_field' => 'yconverter_rex_metainfo_field',
+    'rex_sprog_wildcard' => 'yconverter_rex_b_1_opf_lang',
 
   ];
 
@@ -17,6 +18,7 @@ class massif_converter
     'rex_article' => ['seo_description' => 'yrewrite_description', 'art_description' => 'yrewrite_description'],
     'rex_media' => ['file_id' => 'id', 'med_title_1' => 'med_title_2'],
     'rex_metainfo_field' => ['med_title_1' => 'med_title_2'],
+    'rex_sprog_wildcard' => ['clang' => 'clang_id', 'replacement' => 'replace'],
   ];
 
   public $columnsTypes = [
@@ -100,7 +102,11 @@ class massif_converter
       'default' => '',
       'updateuser' => '',
       'createuser' => '',
-    ]
+    ],
+    'rex_sprog_wildcard' => [
+      'updateuser' => '',
+      'createuser' => '',
+    ],
 
   ];
 
@@ -197,7 +203,6 @@ class massif_converter
     if ($deleteExisting) {
       foreach ($tables as $table) {
         $sql->setQuery('DELETE FROM `' . $table . '`');
-        // dump('DELETE FROM `' . $table . '`');
       }
     }
 
@@ -209,6 +214,23 @@ class massif_converter
       $columnsChanged = [];
       foreach ($rows as $rowKey => $row) {
         foreach ($row as $key => $value) {
+          if ($table === 'rex_sprog_wildcard') {
+            if (in_array($key, ['clang', 'clang_id']))
+              $value = (int) $value + 1;
+            if ($key === 'wildcard') {
+              $value = str_replace('###', '', $value);
+            }
+          }
+          if ($table === 'rex_article_slice') {
+            if (str_contains($value, '###')) {
+              $value = str_replace('###', '', $value);
+            }
+          }
+          if ($table === 'rex_module' && $key === 'output') {
+            if (str_contains($value, '###')) {
+              $value = str_replace('###', '', $value);
+            }
+          }
           if (isset($newColumns[$key])) {
             $newRow[$key] = $value ? $value : (isset($this->nullValues[$table][$key]) ? $this->nullValues[$table][$key] : null);
             $this->setLog('insert', $table, $rowKey, $key, $key, $value,);
@@ -273,18 +295,27 @@ class massif_converter
     return $this->convertTables($tables);
   }
 
+  private function convertWildcards(): Bool
+  {
+
+    $tables = [
+      'rex_sprog_wildcard',
+    ];
+    return $this->convertTables($tables, true);
+  }
+
+
   public function convert(): Bool
   {
     $this->convertArticles();
-    // if (!$convert) {
-    //   return false;
-    // }
+
     $this->convertMedia();
-    // if (!$convert) {
-    //   return false;
-    // }
+
     $this->convertModules();
+
     $this->convertMetainfos();
+
+    $this->convertWildcards();
 
     return true;
   }
