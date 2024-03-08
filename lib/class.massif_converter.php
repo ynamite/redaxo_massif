@@ -94,6 +94,12 @@ class massif_converter
       'output' => '',
       'updateuser' => '',
       'createuser' => '',
+    ],
+    'rex_metainfo_field' => [
+      'attributes' => '',
+      'default' => '',
+      'updateuser' => '',
+      'createuser' => '',
     ]
 
   ];
@@ -264,7 +270,7 @@ class massif_converter
     $tables = [
       'rex_metainfo_field',
     ];
-    return $this->convertTables($tables, true);
+    return $this->convertTables($tables);
   }
 
   public function convert(): Bool
