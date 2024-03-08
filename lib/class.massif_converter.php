@@ -13,8 +13,48 @@ class massif_converter
   ];
 
   public $columns = [
-    'rex_media' => ['file_id' => 'id'],
-    'rex_article' => ['seo_description' => 'yrewrite_description'],
+    'rex_media' => ['file_id' => 'id', 'med_title_1' => 'med_title_2'],
+    'rex_article' => ['seo_description' => 'yrewrite_description', 'art_description' => 'yrewrite_description'],
+  ];
+
+  public $columnsTypes = [
+    'rex_article' => [
+      'catname' => 'varchar(255)',
+      'catpriority' => 'int(11)',
+      'startarticle' => 'int(11)',
+      'status' => 'int(11)',
+      'parent_id' => 'int(11)',
+      'yrewrite_description' => 'text',
+      'revision' => 'int(11)',
+    ],
+    'rex_article_slice' => [
+      'status' => 'int(11)',
+      'revision' => 'int(11)',
+    ],
+    'rex_media' => [
+      'status' => 'int(11)',
+      'revision' => 'int(11)',
+      'category_id' => 'int(11)',
+      'parent_id' => 'int(11)',
+      'med_title_2' => 'TEXT NULL',
+    ],
+    'rex_media_category' => [
+      'status' => 'int(11)',
+      'revision' => 'int(11)',
+      'category_id' => 'int(11)',
+      'parent_id' => 'int(11)',
+    ],
+    'rex_module' => [
+      'status' => 'int(11)',
+      'revision' => 'int(11)',
+      'category_id' => 'int(11)',
+      'parent_id' => 'int(11)',
+      'input' => 'text',
+      'output' => 'text',
+      'updateuser' => 'varchar(255)',
+      'createuser' => 'varchar(255)',
+    ]
+
   ];
 
   public $nullValues = [
@@ -77,17 +117,26 @@ class massif_converter
 
   private function setLog($action, $table, $rowKey, $oldKey = null, $newKey = null, $value = null)
   {
-    if ($action == 'row') {
-      $this->log[$table][$rowKey][] = [
-        'action' => $action,
-      ];
-    } else {
-      $this->log[$table][$rowKey][] = [
-        'action' => $action,
-        'oldKey' => $oldKey,
-        'newKey' => $newKey,
-        'value' => $value,
-      ];
+    switch ($action) {
+      case 'alter':
+        $this->log[$table][$rowKey][] = [
+          'action' => $action,
+          'oldKey' => $oldKey,
+          'newKey' => $newKey,
+        ];
+        break;
+      case 'row':
+        $this->log[$table][$rowKey][] = [
+          'action' => $action,
+        ];
+        break;
+      default:
+        $this->log[$table][$rowKey][] = [
+          'action' => $action,
+          'oldKey' => $oldKey,
+          'newKey' => $newKey,
+          'value' => $value,
+        ];
     }
   }
 
@@ -101,6 +150,7 @@ class massif_converter
     $output = '<pre>';
     foreach ($this->log as $table => $rows) {
       $output .= '<h2>' . $table . '</h2>';
+      $colsAdded = 0;
       $rowsChanged = 0;
       $rowsInserted = 0;
       foreach ($rows as $row) {
@@ -109,9 +159,13 @@ class massif_converter
             if ($column['action'] == 'row') {
               $output .= '<hr>';
             } else {
-              if ($column['oldKey'] == $column['newKey']) {
+              if ($column['action'] == 'alter') {
+                $colsAdded++;
+                $output .= $htmlAction[$column['action']] . ' `' . $column['oldKey'] . '` => `' . $column['newKey'] . '`<br>';
+              } else if ($column['oldKey'] == $column['newKey']) {
                 $output .= $htmlAction[$column['action']] . ' `' . $column['oldKey'] . '` "' . $column['value'] . '"<br>';
               } else {
+                $rowsChanged++;
                 $output .= $htmlAction[$column['action']] . ' `' . $column['oldKey'] . '` => `' . $column['newKey'] . '` with value "' . $column['value'] . '"<br>';
               }
             }
@@ -121,6 +175,7 @@ class massif_converter
         }
         $rowsInserted++;
       }
+      $output .= '<span style="color: orange;">' . $colsAdded . ' columns added</span><br>';
       $output .= '<span style="color: orange;">' . $rowsChanged . ' columns changed</span><br>';
       $output .= '<span style="color: green;">' . $rowsInserted . ' datasets inserted</span><br>';
     }
@@ -152,6 +207,10 @@ class massif_converter
           } else {
             if (isset($this->columns[$table][$key])) {
               $newkey = $this->columns[$table][$key];
+              if (!isset($newColumns[$newkey])) {
+                $sql->setQuery('ALTER TABLE `' . $table . '` ADD `' . $newkey . '` ' . $this->columnsTypes[$table][$newkey]);
+                $this->setLog('alter', $table, $rowKey, $key, $newkey);
+              }
               $columnsChanged[$key] = $newkey;
               $newRow[$newkey] = $value ? $value : (isset($this->nullValues[$table][$newkey]) ? $this->nullValues[$table][$newkey] : null);
               if (!isset($columnsChanged[$key]))
