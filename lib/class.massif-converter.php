@@ -283,6 +283,7 @@ class massif_converter
     $tables = [
       'rex_module',
     ];
+    rex_dir::delete(rex_path::base('src/modules'), false);
     return $this->convertTables($tables, true);
   }
 
@@ -313,9 +314,9 @@ class massif_converter
 
     $this->convertModules();
 
-    $this->convertMetainfos();
+    // $this->convertMetainfos();
 
-    $this->convertWildcards();
+    // $this->convertWildcards();
 
     return true;
   }
