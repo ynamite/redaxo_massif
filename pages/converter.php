@@ -12,8 +12,6 @@ if ($convert) {
   $content .= $massif_converter->getLogOutput();
 }
 
-echo rex_view::title($this->getProperty('page')['title'], 'Untertitel');
-
 $fragment = new rex_fragment();
 $fragment->setVar('body', $content, false);
 echo $fragment->parse('core/page/section.php');

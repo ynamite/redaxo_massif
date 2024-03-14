@@ -60,6 +60,15 @@ class package
       }
     }
 
+
+    $contextOptions = [
+      'page' => rex_be_controller::getCurrentPage(),
+      'clang' => $this->clangId,
+      'func' => rex_request('func', 'string', ''),
+      'data_id' => rex_request('data_id', 'int', 0),
+      'tableName' => rex_request('tableName', 'string', '')
+    ];
+
     if ($this->customPagePath) {
       $this->customPage = true;
       $this->subpage = rex_be_controller::getCurrentPageObject();
@@ -70,21 +79,14 @@ class package
       $_csrf_key = $this->yformTable->getCSRFKey();
       $token = rex_csrf_token::factory($_csrf_key)->getUrlParams();
 
-      $this->context = new rex_context([
-        'page' => rex_be_controller::getCurrentPage(),
-        'clang' => $this->clangId,
-        'func' => rex_request('func', 'string', ''),
-        'data_id' => rex_request('data_id', 'int', 0),
-        'tableName' => rex_request('tableName', 'string', ''),
-        array_key_first($token) => array_shift($token)
-      ]);
+      $contextOptions[array_key_first($token)] = array_shift($token);
 
       if ($this->filterKey && $this->filterValue) {
         $_REQUEST['rex_yform_filter'][$this->filterKey] = $this->filterValue;
       }
-
       $this->registerExtensionPoints();
     }
+    $this->context = new rex_context($contextOptions);
   }
 
   protected function registerExtensionPoints()

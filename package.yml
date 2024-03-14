@@ -11,6 +11,7 @@ page:
             title: 'MASSIF Redaxo 4 zu 5 Converter'
             perm: massif_convert[]
             icon: rex-icon fa-wrench
+            customPage: true
         template:
             title: 'Template'
             icon: rex-icon fa-newspaper
