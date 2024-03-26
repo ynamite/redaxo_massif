@@ -1,15 +1,16 @@
 <?php
 $category = $this->getVar('category', null);
+$ctx = $this->getVar('ctx', null);
 
 if (!$category) {
   $pathRoute = massif_utils::getPathRoute();
   if (count($pathRoute) < 2) {
-    $category = rex_category::get($this->getValue('category_id'));
+    $category = rex_category::getCurrent();
     if (!$category) {
-      $category = rex_article::get($this->getValue('article_id'));
+      $category = rex_article::getCurrent();
     }
-  } else {
-    echo $this->getArticle();
+  } else if ($ctx) {
+    echo $ctx->getArticle();
   }
 }
 if ($category) {
