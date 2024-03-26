@@ -178,7 +178,8 @@ class massif_img
 					$image .= 'decoding="async" ';
 					$image .= 'data-srcset="' . $srcset . '" ';
 				} else {
-					$image .= 'srcset="' . $srcset . '" ';
+					if (rex::isFrontend())
+						$image .= 'srcset="' . $srcset . '" ';
 					$image .= 'fetchpriority="high" ';
 				}
 				$image .= 'src="' . self::getPath($img, $lipSize, $params['type']) . '" ';
