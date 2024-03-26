@@ -38,6 +38,23 @@ if (\rex::isBackend() && \rex::getUser() && \rex_plugin::get('yform', 'manager')
 
     \rex_extension::register("YFORM_DATA_LIST", [massif_usability::class, 'ep_yform_data_list']);
 
+    // hide yform from non-admins
+
+    if (!rex::getUser()->isAdmin()) {
+        rex_extension::register('PAGES_PREPARED', function ($ep) {
+            $pages = $ep->getSubject();
+            foreach ($pages as $index => $page) {
+                if ($page instanceof \rex_be_page_main) {
+                    if ($page->getKey() == 'yform') {
+                        $page->setHidden(true);
+                    }
+                }
+            }
+            $pages = $pages;
+            $ep->setSubject($pages);
+        });
+    }
+
     // yform tables before addons
 
     \rex_extension::register('PAGES_PREPARED', function (\rex_extension_point $ep) {
