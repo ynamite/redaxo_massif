@@ -20,7 +20,6 @@
   $yform->setObjectparams('form_wrap_id', $form_name . '_wrap');
   $yform->setObjectparams('form_name', $form_name);
   $yform->setObjectparams('form_class', 'rex-yform rex-yform-' . $form_name);
-  $yform->setObjectparams('form_ytemplate', 'massif');
   $yform->setObjectparams('form_action', $url);
 
   $yform->setValueField('textarea', ["message", "Nachricht", '', '0', ["rows" => 5]]);

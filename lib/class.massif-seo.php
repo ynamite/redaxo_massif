@@ -59,7 +59,35 @@ class massif_seo
 			// }
 			$tagsHtml = implode("\n", $tags);
 		} else {
+
+			\rex_extension::register('URL_SEO_TAGS', function (\rex_extension_point $ep) use ($manager) {
+				$tags = $ep->getSubject();
+
+				$titleValues = [];
+				$article = rex_article::get($manager->getArticleId());
+				$title = strip_tags($tags['title']);
+
+				if ($manager->getSeoTitle()) {
+					$titleValues[] = $manager->getSeoTitle();
+				}
+				if ($article) {
+					$domain = rex_yrewrite::getDomainByArticleId($article->getId());
+					$title = $domain->getTitle();
+					$titleValues[] = $article->getName();
+				}
+				if (count($titleValues)) {
+					$title = rex_escape(str_replace('%T', implode(' / ', $titleValues), $title));
+				}
+				if ('' !== rex::getServerName()) {
+					$title = rex_escape(str_replace('%SN', rex::getServerName(), $title));
+				}
+
+				$tags['title'] = sprintf('<title>%s</title>', $title);
+				$ep->setSubject($tags);
+			});
+
 			$tagsHtml = $seo->getTags();
+
 			$description = self::normalize($manager->getSeoDescription());
 		}
 

@@ -12,6 +12,31 @@ class massif_utils
 	private static $totalCols = 0;
 	public static $maxCols = 12;
 
+	public static function checkIsOnline($urlManagerData)
+	{
+		$isOnline = false;
+		$dataset = rex_yform_manager_dataset::get($urlManagerData['id'], $urlManagerData['table-name']);
+		if ($dataset) {
+			$isOnline = (int)$dataset->getValue('status') === 1;
+			if ($dataset->hasValue('date_show_start')) {
+				if ($dataset->getValue('date_show_start') !== '0000-00-00 00:00:00' && strtotime($dataset->getValue('date_show_start')) >= time()) {
+					$isOnline = false;
+				}
+			}
+			if ($dataset->hasValue('date_show_end')) {
+				if ($dataset->getValue('date_show_end') !== '0000-00-00 00:00:00' && strtotime($dataset->getValue('date_show_end')) <= time()) {
+					$isOnline = false;
+				}
+			}
+		}
+		if (!$isOnline) {
+			$dataset->setValue('status', 0);
+			$dataset->save();
+			rex_response::sendRedirect(rex_getUrl(rex_article::getNotfoundArticleId()), rex_response::HTTP_MOVED_TEMPORARILY);
+			exit();
+		}
+	}
+
 	public static function getH1($title, $class = [])
 	{
 		if (count($class) === 0)

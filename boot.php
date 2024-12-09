@@ -11,14 +11,21 @@ if (rex::isBackend() && rex::getUser()) {
 }
 
 \rex_fragment::addDirectory(\rex_path::src('fragments'));
-if (\rex_addon::get('yform')->isAvailable()) {
-    \rex_yform::addTemplatePath(\rex_path::src('ytemplates'));
-}
+
 if (rex_addon::get('media_manager')->isAvailable()) {
     rex_media_manager::addEffect(\rex_effect_auto::class);
     rex_extension::register('MEDIA_MANAGER_FILTERSET', '\rex_effect_auto::handle', rex_extension::EARLY);
 }
 
+rex_extension::register('PACKAGES_INCLUDED', function (rex_extension_point $ep) {
+    if (
+        \rex_addon::exists('yform') &&
+        \rex_addon::get('yform')->isAvailable() &&
+        \rex_plugin::get('yform', 'manager')->isAvailable()
+    ) {
+        \rex_yform::addTemplatePath($this->getPath('ytemplates'));
+    }
+});
 
 if (\rex::isBackend() && \rex::getUser() && \rex_plugin::get('yform', 'manager')) {
 

@@ -1,7 +1,7 @@
 <?php
 
-$values = $this->params['values'];
-$form_elements = $this->params['form_elements'];
+$values = $this->getVar('values');
+$form_elements = $this->getVar('form_elements');
 
 $styleLabel = 'vertical-align:top; width: 260px; padding-right: 8px;';
 $styleTable = 'font-size: 1rem; vertical-align:top;';
