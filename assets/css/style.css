@@ -1,7 +1,3 @@
-:root {
-  --clr-massif: #ff269e;
-}
-
 body.rex-theme-light .rex-main-frame {
   background-color: #b39da0;
 }
@@ -12,9 +8,8 @@ body.rex-theme-light .rex-nav-top,
 .nav-pills > li.active > a,
 .nav-pills > li.active > a:hover,
 .nav-pills > li.active > a:focus {
-  background: var(--clr-massif) !important;
+  background: #ff269e !important;
 }
-
 .nav-pills > li.active > a,
 .nav-pills > li > a:hover,
 .nav-pills > li > a:focus {
@@ -80,24 +75,9 @@ div.mce-fullscreen {
   display: block !important;
 }
 
-.massif-preview:not(.rex-js-widget-imglist) {
-  display: flex;
-  .input-group {
-    flex: 1;
-  }
-  .thumbnail {
-    position: relative;
-    z-index: 3;
-    margin: 0;
-    margin: 0;
-    transition: transform 0.3s;
-    &:hover {
-      transform: scale(3);
-    }
-  }
+.thumbnail {
+  margin: 0;
 }
-/* 
-
 .mform .thumbnail,
 .yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail,
 #rex-page-sidebar-metainfo .thumbnail {
@@ -110,11 +90,30 @@ div.mce-fullscreen {
 .yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail:hover,
 #rex-page-sidebar-metainfo .thumbnail:hover {
   transform: scale(3);
-} */
-
-#data_edit-rex_yf_team .formbe_table tbody tr td[data-title="Jahr"] {
-  width: 14rem;
 }
-#data_edit-rex_yf_team .formbe_table textarea {
-  height: 5rem;
+
+.grid {
+  display: grid;
+  gap: 15px;
+  margin-top: 15px;
+  h1,
+  h2,
+  h3,
+  .grid {
+    margin-top: 0;
+  }
+}
+
+ul.grid,
+ol.grid {
+  padding: 0;
+  list-style: none;
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.img-cell {
+  max-width: 320px;
 }
