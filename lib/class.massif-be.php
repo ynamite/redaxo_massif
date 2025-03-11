@@ -152,6 +152,10 @@ class package
       $out .= rex_type::string(ob_get_clean());
     } elseif ($this->tableName) {
       $out .=  self::getYformTable($this->yformTable, [], [], ['clang_id' => $this->clangId]);
+    } else {
+      ob_start();
+      $this->package->includeFile($this->package->getPath() . 'pages/default.php', $this->context->getParams());
+      $out .= rex_type::string(ob_get_clean());
     }
     $out .= '</div>';
     $out .= $this->addCssAndJs();
