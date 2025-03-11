@@ -2,10 +2,6 @@
 
 class rex_api_massif_usability extends rex_api_function
 {
-    protected $response  = [];
-    protected $published = true;
-    protected $success   = true;
-
     public function execute()
     {
 
@@ -20,10 +16,10 @@ class rex_api_massif_usability extends rex_api_function
         } catch (ErrorException $ex) {
             throw new rex_api_exception($ex->getMessage());
         }
-        $this->response['method'] = strtolower($method);
-        rex_response::setStatus(200);
-        rex_response::sendJson($response);
-
+        // rex_response::setStatus(200);
+        // rex_response::sendJson($response);
+        $result = new rex_api_result(true, $response);
+        exit($result->toJSON());
         //return new rex_api_result($this->success, $this->response);
     }
 
@@ -46,7 +42,7 @@ class rex_api_massif_usability extends rex_api_function
             rex_file::delete(rex_path::addonCache('url', 'pathlist.php'));
         }
 
-        $this->response['element'] = massif_usability::getStatusColumn($status, $data_id, $table);
+        return ['element' => massif_usability::getStatusColumn($status, $data_id, $table)];
     }
 
     private function __duplicate()
