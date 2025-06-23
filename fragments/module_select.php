@@ -5,11 +5,11 @@
  * @psalm-scope-this rex_fragment
  */
 
-$MODULE_CATEGORIES = [
-    '* 00' => 'oft benutzte Module',
-    '* 50' => 'Module für einmalige Verwendung pro Seite',
-    '* 70' => 'Dynamische Module',
-    '* 99' => 'Hilfs-Module'
+$moduleCategories = [
+    ['id' => 0, 'name' => 'oft benutzte Module'],
+    ['id' => 60, 'name' => 'Module für einmalige Verwendung pro Seite'],
+    ['id' => 70, 'name' => 'dynamische Module'],
+    ['id' => 90, 'name' => 'Hilfs-Module']
 ];
 
 /**
@@ -28,47 +28,39 @@ $MODULE_CATEGORIES = [
  */
 
 $items = $this->getVar("items");
-
-$moduleCategories = $MODULE_CATEGORIES;
+$newItems = [];
 
 $lastCatWritten = '';
 $catIdx = 0;
 
-foreach ($items as $idx => $item) {
-    $first2Digits = substr($item['title'], 0, 4);
-    $nothingFound = true;
+foreach ($moduleCategories as $catIdx => $cat) {
+    $identifier = $cat['id'];
+    $nextIdentifier = isset($moduleCategories[$catIdx + 1]) ? $moduleCategories[$catIdx + 1]['id'] : PHP_INT_MAX;
 
-    foreach ($moduleCategories as $catIdentifier => $cat) {
-        if ($first2Digits == $catIdentifier && $cat != $lastCatWritten) {
-            $nothingFound = false;
-
-            if ($lastCatWritten != "") {
-                $items = array_merge(
-                    array_slice($items, 0, $idx + $catIdx),
-                    array(['divider' => true]),
-                    array(['header' => $cat]),
-                    array_slice($items, $idx + $catIdx)
-                );
-                $catIdx += 2;
-            } else {
-                $items = array_merge(
-                    array_slice($items, 0, $idx + $catIdx),
-                    array(['header' => $cat]),
-                    array_slice($items, $idx + $catIdx)
-                );
-                $catIdx += 1;
-            }
-
-            $lastCatWritten = $cat;
+    foreach ($items as $idx => $item) {
+        if (!isset($item['title']) || !isset($item['id'])) {
+            continue;
         }
-    }
-
-    if ($nothingFound) {
-        // TODO
+        $numericalValue = (int)str_replace('* ', '', substr($item['title'], 0, 4));
+        if ($numericalValue >= $identifier && $numericalValue < $nextIdentifier) {
+            if ($lastCatWritten != $cat) {
+                $newItems[] = ['header' => $cat['name']];
+                $lastCatWritten = $cat;
+            } else {
+                $newItems[] = ['divider' => true];
+            }
+            $newItems[] = $item;
+        }
     }
 }
 
-$this->setVar("items", $items, false);
+foreach ($newItems as $idx => &$item) {
+    if (isset($item['title'])) {
+        $item['title'] = '– ' . substr($item['title'], 6);
+    }
+}
+
+$this->setVar("items", $newItems, false);
 
 //print_r($items);
 //die();
