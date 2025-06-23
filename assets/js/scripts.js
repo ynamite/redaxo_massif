@@ -32,6 +32,13 @@ var massifUsability = (function ($) {
     };
 
     $("input.minicolors-massif").minicolors(settings);
+
+    $("[data-copy-to-clipboard]").on("click", function (e) {
+      e.preventDefault();
+      var $this = $(this);
+      var text = $this.data("copy-to-clipboard");
+      copyToClipboard(text);
+    });
   });
 
   $(document).on("shown.bs.tab", function () {
@@ -282,5 +289,43 @@ var massifUsability = (function ($) {
             }
         }*/,
     });
+  }
+
+  async function copyToClipboard(text) {
+    // Secure-context & modern API available?
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("✅ Copied to clipboard!");
+      } catch (err) {
+        alert("❌ Clipboard write failed:", err);
+      }
+    } else {
+      // fallback for non-HTTPS or older browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      // avoid scrolling to bottom
+      textarea.style.position = "fixed";
+      textarea.style.top = 0;
+      textarea.style.left = 0;
+      textarea.style.width = "1px";
+      textarea.style.height = "1px";
+      textarea.style.padding = 0;
+      textarea.style.border = "none";
+      textarea.style.outline = "none";
+      textarea.style.boxShadow = "none";
+      textarea.style.background = "transparent";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+
+      try {
+        document.execCommand("copy");
+        alert("✅ Fallback copy succeeded");
+      } catch (err) {
+        alert("❌ Fallback copy failed:", err);
+      }
+      document.body.removeChild(textarea);
+    }
   }
 })(jQuery);
