@@ -1,6 +1,8 @@
 <?php
 
-class massif_usability
+namespace Ynamite\Massif;
+
+class Usability
 {
 
   public static $customToggles = [];
