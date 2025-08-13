@@ -7,6 +7,7 @@ class rex_effect_auto extends rex_effect_abstract
 {
   const SEPARATOR = '__w';
   protected static $sizes = [40, 272, 371, 480, 569, 767, 1163, 1559, 1999, 2499];
+  protected static string|null $allowedReferer = null;
   public static $ratioCrop = 4 / 3;
 
   public function execute()
@@ -59,7 +60,29 @@ class rex_effect_auto extends rex_effect_abstract
       return $ep->setSubject($effects);
     }
     if (!in_array($width, self::$sizes)) {
-      exit();
+      if (self::$allowedReferer === null) {
+        \rex_yrewrite::init();
+        self::$allowedReferer = \rex_yrewrite::getCurrentDomain()->getUrl();
+      }
+      $isInferSize = rex_get('inferSize', 'bool', false);
+      if (!$isInferSize) {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? $_SERVER['HTTP_REFERER'] ?? '';
+        if (empty($origin)) {
+          rex_logger::factory()->log(
+            'debug',
+            'rex_effect_auto: Invalid request: no origin or referer found.'
+          );
+          exit();
+        }
+
+        if (self::$allowedReferer !== $origin) {
+          rex_logger::factory()->log(
+            'debug',
+            'rex_effect_auto: Invalid width requested: domain: ' . $origin . ' allowed: ' . self::$allowedReferer
+          );
+          exit();
+        }
+      }
     }
     if (count($effects) < 1) {
       $effects = rex_media_manager::create('auto', $filename)->effectsFromType('auto');
