@@ -2,8 +2,6 @@
 
 namespace Ynamite\Massif;
 
-use Ynamite\Massif\Usability;
-
 use rex;
 use rex_addon;
 use rex_addon_interface;
@@ -22,6 +20,8 @@ use rex_view;
 use rex_yform;
 use rex_yform_manager_field;
 use rex_yform_manager_table;
+
+use Ynamite\Massif\Usability;
 
 /**
  * MASSIF stuff
