@@ -1,6 +1,6 @@
 <?php
 
-namespace Ynamite\Massif_be;
+namespace Ynamite\Massif;
 
 use rex_addon;
 use rex_be_controller;
@@ -14,7 +14,7 @@ use rex_extension;
 use rex_csrf_token;
 use rex_type;
 
-class package
+class Package
 {
 
   public $clangId;

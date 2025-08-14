@@ -1,4 +1,7 @@
 <?php
+
+use Ynamite\Massif\Utils as massif_utils;
+
 $category = $this->getVar('category', null);
 $instance = $this->getVar('this', null);
 

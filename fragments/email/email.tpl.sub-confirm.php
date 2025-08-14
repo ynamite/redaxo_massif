@@ -1,4 +1,7 @@
 <?php
+
+use Ynamite\Massif\Utils as massif_utils;
+
 $mjml = false;
 
 $values = $this->getVar('values');

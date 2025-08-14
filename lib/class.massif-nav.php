@@ -1,6 +1,17 @@
 <?php
 
-class massif_nav
+namespace Ynamite\Massif;
+
+use rex;
+use rex_article;
+use rex_article_slice;
+use rex_category;
+use rex_clang;
+use rex_factory_trait;
+use rex_sql;
+use rex_string;
+
+class Nav
 {
 
     use rex_factory_trait;
@@ -436,7 +447,7 @@ class massif_nav
         }
         //$out = '<ul class="'.$options['navClass'].'-list">' . $out . '</ul>';
         if ($options['showDescription'])
-            $out = '<div class="lang-label flag-' . rex_clang::getCurrent()->getValue('code') . ' lang-' . rex_clang::getCurrentId() . '">' . $options['description'] . ' <span class="fa fa-angle-right"></span></div>' . $out;
+            $out = '<div class="lang-label flag-' . rex_clang::getCurrent()->getValue('code') . ' lang-' . rex_clang::getCurrentId() . '">' . $options['description'] . ' <span class="fa-angle-right fa"></span></div>' . $out;
 
         if (!$options['nowrap'])
             return '<div class="' . $options['navClass'] . '" id="lang-nav">' . $out . '</div>';
@@ -509,82 +520,6 @@ class massif_nav
         }
         $out .= '</nav>';
 
-        return $out;
-    }
-
-
-    /*
-	*	create breadcrum from path
-	*/
-
-    public static function breadCrumb()
-    {
-        global $REX;
-
-        $paths = explode("|", $REX['ARTICLE']->getValue("path") . $REX['ARTICLE']->getValue("article_id") . "|");
-        $current = $REX['ARTICLE']->getValue("article_id");
-        $out = '';
-        foreach ($paths as $crumb) {
-            if ($crumb) {
-                $article = OOArticle::getArticleById($crumb);
-                $name = $article->getValue("name");
-                $link = '<a href="' . rex_getUrl($crumb) . '" title="' . $name . '"';
-                if ($crumb == $current)
-                    $link .= ' class="active"';
-                $link .= '>' . $name . '</a>';
-                $out .= ($out != '') ? ' &raquo; ' . $link : $link;
-            }
-        }
-        return $out;
-    }
-
-
-    /*
-	*	create custom sitemap
-	*/
-
-    public static function sitemap()
-    {
-
-        $icon = '<span class="icon icon-Next"></span>';
-        $out .= '<ul class="level-1">';
-
-        $cats = rex_category::getRootCategories(1);
-        $arts = rex_article::getRootArticles(1);
-
-        $cats = array_merge($cats, $arts);
-
-        foreach ($cats as $mainLevel) {
-
-            unset($key);
-            unset($data);
-
-            $out .= '<li>';
-            $out .= '<a href="' . rex_getUrl($mainLevel->getId()) . '" title="' . $mainLevel->getName() . '"><span class="inner">' . $mainLevel->getName() . $icon . '</span></a>';
-            if ($mainLevel->getId() == 2) {
-                $key = 'obj';
-            } elseif ($mainLevel->getId() == 3) {
-                $key = 'ref';
-            }
-
-            if ($key)
-                $data = massif_immo::getData($key);
-
-            if ($data) {
-                $out .= '<ul class="level-2">';
-                foreach ($data as $obj) {
-                    $title = $obj->title . ' in ' . $obj->zip . ' ' . $obj->city;
-                    $out .= '<li>';
-                    $out .= '<a href="' . rex_getUrl('', '', [$key => $obj->id]) . '" title="' . $title . '"><span class="inner">' . $title . $icon . '</span></a>';
-                    $out .= '</li>';
-                }
-                $out .= '</ul>';
-            }
-
-            $out .= '</li>';
-        }
-
-        $out .= '</ul>';
         return $out;
     }
 }

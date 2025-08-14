@@ -2,6 +2,9 @@
 
 namespace Ynamite\Massif;
 
+use rex_fragment;
+use rex_i18n;
+
 class Usability
 {
 
@@ -150,7 +153,7 @@ class Usability
     foreach (self::$customToggles as $_table => $toggle) {
       if ($table == $_table) {
         foreach ($toggle as $name => $settings) {
-          $list = massif_usability::addCustomToggle($name, $list, $_table);
+          $list = Usability::addCustomToggle($name, $list, $_table);
         }
       }
     }

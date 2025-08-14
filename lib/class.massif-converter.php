@@ -1,6 +1,13 @@
 <?php
 
-class massif_converter
+namespace Ynamite\Massif;
+
+use rex_dir;
+use rex_path;
+use rex_sql;
+
+
+class Converter
 {
 
   public $tables = [
@@ -113,9 +120,7 @@ class massif_converter
   private $log = [];
   private $logOutput = '';
 
-  public function __construct()
-  {
-  }
+  public function __construct() {}
 
   private function getTableColumns($table): array
   {
@@ -263,7 +268,8 @@ class massif_converter
   {
 
     $tables = [
-      'rex_article', 'rex_article_slice',
+      'rex_article',
+      'rex_article_slice',
     ];
     return $this->convertTables($tables, true);
   }
@@ -272,7 +278,8 @@ class massif_converter
   {
 
     $tables = [
-      'rex_media', 'rex_media_category',
+      'rex_media',
+      'rex_media_category',
     ];
     return $this->convertTables($tables, true);
   }

@@ -1,8 +1,16 @@
 <?php
 
+namespace Ynamite\Massif;
 
+use rex;
+use rex_article;
+use rex_extension;
+use rex_extension_point;
+use rex_media;
+use rex_path;
+use rex_yrewrite;
 
-class massif_seo
+class Seo
 {
 
 	public static function getTags()
@@ -16,7 +24,7 @@ class massif_seo
 		$image = 'fb-share.png';
 		$imgSize = @getimagesize(rex_path::frontend() . $image);
 		$logo = rex_yrewrite::getFullPath() . $image;
-		$rewriter_seo = new rex_massif_yrewrite_seo();
+		$rewriter_seo = new YrewriteSeo();
 
 
 		$tags = [];

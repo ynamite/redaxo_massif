@@ -8,7 +8,14 @@
  * @package redaxo\yrewrite
  */
 
-class rex_massif_yrewrite_seo extends rex_yrewrite_seo
+namespace Ynamite\Massif;
+
+use rex_extension;
+use rex_extension_point;
+use rex_yrewrite;
+use rex_yrewrite_seo;
+
+class YrewriteSeo extends rex_yrewrite_seo
 {
   public function __construct($article_id = 0, $clang = null)
   {

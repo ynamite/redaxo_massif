@@ -1,5 +1,7 @@
 <?php
 
+use Ynamite\Massif\Utils as massif_utils;
+
 $values = $this->getVar('values');
 $form_elements = $this->getVar('form_elements');
 

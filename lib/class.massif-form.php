@@ -1,6 +1,15 @@
 <?php
 
-class massif_form
+namespace Ynamite\Massif;
+
+use rex;
+use rex_sql;
+use rex_var_dumper;
+use rex_yform_email_template;
+use Ynamite\Massif\Utils as massif_utils;
+use Ynamite\MassifSettings\Utils as settings_utils;
+
+class Form
 {
 
   /*
@@ -62,7 +71,7 @@ class massif_form
 
 
 
-    $mailBody = sprogdown(\Ynamite\MassifSettings\Utils::replaceStrings(\massif_utils::parse($settings['template'], ['values' => $values, 'form_elements' => $form_elements])));
+    $mailBody = sprogdown(settings_utils::replaceStrings(massif_utils::parse($settings['template'], ['values' => $values, 'form_elements' => $form_elements])));
 
     if ($settings['log'] && $settings['log_table']) {
 
@@ -103,7 +112,7 @@ class massif_form
 
     if ($settings['send_user_email'] && $values['email']) {
       $values['is_user'] = true;
-      $mailBody = sprogdown(\Ynamite\MassifSettings\Utils::replaceStrings(\massif_utils::parse($settings['template_user'], ['values' => $values, 'form_elements' => $form_elements])));
+      $mailBody = sprogdown(settings_utils::replaceStrings(massif_utils::parse($settings['template_user'], ['values' => $values, 'form_elements' => $form_elements])));
       $template['user'] = $template['admin'];
       $template['user']['mail_reply_to'] = $settings['user_reply_to'];
       $template['user']['mail_reply_to_name'] = $fromName;
@@ -115,9 +124,9 @@ class massif_form
 
     foreach ($template as $tpl) {
 
-      if (!\rex_yform_email_template::sendMail($tpl, $tpl['name'])) {
-        \rex_var_dumper::dump('E-Mail konnte nicht gesendet werden.');
-        \rex_var_dumper::dump($tpl);
+      if (!rex_yform_email_template::sendMail($tpl, $tpl['name'])) {
+        rex_var_dumper::dump('E-Mail konnte nicht gesendet werden.');
+        rex_var_dumper::dump($tpl);
       }
     }
     return true;

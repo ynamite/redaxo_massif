@@ -1,6 +1,30 @@
 <?php
 
-class massif_utils
+namespace Ynamite\Massif;
+
+use Exception;
+use hyphenator;
+use IntlDateFormatter;
+use NumberFormatter;
+
+use rex;
+use rex_article;
+use rex_article_slice;
+use rex_clang;
+use rex_dir;
+use rex_file;
+use rex_fragment;
+use rex_media;
+use rex_path;
+use rex_response;
+use rex_sql;
+use rex_url;
+use rex_var;
+use rex_yform_manager_dataset;
+use Url;
+use ZipArchive;
+
+class Utils
 {
 
 	public static $pager;
@@ -141,7 +165,7 @@ class massif_utils
 		$sql->setQuery('SELECT value1 as name FROM rex_article_slice WHERE module_id = 80 AND article_id = ' . rex_article::getCurrentId() . ' ORDER BY priority');
 		if ($sql->getRows()) {
 			$result = $sql->getArray();
-			return massif_utils::parse('anchor-nav', null, ['data' => $result]);
+			return self::parse('anchor-nav', null, ['data' => $result]);
 		}
 	}
 
@@ -405,6 +429,7 @@ class massif_utils
 
 	public static function addWrapper($data, $class = '', $wrap = true)
 	{
+		$out = '';
 		if ($class) $class = ' ' . $class;
 		$out .= '<div class="row-o row-' . $class . '">';
 		if ($wrap) $out .= '<div class="wrap">';
@@ -605,7 +630,7 @@ class massif_utils
 			//$icon = '<i class="icon icon-download"></i>';
 			$label = $media->getTitle() ? $media->getTitle() : $media->getFilename();
 			$out .= '<li class="download-item">';
-			$out .= '<a href="' . $media->getUrl() . '" title="' . $label . '" target="_blank" class="download-anchor h-icon">' . $icon . '<span class="download-label">' . $label . ' </span></a>';
+			$out .= '<a href="' . $media->getUrl() . '" title="' . $label . '" target="_blank" class="h-icon download-anchor">' . $icon . '<span class="download-label">' . $label . ' </span></a>';
 			// <span class="info">'.rex_formatter::bytes($media->getSize(), [1, '.', "'"]).'</span>
 			$out .= '</li>';
 		}
@@ -722,10 +747,10 @@ class massif_utils
 		if (count($array) == 0)
 			return;
 
-		$out = '<div class="flex be-table">';
+		$out = '<div class="be-table flex">';
 		foreach ($array as $row) {
-			$out .= '<div class="flex-box flex-fourth be-table-label">' . $row[0] . '</div>';
-			$out .= '<div class="flex-box flex-three-fourths be-table-value">' . $row[1] . '</div>';
+			$out .= '<div class="be-table-label flex-box flex-fourth">' . $row[0] . '</div>';
+			$out .= '<div class="be-table-value flex-box flex-three-fourths">' . $row[1] . '</div>';
 		}
 		$out .= '</div>';
 		return $out;

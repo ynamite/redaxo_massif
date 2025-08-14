@@ -1,6 +1,17 @@
 <?php
 
-class massif_img
+namespace Ynamite\Massif;
+
+use rex;
+use rex_clang;
+use rex_effect_auto;
+use rex_media;
+use rex_media_manager;
+use rex_path;
+use rex_url;
+use rex_yrewrite;
+
+class Img
 {
 
 
@@ -108,7 +119,7 @@ class massif_img
 
 		if (!$rex_media->isImage()) {
 			if (in_array($ext, ['mp4', 'webm', 'ogg'])) {
-				return massif_utils::parse('massif-vidstack', ['src' => $rex_media->getUrl(), 'title' => $rex_media->getTitle(), 'params' => 'playsinline muted autoplay', 'controls' => ['mute-button']]);
+				return Utils::parse('massif-vidstack', ['src' => $rex_media->getUrl(), 'title' => $rex_media->getTitle(), 'params' => 'playsinline muted autoplay', 'controls' => ['mute-button']]);
 			}
 		}
 
@@ -225,7 +236,7 @@ class massif_img
 			$out .= '<div style=" max-width: 200px;">' . $image . '</div>';
 		}
 		if ($params['caption']) {
-			$out .= '<figcaption class="img-cell__caption text-small">' . $params['caption'] . '</figcaption>';
+			$out .= '<figcaption class="text-small img-cell__caption">' . $params['caption'] . '</figcaption>';
 		}
 
 		$out .= '</figure>';
@@ -270,8 +281,8 @@ class massif_img
 			'controls' => true,
 			'type' => 'visual',
 			'ratio' => 0,
-			'prev-icon' => '<i class="icon fal fa-chevron-left"></i>',
-			'next-icon' => '<i class="icon fal fa-chevron-right"></i>'
+			'prev-icon' => '<i class="fa-chevron-left icon fal"></i>',
+			'next-icon' => '<i class="fa-chevron-right icon fal"></i>'
 		];
 
 		if (is_array($_params)) {
@@ -282,7 +293,7 @@ class massif_img
 		if (isset($_params))
 			$params['images'] = (is_array($_params['images'])) ? $_params['images'] : array_filter(explode(',', $_params['images']));
 
-		return massif_utils::parse('massif-swiper', ['params' => $params]);
+		return Utils::parse('massif-swiper', ['params' => $params]);
 	}
 
 	/*
@@ -342,4 +353,4 @@ class massif_img
 		return $out;
 	}
 }
-massif_img::$sizes = \rex_effect_auto::getSizes();
+Img::$sizes = \rex_effect_auto::getSizes();

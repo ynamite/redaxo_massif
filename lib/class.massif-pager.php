@@ -10,7 +10,11 @@
  * @package massif
  */
 
-class massif_pager extends rex_pager
+namespace Ynamite\Massif;
+
+use rex_pager;
+
+class Pager extends rex_pager
 {
 
     protected $rowCount;
