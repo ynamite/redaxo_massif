@@ -7,7 +7,7 @@ $buttonSet = $this->getVar('buttonSet');
   <?php foreach ($buttonSet as $button) {
     if ($button['style'] == 'simple') {
   ?>
-      <a href="<?= $button['url'] ?>" <?= $button['target'] ?> class="button rounded-full border-[1px] text-sm border-primary uppercase tracking-widest px-6 py-3">
+      <a href="<?= $button['url'] ?>" <?= $button['target'] ?> class="button rounded-full border text-sm border-primary uppercase tracking-widest px-6 py-3">
         <?= $button['label'] ?>
       </a>
     <?php

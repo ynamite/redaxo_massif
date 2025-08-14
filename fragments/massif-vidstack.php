@@ -8,10 +8,10 @@ if (rex::isBackend()) {
   echo '<video playsinline autoplay muted loop class="thumbnail"><source src="' . $src . '" type="video/' . $extension . '"></video>';
 } else {
 ?>
-  <media-player title="<?= $title ?>" <?= $params ?> src="<?= $src ?>" class="media-player ring-media-focus overflow-hidde text-white data-[focus]:ring-4">
+  <media-player title="<?= $title ?>" <?= $params ?> src="<?= $src ?>" class="media-player ring-media-focus overflow-hidde text-white data-focus:ring-4">
     <media-provider></media-provider>
     <?php if (count($controls)) : ?>
-      <media-controls class="media-controls:opacity-100 absolute inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity">
+      <media-controls class="media-controls:opacity-100 absolute inset-0 z-10 flex h-full w-full flex-col bg-linear-to-t from-black/10 to-transparent opacity-0 transition-opacity">
         <div class="pointer-events-none flex-1"></div>
         <?php if (in_array('time-slider', $controls)) : ?>
           <media-controls-group class="flex w-full items-center px-2">
@@ -22,18 +22,18 @@ if (rex::isBackend()) {
                   <!-- Slider Chapter -->
                   <div class="last-child:mr-0 relative mr-0.5 flex h-full w-full items-center rounded-[1px]" style="contain: layout style">
                     <!-- Slider Chapter Track -->
-                    <div class="ring-media-focus relative z-0 h-[5px] w-full rounded-sm bg-white/30 group-data-[focus]:ring-[3px]">
-                      <div class="bg-media-brand absolute h-full w-[var(--chapter-fill)] rounded-sm will-change-[width]"></div>
-                      <div class="absolute z-10 h-full w-[var(--chapter-progress)] rounded-sm bg-white/50 will-change-[width]"></div>
+                    <div class="ring-media-focus relative z-0 h-[5px] w-full rounded-sm bg-white/30 group-data-focus:ring-[3px]">
+                      <div class="bg-media-brand absolute h-full w-(--chapter-fill) rounded-sm will-change-[width]"></div>
+                      <div class="absolute z-10 h-full w-(--chapter-progress) rounded-sm bg-white/50 will-change-[width]"></div>
                     </div>
                   </div>
                 </template>
               </media-slider-chapters>
               <!-- Slider Thumb -->
-              <div class="absolute left-[var(--slider-fill)] top-1/2 z-20 h-[15px] w-[15px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white opacity-0 ring-white/40 transition-opacity will-change-[left] group-data-[active]:opacity-100 group-data-[dragging]:ring-4"></div>
+              <div class="absolute left-(--slider-fill) top-1/2 z-20 h-[15px] w-[15px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white opacity-0 ring-white/40 transition-opacity will-change-[left] group-data-active:opacity-100 group-data-dragging:ring-4"></div>
               <!-- Slider Preview -->
-              <media-slider-preview class="pointer-events-none flex flex-col items-center opacity-0 transition-opacity duration-200 data-[visible]:opacity-100">
-                <media-slider-thumbnail class="block h-[var(--thumbnail-height)] max-h-[160px] min-h-[80px] w-[var(--thumbnail-width)] min-w-[120px] max-w-[180px] overflow-hidden border border-white bg-black" src="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/storyboard.vtt"></media-slider-thumbnail>
+              <media-slider-preview class="pointer-events-none flex flex-col items-center opacity-0 transition-opacity duration-200 data-visible:opacity-100">
+                <media-slider-thumbnail class="block h-(--thumbnail-height) max-h-[160px] min-h-[80px] w-(--thumbnail-width) min-w-[120px] max-w-[180px] overflow-hidden border border-white bg-black" src="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/storyboard.vtt"></media-slider-thumbnail>
                 <div class="mt-1 text-sm" data-part="chapter-title"></div>
                 <media-slider-value class="text-[13px]"></media-slider-value>
               </media-slider-preview>
@@ -46,7 +46,7 @@ if (rex::isBackend()) {
             <!-- Play Button -->
             <media-tooltip>
               <media-tooltip-trigger>
-                <media-play-button class="ring-media-focus relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-[focus]:ring-4">
+                <media-play-button class="ring-media-focus relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-focus:ring-4">
                   <media-icon class="media-paused:block hidden h-8 w-8" type="play"></media-icon>
                   <media-icon class="media-paused:hidden h-8 w-8" type="pause"></media-icon>
                 </media-play-button>
@@ -62,7 +62,7 @@ if (rex::isBackend()) {
             <!-- Mute Button -->
             <media-tooltip>
               <media-tooltip-trigger>
-                <media-mute-button class="ring-media-focus group relative -mr-1.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-[focus]:ring-4">
+                <media-mute-button class="ring-media-focus group relative -mr-1.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-focus:ring-4">
                   <media-icon class="hidden h-8 w-8 group-data-[state='muted']:block" type="mute"></media-icon>
                   <media-icon class="hidden h-8 w-8 group-data-[state='low']:block" type="volume-low"></media-icon>
                   <media-icon class="hidden h-8 w-8 group-data-[state='high']:block" type="volume-high"></media-icon>
@@ -79,12 +79,12 @@ if (rex::isBackend()) {
             <!-- Volume Slider -->
             <media-volume-slider class="group relative mx-[7.5px] inline-flex h-10 w-full max-w-[80px] cursor-pointer touch-none select-none items-center outline-none">
               <!-- Slider Track -->
-              <div class="ring-media-focus relative z-0 h-[5px] w-full rounded-sm bg-white/30 group-data-[focus]:ring-[3px]">
-                <div class="bg-media-brand absolute h-full w-[var(--slider-fill)] rounded-sm will-change-[width]"></div>
+              <div class="ring-media-focus relative z-0 h-[5px] w-full rounded-sm bg-white/30 group-data-focus:ring-[3px]">
+                <div class="bg-media-brand absolute h-full w-(--slider-fill) rounded-sm will-change-[width]"></div>
               </div>
               <!-- Slider Thumb -->
-              <div class="absolute left-[var(--slider-fill)] top-1/2 z-20 h-[15px] w-[15px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white opacity-0 ring-white/40 transition-opacity will-change-[left] group-data-[active]:opacity-100 group-data-[dragging]:ring-4"></div>
-              <media-slider-preview class="pointer-events-none opacity-0 transition-opacity duration-200 data-[visible]:opacity-100" no-clamp offset="30">
+              <div class="absolute left-(--slider-fill) top-1/2 z-20 h-[15px] w-[15px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white opacity-0 ring-white/40 transition-opacity will-change-[left] group-data-active:opacity-100 group-data-dragging:ring-4"></div>
+              <media-slider-preview class="pointer-events-none opacity-0 transition-opacity duration-200 data-visible:opacity-100" no-clamp offset="30">
                 <media-slider-value class="rounded-sm bg-black px-2 py-px text-[13px] font-medium"></media-slider-value>
               </media-slider-preview>
             </media-volume-slider>
@@ -108,7 +108,7 @@ if (rex::isBackend()) {
             <!-- Caption Button -->
             <media-tooltip>
               <media-tooltip-trigger>
-                <media-caption-button class="ring-media-focus group relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-[focus]:ring-4">
+                <media-caption-button class="ring-media-focus group relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-focus:ring-4">
                   <media-icon class="media-captions:block hidden h-8 w-8" type="closed-captions-on"></media-icon>
                   <media-icon class="media-captions:hidden h-8 w-8" type="closed-captions"></media-icon>
                 </media-caption-button>
@@ -126,20 +126,20 @@ if (rex::isBackend()) {
               <!-- Settings Menu Button -->
               <media-tooltip>
                 <media-tooltip-trigger>
-                  <media-menu-button class="ring-media-focus relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 aria-hidden:hidden data-[focus]:ring-4">
-                    <media-icon class="h-8 w-8 transform transition-transform duration-200 ease-out group-data-[open]:rotate-90" type="settings"></media-icon>
+                  <media-menu-button class="ring-media-focus relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 aria-hidden:hidden data-focus:ring-4">
+                    <media-icon class="h-8 w-8 transform transition-transform duration-200 ease-out group-data-open:rotate-90" type="settings"></media-icon>
                   </media-menu-button>
                 </media-tooltip-trigger>
-                <media-tooltip-content class="animate-out fade-out slide-out-to-bottom-2 data-[visible]:animate-in data-[visible]:fade-in data-[visible]:slide-in-from-bottom-4 z-10 rounded-sm bg-black/90 px-2 py-0.5 text-sm font-medium text-white group-data-[open]:hidden" placement="top" offset="30">
+                <media-tooltip-content class="animate-out fade-out slide-out-to-bottom-2 data-[visible]:animate-in data-[visible]:fade-in data-[visible]:slide-in-from-bottom-4 z-10 rounded-sm bg-black/90 px-2 py-0.5 text-sm font-medium text-white group-data-open:hidden" placement="top" offset="30">
                   Settings
                 </media-tooltip-content>
               </media-tooltip>
               <!-- Settings Menu Items -->
-              <media-menu-items class="animate-out fade-out slide-out-to-bottom-2 data-[open]:animate-in data-[open]:fade-in data-[open]:slide-in-from-bottom-4 flex h-[var(--menu-height)] max-h-[400px] min-w-[260px] flex-col overflow-y-auto overscroll-y-contain rounded-md border border-white/10 bg-black/95 p-2.5 font-sans text-[15px] font-medium outline-none backdrop-blur-sm transition-[height] duration-300 will-change-[height] data-[resizing]:overflow-hidden" offset="30" placement="top end">
+              <media-menu-items class="animate-out fade-out slide-out-to-bottom-2 data-[open]:animate-in data-[open]:fade-in data-[open]:slide-in-from-bottom-4 flex h-(--menu-height) max-h-[400px] min-w-[260px] flex-col overflow-y-auto overscroll-y-contain rounded-md border border-white/10 bg-black/95 p-2.5 font-sans text-[15px] font-medium outline-none backdrop-blur-sm transition-[height] duration-300 will-change-[height] data-resizing:overflow-hidden" offset="30" placement="top end">
                 <!-- Caption Submenu -->
                 <media-menu>
                   <!-- Caption Submenu Button -->
-                  <media-menu-button class="ring-media-focus parent left-0 z-10 flex w-full cursor-pointer select-none items-center justify-start rounded-sm bg-black/60 p-2.5 outline-none ring-inset aria-disabled:hidden aria-hidden:hidden data-[open]:sticky data-[open]:-top-2.5 data-[hocus]:bg-white/10 data-[focus]:ring-[3px]">
+                  <media-menu-button class="ring-media-focus parent left-0 z-10 flex w-full cursor-pointer select-none items-center justify-start rounded-sm bg-black/60 p-2.5 outline-none ring-inset aria-disabled:hidden aria-hidden:hidden data-open:sticky data-open:-top-2.5 data-hocus:bg-white/10 data-focus:ring-[3px]">
                     <!-- Close Icon -->
                     <media-icon class="parent-data-[open]:block -ml-0.5 mr-1.5 hidden h-[18px] w-[18px]" type="chevron-left"></media-icon>
                     <!-- Icon -->
@@ -152,12 +152,12 @@ if (rex::isBackend()) {
                     <media-icon class="parent-data-[open]:hidden ml-0.5 h-[18px] w-[18px] text-sm text-white/50" type="chevron-right"></media-icon>
                   </media-menu-button>
                   <!-- Caption Submenu Items -->
-                  <media-menu-items class="hidden w-full flex-col items-start justify-center outline-none data-[keyboard]:mt-[3px] data-[open]:inline-block">
+                  <media-menu-items class="hidden w-full flex-col items-start justify-center outline-none data-keyboard:mt-[3px] data-open:inline-block">
                     <media-captions-radio-group class="flex w-full flex-col">
                       <template>
-                        <media-radio class="ring-media-focus group relative flex w-full cursor-pointer select-none items-center justify-start rounded-sm p-2.5 outline-none data-[hocus]:bg-white/10 data-[focus]:ring-[3px]">
-                          <media-icon class="h-4 w-4 group-data-[checked]:hidden" type="radio-button"></media-icon>
-                          <media-icon class="text-media-brand hidden h-4 w-4 group-data-[checked]:block" type="radio-button-selected"></media-icon>
+                        <media-radio class="ring-media-focus group relative flex w-full cursor-pointer select-none items-center justify-start rounded-sm p-2.5 outline-none data-hocus:bg-white/10 data-focus:ring-[3px]">
+                          <media-icon class="h-4 w-4 group-data-checked:hidden" type="radio-button"></media-icon>
+                          <media-icon class="text-media-brand hidden h-4 w-4 group-data-checked:block" type="radio-button-selected"></media-icon>
                           <span class="ml-2" data-part="label"></span>
                         </media-radio>
                       </template>
@@ -172,7 +172,7 @@ if (rex::isBackend()) {
             <!-- PIP Button -->
             <media-tooltip>
               <media-tooltip-trigger>
-                <media-pip-button class="ring-media-focus group relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-[focus]:ring-4">
+                <media-pip-button class="ring-media-focus group relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-focus:ring-4">
                   <media-icon class="media-pip:hidden h-8 w-8" type="picture-in-picture"></media-icon>
                   <media-icon class="media-pip:block hidden h-8 w-8" type="picture-in-picture-exit"></media-icon>
                 </media-pip-button>
@@ -188,7 +188,7 @@ if (rex::isBackend()) {
             <!-- Fullscreen Button -->
             <media-tooltip>
               <media-tooltip-trigger>
-                <media-fullscreen-button class="ring-media-focus group relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-[focus]:ring-4">
+                <media-fullscreen-button class="ring-media-focus group relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-focus:ring-4">
                   <media-icon class="media-fullscreen:hidden h-8 w-8" type="fullscreen"></media-icon>
                   <media-icon class="media-fullscreen:block hidden h-8 w-8" type="fullscreen-exit"></media-icon>
                 </media-fullscreen-button>
