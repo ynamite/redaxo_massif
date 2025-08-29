@@ -1,11 +1,11 @@
 <?php
 
 /** @var rex_pager $pager */
-$pager = $this->params['pager'];
+$pager = $this->getVar('pager', null);
 /** @var rex_url_provider_interface $urlProvider */
-$urlProvider = $this->params['urlprovider'];
-$url_key = isset($this->params['url_key']) ? $this->params['url_key'] : null;
-$url_key_val = isset($this->params['url_key_val']) ? $this->params['url_key_val'] : null;
+$urlProvider = $this->getVar('urlprovider', null);
+$url_key = $this->getVar('url_key', null);
+$url_key_val = $this->getVar('url_key_val', null);
 
 $firstPage = $pager->getFirstPage();
 $currentPage = $pager->getCurrentPage();
@@ -36,7 +36,7 @@ $to = $to > $currentPage + $showMax ? $currentPage + $showMax : $to;
             <?php if (!$pager->isActivePage($firstPage)) { ?>
                 <li class="page-pager-prev">
                     <a class="massif-pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $pager->getPrevPage()], $params)) . $anchor ?>" title="<?= $this->i18n('list_previous') ?>">
-                        <i class="far icon fa-chevron-left"></i>
+                        <i class="fa-chevron-left far icon"></i>
                     </a>
                 </li>
             <?php } ?>
@@ -76,7 +76,7 @@ $to = $to > $currentPage + $showMax ? $currentPage + $showMax : $to;
             <?php if (!$pager->isActivePage($lastPage)) { ?>
                 <li class="page-pager-next">
                     <a class="massif-pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $pager->getNextPage()], $params)) . $anchor ?>" title="<?= $this->i18n('list_next') ?>">
-                        <i class="far icon fa-chevron-right"></i>
+                        <i class="fa-chevron-right far icon"></i>
                     </a>
                 </li>
             <?php } ?>

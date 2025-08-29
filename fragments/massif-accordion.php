@@ -1,7 +1,7 @@
 <?php
-$accordion = $this->params['content'] ? $this->params['content'] : [];
-$id = $this->params['id'];
-$initial = isset($this->params['initial']) ? $this->params['initial'] : null;
+$accordion = $this->getVar('content', []);
+$id = $this->getVar('id', null);
+$initial = $this->getVar('initial', null);
 if (count($accordion) > 0) echo '<div class="accordion">';
 foreach ($accordion as $key => $content) {
   $itemID = 'item-' . $id . '-' . $key;

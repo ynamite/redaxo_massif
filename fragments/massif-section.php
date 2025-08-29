@@ -1,12 +1,12 @@
 <?php
 
-use Ynamite\Massif\Utils as massif_utils;
+use Ynamite\Massif\Utils;
 
 $category = $this->getVar('category', null);
 $instance = $this->getVar('this', null);
 
 if (!$category) {
-  $pathRoute = massif_utils\Article::getPathRoute();
+  $pathRoute = Utils\Article::getPathRoute();
   if (count($pathRoute) < 2) {
     $category = rex_category::getCurrent();
     if (!$category) {
