@@ -1,6 +1,6 @@
 <?php
 
-namespace Ynamite\Massif;
+namespace Ynamite\Massif\BE;
 
 use rex_addon;
 use rex_be_controller;

@@ -5,6 +5,7 @@ namespace Ynamite\Massif;
 use rex;
 use rex_addon;
 use rex_addon_interface;
+use rex_autoload;
 use rex_be_page_main;
 use rex_clang;
 use rex_effect_auto;
@@ -22,10 +23,6 @@ use rex_yform_manager_field;
 use rex_yform_manager_table;
 
 use Ynamite\Massif\Usability;
-
-/**
- * MASSIF stuff
- */
 
 /** @var rex_addon_interface $this */
 

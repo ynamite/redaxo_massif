@@ -6,7 +6,7 @@ $category = $this->getVar('category', null);
 $instance = $this->getVar('this', null);
 
 if (!$category) {
-  $pathRoute = massif_utils::getPathRoute();
+  $pathRoute = massif_utils\Article::getPathRoute();
   if (count($pathRoute) < 2) {
     $category = rex_category::getCurrent();
     if (!$category) {

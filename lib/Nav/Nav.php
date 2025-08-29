@@ -13,7 +13,6 @@ use rex_string;
 
 class Nav
 {
-
     use rex_factory_trait;
 
     protected $depth; // Wieviele Ebene tief, ab der Startebene

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
+use Ynamite\Massif\Media\ImageConfig;
 
 class rex_effect_auto extends rex_effect_abstract
 {
   const SEPARATOR = '__w';
-  protected static $sizes = [40, 272, 371, 480, 569, 767, 1163, 1559, 1999, 2499];
   protected static string|null $allowedReferer = null;
   public static $ratioCrop = 4 / 3;
 
@@ -16,19 +16,6 @@ class rex_effect_auto extends rex_effect_abstract
     [$file, $width, $format] = self::parseFilename($filename);
     $this->media->setMediaPath(rex_path::media($file));
     $this->media->setFormat($format);
-  }
-
-  /**
-   * @param $sizes array
-   */
-  public static function setSizes($sizes)
-  {
-    self::$sizes = $sizes;
-  }
-
-  public static function getSizes()
-  {
-    return self::$sizes;
   }
 
   public function getName()
@@ -47,6 +34,7 @@ class rex_effect_auto extends rex_effect_abstract
 
   public static function handle(\rex_extension_point $ep)
   {
+    $sizes = ImageConfig::BREAKPOINTS;
     $autoSize = rex_get('rex_media_auto_size', 'int', 0);
     $effects = $ep->getSubject(); // and the effects array
     if (!$autoSize) {
@@ -59,30 +47,8 @@ class rex_effect_auto extends rex_effect_abstract
     if (!in_array($type, ['auto', 'auto-sq', 'auto-c'])) {
       return $ep->setSubject($effects);
     }
-    if (!in_array($width, self::$sizes)) {
-      if (self::$allowedReferer === null) {
-        \rex_yrewrite::init();
-        self::$allowedReferer = \rex_yrewrite::getCurrentDomain()->getUrl();
-      }
-      $isInferSize = rex_get('inferSize', 'bool', false);
-      if (!$isInferSize) {
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? $_SERVER['HTTP_REFERER'] ?? '';
-        if (empty($origin)) {
-          rex_logger::factory()->log(
-            'debug',
-            'rex_effect_auto: Invalid request: no origin or referer found.'
-          );
-          exit();
-        }
-
-        if (self::$allowedReferer !== $origin) {
-          rex_logger::factory()->log(
-            'debug',
-            'rex_effect_auto: Invalid width requested: domain: ' . $origin . ' allowed: ' . self::$allowedReferer
-          );
-          exit();
-        }
-      }
+    if (!in_array($width, $sizes)) {
+      $width = $sizes[1];
     }
     if (count($effects) < 1) {
       $effects = rex_media_manager::create('auto', $filename)->effectsFromType('auto');
@@ -103,7 +69,7 @@ class rex_effect_auto extends rex_effect_abstract
       }
       $effectsNew[] = $effect;
     }
-    if ($width !== self::$sizes[0]) {
+    if ($width !== $sizes[0]) {
       $effectsNew = array_filter($effectsNew, function ($effect) {
         return $effect['effect'] !== 'filter_blur';
       });
