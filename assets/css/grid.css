@@ -1,0 +1,21 @@
+.grid {
+  display: grid;
+  gap: 15px;
+  margin-top: 15px;
+  h1,
+  h2,
+  h3,
+  .grid {
+    margin-top: 0;
+  }
+}
+
+ul.grid,
+ol.grid {
+  padding: 0;
+  list-style: none;
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}

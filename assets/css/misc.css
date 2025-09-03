@@ -1,0 +1,6 @@
+div.mce-fullscreen {
+  z-index: 10000 !important;
+}
+.selectize-input > * {
+  display: block !important;
+}

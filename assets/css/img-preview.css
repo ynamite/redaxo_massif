@@ -1,0 +1,16 @@
+.thumbnail {
+  margin: 0;
+}
+.mform .thumbnail,
+.yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail,
+#rex-page-sidebar-metainfo .thumbnail {
+  position: relative;
+  z-index: 3;
+  transition: transform 0.3s;
+  margin: 0;
+}
+.mform .thumbnail:hover,
+.yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail:hover,
+#rex-page-sidebar-metainfo .thumbnail:hover {
+  transform: scale(3);
+}

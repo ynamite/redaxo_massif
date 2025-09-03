@@ -1,0 +1,11 @@
+.yform legend {
+  margin: 0;
+}
+
+.yform .fieldset-inner {
+  margin-bottom: 30px;
+  border: 1px solid #c1c9d4;
+  border-top: none;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 30px;
+}

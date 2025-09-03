@@ -1,0 +1,13 @@
+.mform .form-group {
+  display: block !important;
+}
+.mform .control-label {
+  float: none !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+.mform .col-sm-10 {
+  float: none !important;
+  width: 100% !important;
+  text-align: left !important;
+}
