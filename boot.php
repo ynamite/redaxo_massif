@@ -5,7 +5,6 @@ namespace Ynamite\Massif;
 use rex;
 use rex_addon;
 use rex_addon_interface;
-use rex_autoload;
 use rex_be_page_main;
 use rex_clang;
 use rex_effect_auto;
@@ -49,6 +48,8 @@ rex_extension::register('PACKAGES_INCLUDED', function (rex_extension_point $ep) 
     ) {
         rex_yform::addTemplatePath($this->getPath('ytemplates'));
     }
+
+    rex_extension::register('REDACTOR_PLUGIN_DIR', Redactor\Extension::register(...));
 });
 
 if (rex::isBackend() && rex::getUser() && rex_plugin::get('yform', 'manager')) {
