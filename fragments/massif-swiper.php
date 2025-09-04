@@ -11,9 +11,10 @@ $controls = $this->getVar('controls', true);
 $prevIcon = $this->getVar('prevIcon', '<i class="icon-[bi--chevron-left] icon"></i>');
 $nextIcon = $this->getVar('nextIcon', '<i class="icon-[bi--chevron-right] icon"></i>');
 $wrap = $this->getVar('wrap', true);
+$classNames = $this->getVar('classNames', '');
 ?>
 <?php if ($wrap) { ?>
-  <div class="swiper">
+  <div class="swiper<?php if ($classNames) echo ' ' . $classNames; ?>">
   <?php } ?>
   <div class="swiper-container">
     <div class="swiper-wrapper" <?php if (rex::isBackend()) echo ' style="list-style:none; margin: 0; padding: 0; display: grid; grid-gap: 8px;grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));"'; ?>>
