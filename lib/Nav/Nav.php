@@ -14,6 +14,7 @@ class Nav
 
   protected $dropdowns = true;
   protected $addDropdownToggleClass = 'transition-transform duration-300 dropdown-arrow iconify bi--chevron-down';
+  protected $dropdownToggleAriaLabel = 'Untermenü ein- oder ausklappen';
   protected $name = 'desktop'; // Name der Navigation
   protected $depth = 1; // Wieviele Ebene tief, ab der Startebene
   protected $open; // alles aufgeklappt, z.b. Sitemap
@@ -57,7 +58,8 @@ class Nav
     bool $ignore_offlines = true,
     string $name = '',
     ?bool $dropdowns = null,
-    string $dropdownToggleClass = ''
+    string $dropdownToggleClass = '',
+    string $dropdownToggleAriaLabel = ''
   ) {
     if (!$this->_setActivePath()) {
       return false;
@@ -65,6 +67,7 @@ class Nav
 
     $this->dropdowns = $dropdowns ?? $this->dropdowns;
     $this->addDropdownToggleClass = $dropdownToggleClass ?: $this->addDropdownToggleClass;
+    $this->dropdownToggleAriaLabel = $dropdownToggleAriaLabel ?: $this->dropdownToggleAriaLabel;
     $this->name = $name ?: $this->name;
     $this->depth = $depth ?? $this->depth;
     $this->open = $open;
@@ -307,7 +310,7 @@ class Nav
         $li['class'][] = 'has-children';
         $dropdownToggleTag = $this->name === 'desktop' ? 'div' : 'button';
         $dropdownToggleType = $this->name === 'mobile' ? ' type="button"' : '';
-        $dropdownToggle = '<' . $dropdownToggleTag . $dropdownToggleType . ' aria-expanded="false" class="dropdown-toggle" aria-label="Untermenü ein- oder ausklappen"><span class="' . $this->addDropdownToggleClass . '"></span></' . $dropdownToggleTag . '>';
+        $dropdownToggle = '<' . $dropdownToggleTag . $dropdownToggleType . ' aria-expanded="false" class="dropdown-toggle" aria-label="' . $this->dropdownToggleAriaLabel . '"><span class="' . $this->addDropdownToggleClass . '"></span></' . $dropdownToggleTag . '>';
       }
 
       if ($this->checkFilter($nav, $depth) && $this->checkCallbacks($nav, $depth, $li, $a, $label, $this->name)) {
