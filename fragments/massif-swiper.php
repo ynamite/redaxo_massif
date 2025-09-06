@@ -21,7 +21,7 @@ $classNames = $this->getVar('classNames', '');
       <?php if ($content) echo $content;
       else foreach ($images as $key => $img) {
         $image = Media\Image::get(src: $img, loading: $key == 0 ? 'eager' : 'lazy');
-        echo Utils\Rex::parse('swiper-slide', ['idx' => $key, 'content' => $image]);
+        echo Utils\Rex::parse('massif-swiper-slide', ['idx' => $key, 'content' => $image]);
       } ?>
     </div>
     <?php if ($controls && rex::isFrontend()) { ?>
