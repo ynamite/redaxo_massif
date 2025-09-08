@@ -17,7 +17,7 @@ $classNames = $this->getVar('classNames', '');
   <div class="swiper<?php if ($classNames) echo ' ' . $classNames; ?>">
   <?php } ?>
   <div class="swiper-container">
-    <div class="swiper-wrapper" <?php if (rex::isBackend()) echo ' style="list-style:none; margin: 0; padding: 0; display: grid; grid-gap: 8px;grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));"'; ?>>
+    <div class="swiper-wrapper">
       <?php if ($content) echo $content;
       else foreach ($images as $key => $img) {
         $image = Media\Image::get(src: $img, loading: $key == 0 ? 'eager' : 'lazy');
