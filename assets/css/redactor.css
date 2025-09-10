@@ -19,6 +19,8 @@
   }
 }
 .redactor-in details summary {
+  display: flex;
+  gap: 8px;
   cursor: default !important;
   margin-bottom: 8px !important;
   border-radius: 3px !important;
