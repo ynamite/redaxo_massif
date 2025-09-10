@@ -28,7 +28,7 @@ array_walk($items, function ($item) use (&$itemsMapped, $urlNs, $urlManagerData)
 
 ?>
 <section class="page-margin section-padding portfolio-filter">
-  <div class="portfolio-filter__tags h1 font-black" id="portfolio-filter">
+  <div class="portfolio-filter__tags" id="portfolio-filter">
     <?php
     foreach ($itemsMapped as $item) {
     ?>
