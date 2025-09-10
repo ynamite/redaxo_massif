@@ -5,6 +5,7 @@ namespace Ynamite\Massif;
 use rex;
 use rex_addon;
 use rex_addon_interface;
+use rex_api_function;
 use rex_be_page_main;
 use rex_clang;
 use rex_effect_auto;
@@ -21,9 +22,13 @@ use rex_yform;
 use rex_yform_manager_field;
 use rex_yform_manager_table;
 
+use Ynamite\Massif\Media;
 use Ynamite\Massif\Usability;
 
 /** @var rex_addon_interface $this */
+
+rex_api_function::register('massif_image_get', Media\Api\GetImage::class);
+
 
 // add own backend css
 if (rex::isBackend() && rex::getUser()) {
