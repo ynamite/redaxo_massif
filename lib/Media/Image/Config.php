@@ -8,8 +8,8 @@ readonly class ImageConfig
 {
   public const BREAKPOINTS = [
     16,
-    272,
-    371,
+    280,
+    320,
     480,
     640,
     750,
@@ -32,6 +32,7 @@ readonly class ImageConfig
     public ?string $alt = '',
     public ?int $width = 0,
     public ?int $height = 0,
+    public ?int $maxWidth = 0,
     public ?string $sizes = '100vw',
     public ?array $breakPoints = ImageConfig::BREAKPOINTS,
     public ?string $className = '',

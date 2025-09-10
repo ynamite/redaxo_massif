@@ -8,12 +8,11 @@ use InvalidArgumentException;
 
 use rex_clang;
 use rex_media;
-use rex_url;
 
 class Image
 {
 
-  private const MANAGER_PATH = 'image/';
+  private const MANAGER_PATH = '/image/';
   private const EXCLUDE_EXTENSIONS_FROM_RESIZE = ['svg', 'gif'];
   public ?array $breakPoints = [];
 
@@ -22,6 +21,8 @@ class Image
    * @param string $src
    * @param string $alt
    * @param string $sizes
+   * @param int $maxWidth
+   * @param string $className
    * @param int $width
    * @param int $height
    * @param LoadingBehavior $loading
@@ -33,7 +34,9 @@ class Image
   public static function get(
     string $src,
     string $alt = '',
+    string $className = '',
     string $sizes = '',
+    int $maxWidth = 0,
     int $width = 0,
     int $height = 0,
     array $breakPoints = ImageConfig::BREAKPOINTS,
@@ -44,9 +47,11 @@ class Image
     $config = new ImageConfig(
       src: $src,
       alt: $alt,
+      className: $className,
       width: $width,
       height: $height,
       sizes: $sizes,
+      maxWidth: $maxWidth,
       breakPoints: $breakPoints,
       loading: $loading,
       decoding: $decoding,
@@ -88,7 +93,7 @@ class Image
     $width = $config->width ?: $rex_media->getWidth();
     $height = $config->height ?: $rex_media->getHeight();
     $alt = $config->alt ?: $rex_media->getTitle();
-    $sizes = $config->sizes ?: $this->getSizes();
+    $sizes = $config->sizes ?: $this->getSizes($config->maxWidth);
     $style = [];
     $className = [];
     $className[] = $config->className ?: '';
@@ -137,8 +142,7 @@ class Image
     if (!in_array($size, ImageConfig::BREAKPOINTS))
       $size = ImageConfig::BREAKPOINTS[0];
 
-    $url = self::MANAGER_PATH . 'auto/' . $size . '/' . $src;
-    return rex_url::frontend() . $url;
+    return self::MANAGER_PATH . 'auto/' . $size . '/' . $src;
   }
 
   /**
@@ -164,22 +168,28 @@ class Image
 
   /**
    * Get image sizes
+   * @param int $maxWidth
    *
    * @return string
    */
-  public function getSizes()
+  public function getSizes(int $maxWidth = 0): string
   {
     $output = [];
     $sizes = $this->breakPoints;
     array_shift($sizes);
-    $maxSize = array_pop($sizes);
+    $maxSize = end($sizes);
     $maxWidths = $sizes;
     array_shift($maxWidths);
     $maxWidths[] = $maxSize;
     for ($i = 0; $i < count($sizes); $i++) {
-      $output[] = '(max-width: ' . $maxWidths[$i] . 'px) ' . $sizes[$i] . 'px';
+      $cSize = $i === 0 ? '100vw' : $sizes[$i] . 'px';
+      $output[] = '(max-width: ' . $maxWidths[$i] . 'px) ' . $cSize;
+      if ($maxWidth > 0 && $maxWidth < $maxWidths[$i]) {
+        $output[] = $maxWidths[$i] . 'px';
+        break;
+      }
     }
-    $output[] = $maxSize . 'px';
+    // $output[] = $maxSize . 'px';
     return implode(', ', $output);
   }
   /**
