@@ -11,6 +11,7 @@ use rex_yform_manager;
 use Exception;
 use rex_view;
 use rex_extension;
+use rex_extension_point;
 use rex_csrf_token;
 use rex_type;
 
@@ -212,7 +213,9 @@ class Package
 
     $nav = \rex_be_navigation::factory();
     $nav->setHeadline('default', \rex_i18n::msg('subnavigation', $head));
-    $pages = rex_be_controller::getPageObject(rex_be_controller::getCurrentPagePart(1))->getSubpages();
+    $pageObject = rex_be_controller::getPageObject(rex_be_controller::getCurrentPagePart(1));
+    $pages = $pageObject->getSubpages();
+
     foreach ($pages as $pageObj) {
       $nav->addPage($pageObj);
     }
