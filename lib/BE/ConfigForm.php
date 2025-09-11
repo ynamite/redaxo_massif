@@ -2,9 +2,12 @@
 
 namespace Ynamite\Massif\BE;
 
-use rex_string;
 use rex_addon;
+use rex_addon_interface;
+use rex_extension;
+use rex_extension_point;
 use rex_config_form;
+use rex_string;
 
 class ConfigForm extends rex_config_form
 {
@@ -17,9 +20,14 @@ class ConfigForm extends rex_config_form
   {
 
     self::$addonName = $package;
+    /** @var rex_addon_interface $addon */
     $addon = rex_addon::get($package);
     $pages = $addon->getProperty('page');
-    $fields = $pages['subpages'][$subpage]['fields'];
+    $fields = $pages['subpages'][$subpage]['fields'] ?? [];
+    $fields = rex_extension::registerPoint(new rex_extension_point('MASSIF_CONFIG_FORM_FIELDS', $fields, [
+      'subpage' => $subpage,
+      'package' => $package,
+    ]));
 
     $form = new ConfigForm(self::$addonName);
     $form->addon = $addon;
@@ -58,7 +66,10 @@ class ConfigForm extends rex_config_form
           }
         }
         $label = $f['label'];
-
+        $notice = $f['notice'] ?? '';
+        if ($notice) {
+          $label .= '<br><small class="help-block rex-note" style="display:inline-block; font-weight: normal; margin: 0;">' . $notice . '</small>';
+        }
         $field->setLabel($label);
         //$field->setNotice('test');
       }
