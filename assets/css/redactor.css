@@ -9,6 +9,17 @@
   --redactor-massif-border-color-dark: rgba(255, 255, 255, 0.1);
   --redactor-massif-summary-background-dark: rgba(255, 255, 255, 0.1);
 }
+.redactor-modal-group:has(#redactor-modal-image-preview) {
+  display: grid;
+  grid-template-columns: 30% 66%;
+  column-gap: 4%;
+  > * {
+    display: block;
+    float: none;
+    margin: 0;
+    width: auto;
+  }
+}
 .redactor-in details {
   margin: 10px 0 !important;
   border: 2px dashed var(--redactor-massif-border-color) !important;
