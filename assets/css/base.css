@@ -2,6 +2,9 @@
   --clr-massif-100: #f2c9cf;
   --clr-massif-400: #ff269e;
 }
+html {
+  font-size: unset;
+}
 body.rex-theme-light .rex-main-frame {
   background-color: #b39da0;
 }
