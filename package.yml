@@ -4,18 +4,18 @@ author: Yves Torres
 supportpage: massif.ch
 
 page:
-  title: "MASSIF"
+  title: 'MASSIF'
   perm: massif[]
   subpages:
     converter:
-      title: "MASSIF Redaxo 4 zu 5 Converter"
+      title: 'MASSIF Redaxo 4 zu 5 Converter'
       perm: massif_convert[]
       icon: rex-icon fa-wrench
       customPage: true
     template:
-      title: "Template"
+      title: 'Template'
       icon: rex-icon fa-newspaper
-      yform/table: ""
+      yform/table: ''
       customPage: false
       customPagePath:
       package:
@@ -23,4 +23,4 @@ page:
       hidden: true
 
 console_commands:
-  massif:exec-php: massif_exec_php
+  massif:exec-php: console_massif_execute_php

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @internal
  */
-class rex_project_command_run_snippet extends rex_console_command
+class console_massif_execute_php extends rex_console_command
 {
     protected function configure(): void
     {
