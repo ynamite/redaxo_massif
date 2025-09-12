@@ -1,7 +1,7 @@
-@import './base.css';
-@import './img-preview.css';
-@import './grid.css';
-@import './yform.css';
-@import './mform.css';
-@import './redactor.css';
-@import './misc.css';
+@import '/assets/addons/massif/css/base.css';
+@import '/assets/addons/massif/css/img-preview.css';
+@import '/assets/addons/massif/css/grid.css';
+@import '/assets/addons/massif/css/yform.css';
+@import '/assets/addons/massif/css/mform.css';
+@import '/assets/addons/massif/css/redactor.css';
+@import '/assets/addons/massif/css/misc.css';
