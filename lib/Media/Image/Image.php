@@ -11,10 +11,11 @@ use rex_media;
 
 class Image
 {
-
-  private const MANAGER_PATH = '/image/';
-  private const EXCLUDE_EXTENSIONS_FROM_RESIZE = ['svg', 'gif'];
   public ?array $breakPoints = [];
+
+  private ImageConfig $config;
+  private const EXCLUDE_EXTENSIONS_FROM_RESIZE = ['svg', 'gif'];
+  private const MANAGER_PATH = '/image/';
 
   /**
    * Get image markup
@@ -22,6 +23,7 @@ class Image
    * @param string $alt
    * @param string $sizes
    * @param int $maxWidth
+   * @param float $ratio
    * @param string $className
    * @param int $width
    * @param int $height
@@ -37,6 +39,7 @@ class Image
     string $className = '',
     string $sizes = '',
     int $maxWidth = 0,
+    float $ratio = 0,
     int $width = 0,
     int $height = 0,
     array $breakPoints = ImageConfig::BREAKPOINTS,
@@ -52,6 +55,7 @@ class Image
       height: $height,
       sizes: $sizes,
       maxWidth: $maxWidth,
+      ratio: $ratio,
       breakPoints: $breakPoints,
       loading: $loading,
       decoding: $decoding,
@@ -74,6 +78,8 @@ class Image
   {
     $html = '';
     if ($config->src == '') return $html;
+
+    $this->config = $config;
 
     $rex_media = rex_media::get($config->src);
     if (!$rex_media) return $html;
@@ -110,7 +116,7 @@ class Image
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
       $lip = $this->breakPoints[0];
       $html .= 'srcset="' . $this->getSrcset($config->src) . '" ';
-      $html .= 'src="' . self::getPath($config->src, $lip) . '" ';
+      $html .= 'src="' . self::getPath(src: $config->src, size: $lip, ratio: $config->ratio) . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
     }
@@ -137,10 +143,13 @@ class Image
    * @return string
    */
 
-  public static function getPath(string $src, int $size): string
+  public function getPath(string $src, int $size, float $ratio = 0): string
   {
     if (!in_array($size, ImageConfig::BREAKPOINTS))
       $size = ImageConfig::BREAKPOINTS[0];
+    if ($ratio > 0) {
+      $size .= 'x' . (int)round($size * $ratio);
+    }
 
     return self::MANAGER_PATH . 'auto/' . $size . '/' . $src;
   }
@@ -160,7 +169,8 @@ class Image
     array_shift($sizes);
 
     foreach ($sizes as $key => $size) {
-      $srcset[] = self::getPath($src, $size) . ' ' . $size . 'w';
+      if ($this->config->maxWidth > 0 && $size >= $this->config->maxWidth * 2) break;
+      $srcset[] = self::getPath(src: $src, size: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
     }
 
     return implode(', ', $srcset);

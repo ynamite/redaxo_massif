@@ -32,6 +32,7 @@ readonly class ImageConfig
     public ?string $alt = '',
     public ?int $width = 0,
     public ?int $height = 0,
+    public ?float $ratio = 0,
     public ?int $maxWidth = 0,
     public ?string $sizes = '100vw',
     public ?array $breakPoints = ImageConfig::BREAKPOINTS,

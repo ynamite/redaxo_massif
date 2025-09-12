@@ -18,6 +18,7 @@ class GetImage extends rex_api_function
   private string $className = '';
   private string $sizes = '';
   private int $maxWidth = 0;
+  private float $ratio = 0;
   private int $width = 0;
   private int $height = 0;
   private array $breakPoints = Media\ImageConfig::BREAKPOINTS;
@@ -38,6 +39,7 @@ class GetImage extends rex_api_function
     $this->className = rex_get('className', 'string', '');
     $this->sizes = rex_get('sizes', 'string', '');
     $this->maxWidth = rex_get('maxWidth', 'int', 0);
+    $this->ratio = rex_get('ratio', 'float', 0);
     $this->width = rex_get('width', 'int', 0);
     $this->height = rex_get('height', 'int', 0);
     $this->breakPoints = rex_get('breakPoints', 'array', Media\ImageConfig::BREAKPOINTS);
@@ -51,6 +53,7 @@ class GetImage extends rex_api_function
       className: $this->className,
       sizes: $this->sizes,
       maxWidth: $this->maxWidth,
+      ratio: $this->ratio,
       width: $this->width,
       height: $this->height,
       breakPoints: $this->breakPoints,
