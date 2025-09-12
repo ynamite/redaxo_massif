@@ -310,7 +310,7 @@ class Nav
         $li['class'][] = 'has-children';
         $dropdownToggleTag = $this->name === 'desktop' ? 'div' : 'button';
         $dropdownToggleType = $this->name === 'mobile' ? ' type="button"' : '';
-        $dropdownToggle = '<' . $dropdownToggleTag . $dropdownToggleType . ' aria-expanded="false" class="dropdown-toggle" aria-label="' . $this->dropdownToggleAriaLabel . '"><span class="' . $this->addDropdownToggleClass . '"></span></' . $dropdownToggleTag . '>';
+        $dropdownToggle = '<' . $dropdownToggleTag . $dropdownToggleType . ' role="button" aria-expanded="false" class="dropdown-toggle" aria-label="' . $this->dropdownToggleAriaLabel . '"><span class="' . $this->addDropdownToggleClass . '"></span></' . $dropdownToggleTag . '>';
       }
 
       if ($this->checkFilter($nav, $depth) && $this->checkCallbacks($nav, $depth, $li, $a, $label, $this->name)) {
