@@ -22,9 +22,9 @@ class GetImage extends rex_api_function
   private int $width = 0;
   private int $height = 0;
   private array $breakPoints = Media\ImageConfig::BREAKPOINTS;
-  private $loading = Media\LoadingBehavior::LAZY;
-  private $decoding = Media\DecodingBehavior::AUTO;
-  private $fetchPriority = Media\FetchPriorityBehavior::AUTO;
+  private string $loading = 'lazy';
+  private string $decoding = 'auto';
+  private string $fetchPriority = 'auto';
 
   /**
    * @return rex_api_result
@@ -43,9 +43,9 @@ class GetImage extends rex_api_function
     $this->width = rex_get('width', 'int', 0);
     $this->height = rex_get('height', 'int', 0);
     $this->breakPoints = rex_get('breakPoints', 'array', Media\ImageConfig::BREAKPOINTS);
-    $this->loading = rex_get('loading', 'string', Media\LoadingBehavior::LAZY);
-    $this->decoding = rex_get('decoding', 'string', Media\DecodingBehavior::AUTO);
-    $this->fetchPriority = rex_get('fetchPriority', 'string', Media\FetchPriorityBehavior::AUTO);
+    $this->loading = rex_get('loading', 'string', 'lazy');
+    $this->decoding = rex_get('decoding', 'string', 'auto');
+    $this->fetchPriority = rex_get('fetchPriority', 'string', 'auto');
 
     $html = Media\Image::get(
       src: $this->src,

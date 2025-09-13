@@ -27,10 +27,10 @@ class Image
    * @param string $className
    * @param int $width
    * @param int $height
-   * @param LoadingBehavior $loading
-   * @param DecodingBehavior $decoding
-   * @param FetchPriorityBehavior $fetchPriority
-   * 
+   * @param string $loading
+   * @param string $decoding
+   * @param string $fetchPriority
+   *
    * @return string
    */
   public static function get(
@@ -43,10 +43,13 @@ class Image
     int $width = 0,
     int $height = 0,
     array $breakPoints = ImageConfig::BREAKPOINTS,
-    $loading = LoadingBehavior::LAZY,
-    $decoding = DecodingBehavior::AUTO,
-    $fetchPriority = FetchPriorityBehavior::AUTO
+    $loading = 'lazy',
+    $decoding = 'auto',
+    $fetchPriority = 'auto'
   ): string {
+    $_loading = LoadingBehavior::tryFrom($loading) ?? LoadingBehavior::LAZY;
+    $_decoding = DecodingBehavior::tryFrom($decoding) ?? DecodingBehavior::AUTO;
+    $_fetchPriority = FetchPriorityBehavior::tryFrom($fetchPriority) ?? FetchPriorityBehavior::AUTO;
     $config = new ImageConfig(
       src: $src,
       alt: $alt,
@@ -57,9 +60,9 @@ class Image
       maxWidth: $maxWidth,
       ratio: $ratio,
       breakPoints: $breakPoints,
-      loading: $loading,
-      decoding: $decoding,
-      fetchPriority: $fetchPriority
+      loading: $_loading,
+      decoding: $_decoding,
+      fetchPriority: $_fetchPriority
     );
 
     $image = new Image();
