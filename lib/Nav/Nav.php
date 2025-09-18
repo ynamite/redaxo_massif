@@ -12,8 +12,13 @@ class Nav
 {
   use rex_factory_trait;
 
+  private static ?self $instance = null;
+
   protected $dropdowns = true;
-  protected $addDropdownToggleClass = 'transition-transform duration-300 dropdown-arrow iconify bi--chevron-down';
+  protected $dropdownClasses = 'dropdown';
+  protected $addDropdownToggles = true;
+  protected $dropdownToggleClass = 'transition-transform duration-300 dropdown-arrow';
+  protected $dropdownToggleContent = '▼';
   protected $dropdownToggleAriaLabel = 'Untermenü ein- oder ausklappen';
   protected $name = 'desktop'; // Name der Navigation
   protected $depth = 1; // Wieviele Ebene tief, ab der Startebene
@@ -27,6 +32,8 @@ class Nav
   protected $current_article_id = -1; // Aktueller Artikel
   protected $current_category_id = -1; // Aktuelle Katgorie
 
+  private static $CACHE = [];
+
   protected function __construct()
   {
     // nichts zu tun
@@ -37,8 +44,11 @@ class Nav
    */
   public static function factory()
   {
-    $class = self::getFactoryClass();
-    return new $class();
+    if (self::$instance) {
+      return self::$instance;
+    }
+
+    return self::$instance = new self();
   }
 
   /**
@@ -58,7 +68,10 @@ class Nav
     bool $ignore_offlines = true,
     string $name = '',
     ?bool $dropdowns = null,
+    ?string $dropdownClasses = null,
+    ?bool $addDropdownToggles = null,
     string $dropdownToggleClass = '',
+    string $dropdownToggleContent = '',
     string $dropdownToggleAriaLabel = ''
   ) {
     if (!$this->_setActivePath()) {
@@ -66,7 +79,10 @@ class Nav
     }
 
     $this->dropdowns = $dropdowns ?? $this->dropdowns;
-    $this->addDropdownToggleClass = $dropdownToggleClass ?: $this->addDropdownToggleClass;
+    $this->dropdownClasses = $dropdownClasses ?: $this->dropdownClasses;
+    $this->addDropdownToggles = $addDropdownToggles ?? $this->addDropdownToggles;
+    $this->dropdownToggleClass = $dropdownToggleClass ?: $this->dropdownToggleClass;
+    $this->dropdownToggleContent = $dropdownToggleContent ?: $this->dropdownToggleContent;
     $this->dropdownToggleAriaLabel = $dropdownToggleAriaLabel ?: $this->dropdownToggleAriaLabel;
     $this->name = $name ?: $this->name;
     $this->depth = $depth ?? $this->depth;
@@ -254,6 +270,7 @@ class Nav
       'a' => &$a,
       'label' => &$label,
       'name' => $name,
+      'path' => $this->path,
     ];
     foreach ($this->callbacks as $c) {
       if ($c['depth'] == '' || $c['depth'] == $depth) {
@@ -285,14 +302,23 @@ class Nav
 
   protected function _getNavigation($category_id, $depth = 1)
   {
+    $nav_obj = null;
     if ($category_id < 1) {
-      $nav_obj = rex_category::getRootCategories();
+      $nav_obj = isset(self::$CACHE['root_categories']) ? self::$CACHE['root_categories'] : null;
+      if ($nav_obj === null) {
+        self::$CACHE['root_categories'] = rex_category::getRootCategories();
+        $nav_obj = self::$CACHE['root_categories'];
+      }
     } else {
-      $cat = rex_category::get($category_id);
+      $cat = isset(self::$CACHE['category_' . $category_id]) ? self::$CACHE['category_' . $category_id] : null;
+      if ($cat === null) {
+        self::$CACHE['category_' . $category_id] = rex_category::get($category_id);
+        $cat = self::$CACHE['category_' . $category_id];
+      }
       if (!$cat) {
         return;
       }
-      $nav_obj = rex_category::get($category_id)->getChildren();
+      $nav_obj = $cat->getChildren();
     }
 
     $lis = [];
@@ -310,7 +336,7 @@ class Nav
         $li['class'][] = 'has-children';
         $dropdownToggleTag = $this->name === 'desktop' ? 'div' : 'button';
         $dropdownToggleType = $this->name === 'mobile' ? ' type="button"' : '';
-        $dropdownToggle = '<' . $dropdownToggleTag . $dropdownToggleType . ' role="button" aria-expanded="false" class="dropdown-toggle" aria-label="' . $this->dropdownToggleAriaLabel . '"><span class="' . $this->addDropdownToggleClass . '"></span></' . $dropdownToggleTag . '>';
+        $dropdownToggle = '<' . $dropdownToggleTag . $dropdownToggleType . ' role="button" aria-expanded="false" class="dropdown-toggle" aria-label="' . $this->dropdownToggleAriaLabel . '"><span class="' . $this->dropdownToggleClass . '">' . $this->dropdownToggleContent . '</span></' . $dropdownToggleTag . '>';
       }
 
       if ($this->checkFilter($nav, $depth) && $this->checkCallbacks($nav, $depth, $li, $a, $label, $this->name)) {
@@ -354,7 +380,9 @@ class Nav
         $l = '<li ' . implode(' ', $li_attr) . '>';
         $l .= $liPrepend;
         $l .= '<a ' . implode(' ', $a_attr) . '>' . $aPrepend . '<span>' . $label . '</span>' . $aAppend . '</a>';
-        $l .= $dropdownToggle;
+        if ($this->addDropdownToggles) {
+          $l .= $dropdownToggle;
+        }
         ++$depth;
         if (($this->open ||
             $nav->getId() == $this->current_category_id ||
@@ -363,22 +391,6 @@ class Nav
         ) {
           $l .= $this->_getNavigation($nav->getId(), $depth);
         }
-        if (
-          in_array($nav->getId(), [24, 14]) &&
-          ($nav->getId() == $this->current_category_id ||
-            in_array($nav->getId(), $this->path))
-        ) {
-          $slices = rex_article_slice::getSlicesForArticle($nav->getId(), 1, 0, true);
-          $sliceLis = [];
-          foreach ($slices as $slice) {
-            if ($slice->getModuleId() != 163 || $slice->getValue(20) != "1") continue;
-            $label = $slice->getValue(1);
-            $sliceLis[] = '<li class="rex-slice-' . $slice->getId() . '"><a href="' . rex_getUrl($slice->getArticleId(), $slice->getClangId()) . '#' . rex_string::normalize($label) . '-' . $slice->getId() . '">' . $label . '</a></li>';
-          }
-          if (count($sliceLis) > 0) {
-            $l .= '<ul class="rex-navi' . $depth . ' rex-navi-depth-' . $depth . ' rex-navi-has-' . count($sliceLis) . '-elements rex-slice-nav">' . implode('', $sliceLis) . '</ul>';
-          }
-        }
         --$depth;
         $l .= $liAppend;
         $l .= '</li>';
@@ -386,8 +398,13 @@ class Nav
       }
     }
     if (count($lis) > 0) {
-      return '<ul class="rex-navi' . $depth . ' rex-navi-depth-' . $depth . ' rex-navi-has-' . count($lis) . '-elements' . '">' . implode('', $lis) . '</ul>';
+      $out = '<ul class="rex-navi' . $depth . ' rex-navi-depth-' . $depth . ' rex-navi-has-' . count($lis) . '-elements' . '">' . implode('', $lis) . '</ul>';
+      if ($this->dropdowns && $depth > 1 && count($lis) > 0) {
+        return '<div class="' . $this->dropdownClasses . '">' . $out . '<div class="dropdown-backdrop"></div></div>';
+      }
+      return $out;
     }
+
     return '';
   }
 }
