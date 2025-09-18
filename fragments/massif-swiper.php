@@ -8,8 +8,8 @@ $content = $this->getVar('content', '');
 $pager = $this->getVar('pager', false);
 $dirNav = $this->getVar('dirNav', false);
 $controls = $this->getVar('controls', true);
-$prevIcon = $this->getVar('prevIcon', '<i class="icon-[bi--chevron-left] icon"></i>');
-$nextIcon = $this->getVar('nextIcon', '<i class="icon-[bi--chevron-right] icon"></i>');
+$prevIcon = $this->getVar('prevIcon', '<i class="icon">◀</i>');
+$nextIcon = $this->getVar('nextIcon', '<i class="icon">▶</i>');
 $wrap = $this->getVar('wrap', true);
 $classNames = $this->getVar('classNames', '');
 ?>
