@@ -20,6 +20,8 @@ class Html
    */
   public static function getH1(string $title = '', array $class = []): string
   {
+    if (!$title)
+      return '';
     if (count($class) === 0)
       $class[] = 'h1';
     $hasH1 = rex::getProperty('has-h1');
