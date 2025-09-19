@@ -174,13 +174,16 @@ if (rex::isBackend() && rex::getUser()) {
 	$ep->setSubject($ep->getSubject() . rex::getProperty('massif-grid')->finish());
 });
 */
+
 if (rex::isBackend() && rex::getUser()) {
     // check media in use
+
     rex_extension::register('MEDIA_IS_IN_USE', function (rex_extension_point $ep) {
         $params = $ep->getParams();
         $sql = rex_sql::factory();
         $escapedFilename = $sql->escape($params['filename']);
         $warning = $ep->getSubject();
+        /*
         if (rex_plugin::get('yform', 'manager') && count(rex_yform_manager_table::getAll()) > 0) {
             $sql->setQuery('SELECT * FROM `' . rex_yform_manager_field::table() . '` LIMIT 0');
             $columns = $sql->getFieldnames();
@@ -215,7 +218,7 @@ if (rex::isBackend() && rex::getUser()) {
                 $warning[] = 'Tabelle<br /><ul>' . $messages . '</ul>';
             }
         }
-
+    */
 
         if (rex_addon::get('metainfo')) {
             $fields = $sql->getArray('SELECT name FROM `rex_metainfo_field` WHERE `type_id` = 6');
