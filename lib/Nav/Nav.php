@@ -263,6 +263,11 @@ class Nav
 
   protected function checkCallbacks(rex_category $category, int $depth, &$li, &$a, &$label, $name)
   {
+    $path = explode(
+      '|',
+      trim($category->getPath(), '|')
+    );
+
     $params = [
       'category' => $category,
       'depth' => $depth,
@@ -270,7 +275,7 @@ class Nav
       'a' => &$a,
       'label' => &$label,
       'name' => $name,
-      'path' => $this->path,
+      'path' => $path,
     ];
     foreach ($this->callbacks as $c) {
       if ($c['depth'] == '' || $c['depth'] == $depth) {
