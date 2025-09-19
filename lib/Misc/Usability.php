@@ -2,6 +2,8 @@
 
 namespace Ynamite\Massif;
 
+use rex_extension;
+use rex_extension_point;
 use rex_fragment;
 use rex_i18n;
 
@@ -17,10 +19,28 @@ class Usability
     $table     = $ep->getParam('table');
     $tableName = $table->getTableName();
 
-    $addNameColLink = ['rex_yf_member_links' => ['name', 'place'], 'rex_yf_team' => ['name', 'role']];
-    $showImgInListForTable = ['rex_yf_member_links' => 'logo', 'rex_yf_team' => 'img', 'rex_yf_gallery' => 'image'];
-    $noIdYformTables = ['rex_yf_member_links', 'rex_yf_team', 'rex_yf_ticker', 'rex_yf_sponsor', 'rex_yf_mail_log', 'rex_yf_job', 'rex_yf_time'];
+    $addNameColLink = []; // ['rex_yf_member_links' => ['name', 'place'], 'rex_yf_team' => ['name', 'role']]
+    $showImgInListForTable = []; // ['rex_yf_member_links' => 'logo', 'rex_yf_team' => 'img', 'rex_yf_gallery' => 'image']
+    $noIdYformTables = []; // ['rex_yf_member_links', 'rex_yf_team', 'rex_yf_ticker', 'rex_yf_sponsor', 'rex_yf_mail_log', 'rex_yf_job', 'rex_yf_time'];
     $checkboxesYformTables = [];
+    $customFormat = []; // ['rex_yf_projekte' => ['column', function($params) {}]];
+
+    $epData = rex_extension::registerPoint(new rex_extension_point('MASSIF_USABILITY_LISTS', [
+      'addNameColLink' => $addNameColLink,
+      'showImgInListForTable' => $showImgInListForTable,
+      'noIdYformTables' => $noIdYformTables,
+      'checkboxesYformTables' => $checkboxesYformTables,
+      'customFormat' => $customFormat
+    ], [
+      'table' => $table,
+      'tableName' => $tableName,
+      'list' => $list,
+    ]));
+    $addNameColLink = $epData['addNameColLink'];
+    $showImgInListForTable = $epData['showImgInListForTable'];
+    $noIdYformTables = $epData['noIdYformTables'];
+    $checkboxesYformTables = $epData['checkboxesYformTables'];
+    $customFormat = $epData['customFormat'];
 
     $_csrf_key = \rex_yform_manager_table::get($tableName)->getCSRFKey();
     $_csrf_params = \rex_csrf_token::factory($_csrf_key)->getUrlParams();
@@ -76,6 +96,13 @@ class Usability
           });
         }
       }
+    }
+
+    if (array_key_exists($tableName, $customFormat)) {
+      $format = $customFormat[$tableName];
+      $field = $format[0];
+      $function = $format[1];
+      $list->setColumnFormat($field, 'custom', $function);
     }
 
     //$list = self::addDuplicationTrigger($list, $tableName);
