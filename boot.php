@@ -27,6 +27,7 @@ use Ynamite\Massif\Usability;
 
 /** @var rex_addon_interface $this */
 
+rex_api_function::register('massif_meta_get', Media\Api\GetMeta::class);
 rex_api_function::register('massif_image_get', Media\Api\GetImage::class);
 
 
