@@ -75,9 +75,17 @@
 
       html = $html.html()
       const $source = this.source.getElement()
-      $source.val(html)
+      setTimeout(() => {
+        $source.val(html)
+      })
 
       return html
+    },
+
+    onsource: {
+      closed: function () {
+        this._addProps()
+      }
     },
 
     // public
@@ -109,16 +117,17 @@
       var current = this.selection.getCurrent()
       var detailsParent = current ? $R.dom(current).closest('details') : null
 
+      var html =
+        '<details open draggable="true" data-details-component="true">' +
+        '<summary><div contenteditable="true">Summary</div></summary>' +
+        '<div contenteditable="true">' +
+        this.cleaner.paragraphize('Details content') +
+        '</div>' +
+        '</details>'
+
       if (detailsParent.length) {
         // If inside details, insert after the details element instead
         var $detailsParent = $R.dom(detailsParent)
-        var html =
-          '<details open draggable="true" data-details-component="true">' +
-          '<summary><div contenteditable="true">Summary</div></summary>' +
-          '<div contenteditable="true">' +
-          this.cleaner.paragraphize('Details content') +
-          '</div>' +
-          '</details>'
 
         $detailsParent.after(html)
         var insertedElement = $detailsParent.next().get()
@@ -133,15 +142,6 @@
         this._bindEventHandlers()
         return
       }
-
-      // Create simple HTML structure with draggable attribute
-      var html =
-        '<details open draggable="true" data-details-component="true">' +
-        '<summary><div contenteditable="true">Summary</div></summary>' +
-        '<div contenteditable="true">' +
-        this.cleaner.paragraphize('Details content') +
-        '</div>' +
-        '</details>'
 
       // Always insert at block level - force split if inside other elements
       var block = this.selection.getBlock()
