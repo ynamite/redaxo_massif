@@ -2,6 +2,7 @@
 
 namespace Ynamite\Massif;
 
+use rex;
 use rex_extension;
 use rex_extension_point;
 use rex_fragment;
@@ -19,16 +20,16 @@ class Usability
     $table     = $ep->getParam('table');
     $tableName = $table->getTableName();
 
-    $addNameColLink = []; // ['rex_yf_member_links' => ['name', 'place'], 'rex_yf_team' => ['name', 'role']]
-    $showImgInListForTable = []; // ['rex_yf_member_links' => 'logo', 'rex_yf_team' => 'img', 'rex_yf_gallery' => 'image']
-    $noIdYformTables = []; // ['rex_yf_member_links', 'rex_yf_team', 'rex_yf_ticker', 'rex_yf_sponsor', 'rex_yf_mail_log', 'rex_yf_job', 'rex_yf_time'];
+    $addColumnLink = []; // ['rex_yf_member_links' => ['name', 'place'], 'rex_yf_team' => ['name', 'role']]
+    $addColumnImage = []; // ['rex_yf_member_links' => 'logo', 'rex_yf_team' => 'img', 'rex_yf_gallery' => 'image']
+    $removeColumnId = []; // ['rex_yf_member_links', 'rex_yf_team', 'rex_yf_ticker', 'rex_yf_sponsor', 'rex_yf_mail_log', 'rex_yf_job', 'rex_yf_time'];
     $checkboxesYformTables = [];
     $customFormat = []; // ['rex_yf_projekte' => ['column', function($params) {}]];
 
     $epData = rex_extension::registerPoint(new rex_extension_point('MASSIF_USABILITY_LISTS', [
-      'addNameColLink' => $addNameColLink,
-      'showImgInListForTable' => $showImgInListForTable,
-      'noIdYformTables' => $noIdYformTables,
+      'addColumnLink' => $addColumnLink,
+      'addColumnImage' => $addColumnImage,
+      'removeColumnId' => $removeColumnId,
       'checkboxesYformTables' => $checkboxesYformTables,
       'customFormat' => $customFormat
     ], [
@@ -36,9 +37,9 @@ class Usability
       'tableName' => $tableName,
       'list' => $list,
     ]));
-    $addNameColLink = $epData['addNameColLink'];
-    $showImgInListForTable = $epData['showImgInListForTable'];
-    $noIdYformTables = $epData['noIdYformTables'];
+    $addColumnLink = $epData['addColumnLink'];
+    $addColumnImage = $epData['addColumnImage'];
+    $removeColumnId = $epData['removeColumnId'];
     $checkboxesYformTables = $epData['checkboxesYformTables'];
     $customFormat = $epData['customFormat'];
 
@@ -49,7 +50,7 @@ class Usability
         *   yform 4 status switch and dupblicate fix, needed until yform_usability is updated
         */
 
-    if (in_array($tableName, $noIdYformTables)) {
+    if (in_array($tableName, $removeColumnId) && !rex::getUser()->isAdmin()) {
       $list->removeColumn("id");
     };
 
@@ -74,18 +75,23 @@ class Usability
     }
 
 
-    foreach ($showImgInListForTable as $table => $field) {
+    foreach ($addColumnImage as $table => $field) {
       if ($tableName == $table) {
         $list->setColumnParams($field, ['func' => 'edit', 'data_id' => '###id###', 'table' => $table, \rex_csrf_token::PARAM => $_csrf_params]);
         $list->setColumnFormat($field, 'custom', function ($params) use ($field) {
-          if ($params['list']->getValue($field))
+          if ($params['list']->getValue($field)) {
             return $params['list']->getColumnLink($field, '<img src="index.php?rex_media_type=rex_media_small&rex_media_file=' . $params['list']->getValue($field) . '" class="thumbnail" style="max-width: 150px; margin-bottom: 0" />');
+          }
+          return $params['list']->getColumnLink(
+            $field,
+            '<div style="width:80px; aspect-ratio: 1; background-color: #eee; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 24px;"><i class="fa fa-picture-o"></i></div>'
+          );
         });
       }
     }
 
 
-    foreach ($addNameColLink as $table => $field) {
+    foreach ($addColumnLink as $table => $field) {
       if ($tableName == $table) {
 
         $field = is_array($field) ? $field : [$field];
