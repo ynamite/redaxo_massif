@@ -14,6 +14,7 @@ class Image
   public ?array $breakPoints = [];
 
   private ImageConfig $config;
+  private rex_media $rex_media;
   private const EXCLUDE_EXTENSIONS_FROM_RESIZE = ['svg', 'gif'];
   private const MANAGER_PATH = '/image/';
 
@@ -84,30 +85,30 @@ class Image
 
     $this->config = $config;
 
-    $rex_media = rex_media::get($config->src);
-    if (!$rex_media) return $html;
+    $this->rex_media = rex_media::get($config->src);
+    if (!$this->rex_media) return $html;
 
     $this->breakPoints = array_values(array_intersect($config->breakPoints, ImageConfig::BREAKPOINTS));
     if (empty($this->breakPoints)) {
       throw new InvalidArgumentException('Invalid breakpoints');
     }
 
-    $url = $rex_media->getUrl();
+    $url = $this->rex_media->getUrl();
 
-    $ext = $rex_media->getExtension();
+    $ext = $this->rex_media->getExtension();
     if ($ext === 'gif') {
       $url .= '?' . time();
     }
 
-    $width = $config->width ?: $rex_media->getWidth();
-    $height = $config->height ?: $rex_media->getHeight();
-    $alt = $config->alt ?: $rex_media->getTitle();
+    $width = $config->width ?: $this->rex_media->getWidth();
+    $height = $config->height ?: $this->rex_media->getHeight();
+    $alt = $config->alt ?: $this->rex_media->getTitle();
     $sizes = $config->sizes ?: $this->getSizes($config->maxWidth);
     $style = [];
     $className = [];
     $className[] = $config->className ?: '';
 
-    $focuspoint = array_filter(explode(',', $rex_media->getValue('med_focuspoint')));
+    $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
       $style[] = 'object-position: ' . $focuspoint[0] . '% ' . $focuspoint[1] . '%';
     }
@@ -154,7 +155,7 @@ class Image
       $size .= 'x' . (int)round($size * $ratio);
     }
 
-    return self::MANAGER_PATH . 'auto/' . $size . '/' . $src;
+    return self::MANAGER_PATH . 'auto/' . $size . '/' . $src . '?v=' . $this->rex_media->getUpdateDate();
   }
 
   /**
@@ -172,8 +173,8 @@ class Image
     array_shift($sizes);
 
     foreach ($sizes as $key => $size) {
-      if ($this->config->maxWidth > 0 && $size >= $this->config->maxWidth * 2) break;
       $srcset[] = self::getPath(src: $src, size: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
+      if ($this->config->maxWidth > 0 && $size >= $this->config->maxWidth * 2) break;
     }
 
     return implode(', ', $srcset);
