@@ -13,7 +13,6 @@
    * Add sizes, loading and decoding to allowed image attributes
    */
   $R.opts.imageTypes.push('image/webp', 'image/avif')
-  $R.opts.imageAttrs.push('sizes', 'loading', 'decoding')
   /**
    * Override Redactor Cleaner to allow loading and decoding attributes on images
    * Unfortunately we have to copy the whole function here, as imageattrs isn't originally retrieved from opts and Redactor does not provide hooks
@@ -133,10 +132,7 @@
       imageComponent._set_caption(caption)
       const style = $figure.attr('style') || ''
       if (style.indexOf('max-width') === -1) {
-        $figure.attr(
-          'style',
-          `margin-left: auto; margin-right: auto; max-width: ${maxWidth / 2}px;`
-        )
+        $figure.attr('style', `max-width: ${maxWidth / 2}px;`)
       }
     })
   }
@@ -168,17 +164,18 @@
       if (!filename) return
       // fetch processed image HTML from massif
       const result = await fetch(
-        `/redaxo/index.php?rex-api-call=massif_image_get&src=${filename}&maxWidth=${maxWidth}`,
+        `/redaxo/index.php?rex-api-call=massif_meta_get&filename=${filename}`,
         {
           method: 'GET',
           headers: {
-            'Content-Type': 'text/html',
+            'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
           }
         }
       )
       if (!result.ok) throw new Error('Network response was not ok')
-      let html = await result.text()
+      let json = await result.json()
+      let html = `<img src="/media/${filename}" data-filename="${filename}" alt="${json.title}" class="redactor-image" />`
       let converter = $R.create('cleaner.figure', this.app)
       html = converter.convert(html, this.convertRules)
       this.insertion.insertRaw(html)
@@ -223,6 +220,12 @@
       this._clean(html)
     },
 
+    onsource: {
+      closed: function () {
+        handleFigures.call(this, { setCaption: false })
+      }
+    },
+
     // public
     openModal: function () {
       this.$image = this._getCurrent()
@@ -237,8 +240,6 @@
       const imageData = this.$image.getData()
       const $previewImg = $R.dom('<img>')
       $previewImg.attr('src', imageData.src)
-      $previewImg.attr('srcset', element.attr('srcset'))
-      $previewImg.attr('loading', 'lazy')
 
       this.$previewBox = $R.dom('<div>')
       this.$previewBox.append($previewImg)
@@ -249,10 +250,13 @@
     _clean: function (html) {
       // Remove style from figure tags
       const $html = $R.dom('<div>').html(html)
-      $html.find('figure').removeAttr('style')
+      const $figure = $html.find('figure')
+      $figure.removeAttr('style')
       html = $html.html()
       const $source = this.source.getElement()
-      $source.val(html)
+      setTimeout(() => {
+        $source.val(html)
+      })
     }
   })
 })(Redactor)
