@@ -263,10 +263,10 @@ class Nav
 
   protected function checkCallbacks(rex_category $category, int $depth, &$li, &$a, &$label, $name)
   {
-    $path = explode(
-      '|',
-      trim($category->getPath(), '|')
-    );
+    $path = $category->getPathAsArray();
+    if (!in_array(rex_article::getCurrentId(), $path)) {
+      $path[] = rex_article::getCurrentId();
+    }
 
     $params = [
       'category' => $category,
