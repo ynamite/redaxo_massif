@@ -46,7 +46,7 @@ body.rex-theme-light .rex-slice-select > .dropdown > .btn-default {
   margin-bottom: 15px;
 }
 
-.rex-slice-input .panel-footer {
+.rex-slice .panel-footer {
   position: sticky;
   bottom: 0;
   left: 0;
