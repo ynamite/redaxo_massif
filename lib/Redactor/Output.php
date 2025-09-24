@@ -36,23 +36,23 @@ class Output
     $html = MassifSettings\Utils::replaceStrings($html);
     $imageMaxWidth = rex_view::getJsProperties()['redactor_img_maxWidth'] ?? 1024;
 
-    // replace all images with class "redactor-image" with massif image syntax
-    $html = preg_replace_callback(
-      '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
-      function ($matches) use ($imageMaxWidth) {
-        if (preg_match('/data-filename=["\']?([^"\'>\s]+)["\']?/i', $matches[0], $filenameMatch)) {
-          $filename = $filenameMatch[1];
-          return Media\Image::get(src: $filename, maxWidth: $imageMaxWidth);
-        }
-        return $matches[0];
-      },
-      $html
-    );
-
     if ($this->backend === true || rex::isBackend()) {
       $html = str_replace(['<details>'], ['<details open>'], $html);
       $html = preg_replace('/<details name="([^"]+)">/', '<details open>', $html);
       return $html;
+    } else {
+      // replace all images with class "redactor-image" with massif image syntax
+      $html = preg_replace_callback(
+        '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
+        function ($matches) use ($imageMaxWidth) {
+          if (preg_match('/data-filename=["\']?([^"\'>\s]+)["\']?/i', $matches[0], $filenameMatch)) {
+            $filename = $filenameMatch[1];
+            return Media\Image::get(src: $filename, maxWidth: $imageMaxWidth);
+          }
+          return $matches[0];
+        },
+        $html
+      );
     }
 
     // Add name attribute to details tag to avoid duplicate IDs
