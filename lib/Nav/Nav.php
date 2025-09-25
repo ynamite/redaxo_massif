@@ -405,7 +405,7 @@ class Nav
     if (count($lis) > 0) {
       $out = '<ul class="rex-navi' . $depth . ' rex-navi-depth-' . $depth . ' rex-navi-has-' . count($lis) . '-elements' . '">' . implode('', $lis) . '</ul>';
       if ($this->dropdowns && $depth > 1 && count($lis) > 0) {
-        return '<div class="' . $this->dropdownClasses . '">' . $out . '<div class="dropdown-backdrop"></div></div>';
+        return '<div class="' . $this->dropdownClasses . '">' . $out . '</div>';
       }
       return $out;
     }
