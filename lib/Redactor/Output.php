@@ -5,6 +5,7 @@ namespace Ynamite\Massif\Redactor;
 use FriendsOfRedaxo\MBlock\MBlock;
 
 use rex;
+use rex_media;
 use rex_view;
 
 use Ynamite\Massif\Media;
@@ -50,6 +51,36 @@ class Output
             return Media\Image::get(src: $filename, maxWidth: $imageMaxWidth);
           }
           return $matches[0];
+        },
+        $html
+      );
+      // replace anchors pointing to pdf media with styled link
+      $html = preg_replace_callback(
+        '/<a[^>]+href=["\']?([^"\'>\s]+\.pdf)["\']?[^>]*>(.*?)<\/a>/is',
+        function ($matches) {
+          $href = $matches[1];
+          $text = strip_tags($matches[2]);
+          $media = rex_media::get(basename($href));
+          if ($media) {
+            return '<p class="print-pdf">
+            <a href="' . $href . '" target="_blank" class="icon-link">
+              <i class="text-accent iconify fa-solid--file-pdf"></i>
+              <span>' . $text . ' PDF speichern</span>
+            </a>
+            </p>';
+          }
+
+          return $matches[0];
+        },
+        $html
+      );
+      // parse URLs starting with www. or http(s):// that include an actual URL, that are not already wrapped in an anchor tag (add target="_blank" and rel="noopener")
+      $html = preg_replace_callback(
+        '/(?<!href=["\'])(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?)(?![^<]*<\/a>)/i',
+        function ($matches) {
+          $url = $matches[1];
+          $href = preg_match('/^https?:\/\//i', $url) ? $url : 'http://' . $url;
+          return '<a href="' . $href . '" target="_blank" rel="noopener">' . $url . '</a>';
         },
         $html
       );
