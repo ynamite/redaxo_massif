@@ -65,7 +65,7 @@ class Output
             return '<p class="print-pdf">
             <a href="' . $href . '" target="_blank" class="icon-link">
               <i class="text-accent iconify fa-solid--file-pdf"></i>
-              <span>' . $text . ' PDF speichern</span>
+              <span><span class="label">' . $text . ' PDF speichern</span></span>
             </a>
             </p>';
           }
