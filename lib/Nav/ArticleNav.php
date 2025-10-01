@@ -23,20 +23,30 @@ class ArticleNav
     $options['addStartArticle'] = 0;
     $options['include'] = array();
     $options['exclude'] = array(2);
+    $options['addNavTag'] = true;
     $options['list'] = false;
     $options['class'] = '';
+    $options['prepend'] = '';
+    $options['append'] = '';
+
     $options = array_merge($options, $options_user);
     $items = ($parent_id == 0) ? rex_article::getRootArticles($options['ignoreOnline']) : rex_category::get($parent_id)->getArticles($options['ignoreOnline']);
     if (count($items) == 0) return '';
-    $out = '<nav class="article-nav';
-    if ($options['class']) {
-      $out .= ' ' . $options['class'];
+    $out = '';
+    if ($options['addNavTag']) {
+      $out = '<nav class="article-nav';
+      if ($options['class']) {
+        $out .= ' ' . $options['class'];
+      }
+      $out .= '">';
     }
-    $out .= '">';
 
     if ($options['list']) {
       $out .= '<ul>';
     }
+
+    $out .= $options['prepend'];
+
     if ($options['addStartArticle']) {
       $start_article = rex_article::getSiteStartArticle();
       if ($start_article) {
@@ -72,11 +82,15 @@ class ArticleNav
         }
       }
     }
+
+    $out .= $options['append'];
+
     if ($options['list']) {
       $out .= '</ul>';
     }
-    $out .= '</nav>';
-
+    if ($options['addNavTag']) {
+      $out .= '</nav>';
+    }
     return $out;
   }
 }
