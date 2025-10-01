@@ -3,10 +3,8 @@
 namespace Ynamite\Massif;
 
 use rex_article;
-use rex_article_slice;
 use rex_category;
 use rex_factory_trait;
-use rex_string;
 
 class Nav
 {
@@ -323,7 +321,16 @@ class Nav
       if (!$cat) {
         return;
       }
-      $nav_obj = $cat->getChildren();
+
+      if (isset(self::$CACHE['category_' . $category_id . '_children'])) {
+        $nav_obj = self::$CACHE['category_' . $category_id . '_children'];
+      } else {
+        self::$CACHE['category_' . $category_id . '_children'] = $cat->getChildren();
+        $nav_obj = self::$CACHE['category_' . $category_id . '_children'];
+      }
+      if (count($nav_obj) == 0) {
+        return '';
+      }
     }
 
     $lis = [];
