@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ynamite\Massif\Media;
 
-readonly class ImageConfig
+class ImageConfig
 {
   public const BREAKPOINTS = [
     16,
@@ -28,7 +28,6 @@ readonly class ImageConfig
     6016
   ];
   public function __construct(
-    public string $src,
     public ?string $alt = '',
     public ?int $width = 0,
     public ?int $height = 0,
