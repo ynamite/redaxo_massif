@@ -1,13 +1,23 @@
 .thumbnail {
   margin: 0;
 }
+.rex-js-widget-media:not(.rex-js-widget-imglist) {
+  display: flex;
+  .rex-js-media-preview {
+    display: none;
+  }
+  .input-group {
+    flex: 1;
+  }
+}
 .mform .thumbnail,
 .yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail,
 #rex-page-sidebar-metainfo .thumbnail {
   position: relative;
-  z-index: 3;
+  z-index: 4;
   transition: transform 0.3s;
   margin: 0;
+  isolation: isolate;
 }
 .mform .thumbnail:hover,
 .yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail:hover,
