@@ -16,7 +16,15 @@ class RexVars
    */
   public static function toArray(string $value): array
   {
-    return array_filter(rex_var::toArray($value, function ($item) {
+    $data = rex_var::toArray($value);
+
+    if (!is_array($data) || empty($data)) {
+      return [];
+    }
+    return array_filter($data, function ($item) {
+      if (!is_array($item)) {
+        return (bool)$item;
+      }
       $val = '';
       foreach ($item as $k => $v) {
         if ($v) {
@@ -24,6 +32,6 @@ class RexVars
         }
       }
       return $val;
-    }));
+    });
   }
 }
