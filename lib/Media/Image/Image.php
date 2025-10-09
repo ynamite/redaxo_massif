@@ -13,10 +13,66 @@ class Image
 {
   public ?array $breakPoints = [];
 
+  private string $src;
   private ImageConfig $config;
   private rex_media $rex_media;
+
   private const EXCLUDE_EXTENSIONS_FROM_RESIZE = ['svg', 'gif'];
   private const MANAGER_PATH = '/image/';
+
+  /**
+   * Get image markup
+   * @param string $src
+   * @param string $alt
+   * @param string $sizes
+   * @param int $maxWidth
+   * @param float $ratio
+   * @param string $className
+   * @param int $width
+   * @param int $height
+   * @param string $loading
+   * @param string $decoding
+   * @param string $fetchPriority
+   *
+   * @return self
+   */
+  public function __construct(
+    string $src,
+    string $alt = '',
+    string $className = '',
+    string $sizes = '',
+    int $maxWidth = 0,
+    float $ratio = 0,
+    int $width = 0,
+    int $height = 0,
+    array $breakPoints = ImageConfig::BREAKPOINTS,
+    $loading = 'lazy',
+    $decoding = 'auto',
+    $fetchPriority = 'auto'
+  ) {
+    $this->src = $src;
+    $this->rex_media = rex_media::get($this->src);
+
+    $_loading = LoadingBehavior::tryFrom($loading) ?? LoadingBehavior::LAZY;
+    $_decoding = DecodingBehavior::tryFrom($decoding) ?? DecodingBehavior::AUTO;
+    $_fetchPriority = FetchPriorityBehavior::tryFrom($fetchPriority) ?? FetchPriorityBehavior::AUTO;
+    $config = new ImageConfig(
+      alt: $alt,
+      className: $className,
+      width: $width,
+      height: $height,
+      sizes: $sizes,
+      maxWidth: $maxWidth,
+      ratio: $ratio,
+      breakPoints: $breakPoints,
+      loading: $_loading,
+      decoding: $_decoding,
+      fetchPriority: $_fetchPriority
+    );
+
+    $this->config = $config;
+    return $this;
+  }
 
   /**
    * Get image markup
@@ -48,27 +104,23 @@ class Image
     $decoding = 'auto',
     $fetchPriority = 'auto'
   ): string {
-    $_loading = LoadingBehavior::tryFrom($loading) ?? LoadingBehavior::LAZY;
-    $_decoding = DecodingBehavior::tryFrom($decoding) ?? DecodingBehavior::AUTO;
-    $_fetchPriority = FetchPriorityBehavior::tryFrom($fetchPriority) ?? FetchPriorityBehavior::AUTO;
-    $config = new ImageConfig(
+
+    $image = new Image(
       src: $src,
       alt: $alt,
       className: $className,
-      width: $width,
-      height: $height,
       sizes: $sizes,
       maxWidth: $maxWidth,
       ratio: $ratio,
+      width: $width,
+      height: $height,
       breakPoints: $breakPoints,
-      loading: $_loading,
-      decoding: $_decoding,
-      fetchPriority: $_fetchPriority
+      loading: $loading,
+      decoding: $decoding,
+      fetchPriority: $fetchPriority
     );
 
-    $image = new Image();
-
-    return $image->render($config);
+    return $image->render();
   }
 
   /**
@@ -78,17 +130,12 @@ class Image
    * @return string
    */
 
-  public function render(ImageConfig $config): string
+  public function render(): string
   {
     $html = '';
-    if ($config->src == '') return $html;
+    if ($this->src == '' || $this->rex_media == null) return $html;
 
-    $this->config = $config;
-
-    $this->rex_media = rex_media::get($config->src);
-    if (!$this->rex_media) return $html;
-
-    $this->breakPoints = array_values(array_intersect($config->breakPoints, ImageConfig::BREAKPOINTS));
+    $this->breakPoints = array_values(array_intersect($this->config->breakPoints, ImageConfig::BREAKPOINTS));
     if (empty($this->breakPoints)) {
       throw new InvalidArgumentException('Invalid breakpoints');
     }
@@ -100,13 +147,13 @@ class Image
       $url .= '?' . time();
     }
 
-    $width = $config->width ?: $this->rex_media->getWidth();
-    $height = $config->height ?: $this->rex_media->getHeight();
-    $alt = $config->alt ?: $this->rex_media->getTitle();
-    $sizes = $config->sizes ?: $this->getSizes($config->maxWidth);
+    $width = $this->getWidth();
+    $height = $this->getHeight();
+    $alt = $this->config->alt ?: $this->rex_media->getTitle();
+    $sizes = $this->config->sizes ?: $this->getSizes($this->config->maxWidth);
     $style = [];
     $className = [];
-    $className[] = $config->className ?: '';
+    $className[] = $this->config->className ?: '';
 
     $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
@@ -119,8 +166,8 @@ class Image
     $html = '<img alt="' . $alt . '" ';
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
       $lip = $this->breakPoints[0];
-      $html .= 'srcset="' . $this->getSrcset($config->src) . '" ';
-      $html .= 'src="' . self::getPath(src: $config->src, size: $lip, ratio: $config->ratio) . '" ';
+      $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
+      $html .= 'src="' . self::getPath(src: $this->src, size: $lip, ratio: $this->config->ratio) . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
     }
@@ -129,9 +176,9 @@ class Image
     if ($sizes) $html .= 'sizes="' . $sizes . '" ';
     if (!empty($className)) $html .= 'class="' . implode(' ', $className) . '" ';
     if (!empty($style)) $html .= 'style="' . implode('; ', $style) . '" ';
-    $html .= 'loading="' . $config->loading->value . '" ';
-    $html .= 'decoding="' . $config->decoding->value . '" ';
-    $html .= 'fetchpriority="' . $config->fetchPriority->value . '" ';
+    $html .= 'loading="' . $this->config->loading->value . '" ';
+    $html .= 'decoding="' . $this->config->decoding->value . '" ';
+    $html .= 'fetchpriority="' . $this->config->fetchPriority->value . '" ';
     $html .= ' />';
 
     return $html;
@@ -207,13 +254,42 @@ class Image
     return implode(', ', $output);
   }
   /**
+   * Get image width
+   *
+   * @return int
+   */
+  public function getWidth(): int
+  {
+    return $this->config->width ?: $this->rex_media->getWidth();
+  }
+  /**
+   * Get image height
+   *
+   * @return int
+   */
+  public function getHeight(): int
+  {
+    return $this->config->height ?: $this->rex_media->getHeight();
+  }
+  /**
+   * Set class name
+   *
+   * @param string $className
+   * 
+   * @return self
+   */
+  public function setClassName(string $className): self
+  {
+    $this->config->className = $className;
+    return $this;
+  }
+  /**
    *	get image meta info
    * @param string $file
    * @param string $field
 
    * @return string|null
    */
-
   public static function getMeta($file, $field = 'title')
   {
 
