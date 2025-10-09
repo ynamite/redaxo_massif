@@ -21,6 +21,7 @@ class Rex
     foreach ($vars as $key => $value) {
       $fragment->setVar($key, $value, false);
     }
+
     return $fragment->parse($file . ".php");
   }
 }
