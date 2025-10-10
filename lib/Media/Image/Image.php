@@ -50,6 +50,9 @@ class Image
     $decoding = 'auto',
     $fetchPriority = 'auto'
   ) {
+    if ($src == '') {
+      return '';
+    }
     $this->src = $src;
     $this->rex_media = rex_media::get($this->src);
 
@@ -104,6 +107,9 @@ class Image
     $decoding = 'auto',
     $fetchPriority = 'auto'
   ): string {
+    if ($src == '') {
+      return '';
+    }
 
     $image = new Image(
       src: $src,
