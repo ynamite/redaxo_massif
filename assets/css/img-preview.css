@@ -15,12 +15,13 @@
 #rex-page-sidebar-metainfo .thumbnail {
   position: relative;
   z-index: 4;
-  transition: transform 0.3s;
+  transition: all 0.3s;
   margin: 0;
   isolation: isolate;
 }
 .mform .thumbnail:hover,
 .yform .rex-js-widget:not(.rex-js-widget-imglist) .thumbnail:hover,
 #rex-page-sidebar-metainfo .thumbnail:hover {
-  transform: scale(3);
+  transform: scale(2.5);
+  padding: 0;
 }
