@@ -173,7 +173,7 @@ class Image
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
       $lip = $this->breakPoints[0];
       $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
-      $html .= 'src="' . self::getPath(src: $this->src, size: $lip, ratio: $this->config->ratio) . '" ';
+      $html .= 'src="' . self::getPath(size: $lip, ratio: $this->config->ratio) . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
     }
@@ -190,7 +190,19 @@ class Image
     return $html;
   }
 
-
+  /**
+   *	to string
+   *
+   * @return string
+   */
+  public function __toString(): string
+  {
+    return $this->render();
+  }
+  public function getMedia(): rex_media
+  {
+    return $this->rex_media;
+  }
   /**
    * Get image path
    *
@@ -200,7 +212,7 @@ class Image
    * @return string
    */
 
-  public function getPath(string $src, int $size, float $ratio = 0): string
+  public function getPath(int $size, float $ratio = 0): string
   {
     if (!in_array($size, ImageConfig::BREAKPOINTS))
       $size = ImageConfig::BREAKPOINTS[0];
@@ -208,7 +220,7 @@ class Image
       $size .= 'x' . (int)round($size * $ratio);
     }
 
-    return self::MANAGER_PATH . 'auto/' . $size . '/' . $src . '?v=' . $this->rex_media->getUpdateDate();
+    return self::MANAGER_PATH . 'auto/' . $size . '/' . $this->src . '?v=' . $this->rex_media->getUpdateDate();
   }
 
   /**
@@ -226,7 +238,7 @@ class Image
     array_shift($sizes);
 
     foreach ($sizes as $key => $size) {
-      $srcset[] = self::getPath(src: $src, size: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
+      $srcset[] = self::getPath(size: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
       if ($this->config->maxWidth > 0 && $size >= $this->config->maxWidth * 2) break;
     }
 
