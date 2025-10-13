@@ -4,3 +4,14 @@ div.mce-fullscreen {
 .selectize-input > * {
   display: block !important;
 }
+
+#rex-id-meta-article-name {
+  font-weight: 600;
+  font-size: 2em;
+  line-height: 1;
+}
+
+.form-group:has(.hide-form-group) {
+  display: none;
+  pointer-events: none;
+}
