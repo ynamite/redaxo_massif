@@ -15,7 +15,7 @@ class Image
 
   private string $src;
   private ImageConfig $config;
-  private rex_media $rex_media;
+  private rex_media|null $rex_media;
 
   private const EXCLUDE_EXTENSIONS_FROM_RESIZE = ['svg', 'gif'];
   private const MANAGER_PATH = '/image/';
