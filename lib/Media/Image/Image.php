@@ -56,6 +56,11 @@ class Image
     $this->src = $src;
     $this->rex_media = rex_media::get($this->src);
 
+    if ($loading === 'eager') {
+      if ($decoding === 'auto') $decoding = 'sync';
+      if ($fetchPriority === 'auto') $fetchPriority = 'high';
+    }
+
     $_loading = LoadingBehavior::tryFrom($loading) ?? LoadingBehavior::LAZY;
     $_decoding = DecodingBehavior::tryFrom($decoding) ?? DecodingBehavior::AUTO;
     $_fetchPriority = FetchPriorityBehavior::tryFrom($fetchPriority) ?? FetchPriorityBehavior::AUTO;
