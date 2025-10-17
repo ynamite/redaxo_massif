@@ -9,7 +9,7 @@ $styleLabel = 'vertical-align:top; width: 260px; padding-right: 8px;';
 $styleTable = 'font-size: 1rem; vertical-align:top;';
 
 ?>
-<?= massif_utils::parse('email/email.tpl.head') ?>
+<?= massif_utils\Rex::parse('email/email.tpl.head') ?>
 
 <div class="content" style="font-size: 1rem;">
 	<br />
@@ -38,6 +38,6 @@ $styleTable = 'font-size: 1rem; vertical-align:top;';
 	<?php } ?>
 
 
-	<?= massif_utils::parse('email/email.tpl.footer', ['recipient' => $values['recipient']]) ?>
+	<?= massif_utils\Rex::parse('email/email.tpl.footer', ['recipient' => $values['recipient']]) ?>
 
 </div>
