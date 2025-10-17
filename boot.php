@@ -19,8 +19,6 @@ use rex_plugin;
 use rex_sql;
 use rex_view;
 use rex_yform;
-use rex_yform_manager_field;
-use rex_yform_manager_table;
 
 use Ynamite\Massif\Media;
 use Ynamite\Massif\Usability;
@@ -49,8 +47,7 @@ if (rex_addon::get('media_manager')->isAvailable()) {
 rex_extension::register('PACKAGES_INCLUDED', function (rex_extension_point $ep) {
     if (
         rex_addon::exists('yform') &&
-        rex_addon::get('yform')->isAvailable() &&
-        rex_plugin::get('yform', 'manager')->isAvailable()
+        rex_addon::get('yform')->isAvailable()
     ) {
         rex_yform::addTemplatePath($this->getPath('ytemplates'));
     }
