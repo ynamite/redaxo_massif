@@ -27,6 +27,7 @@ use Ynamite\Massif\Usability;
 
 rex_api_function::register('massif_meta_get', Media\Api\GetMeta::class);
 rex_api_function::register('massif_image_get', Media\Api\GetImage::class);
+rex_api_function::register('upload_files', Form\Api\Upload::class);
 
 
 // add own backend css

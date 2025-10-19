@@ -9,12 +9,125 @@
 
 class rex_yform_value_mupload extends rex_yform_value_abstract
 {
+    protected $TMP_DIR = "tmp_uploads/";
+    protected $UPLOAD_DIR = "uploads_applications/";
+    protected $FILE_TYPES = 'pdf|doc|docx|jpg|jpeg|png';
+    protected float $MAX_FILE_SIZE = 15e+6;
+    protected float $MIN_FILE_SIZE = 1;
+    protected array $files = [];
+
+    public function getDropzoneFileTypes()
+    {
+        return '.' . str_replace('|', ',.', $this->FILE_TYPES);
+    }
+
+    public function getFormattedFileTypes()
+    {
+        $human_readable = $this->getElement('file_types_human_readable');
+        return $human_readable ? $human_readable : str_replace('|', ', ', strtoupper($this->FILE_TYPES));
+    }
+
+    public function getTempDir()
+    {
+        return $this->TMP_DIR;
+    }
+
+    public function getUploadDir()
+    {
+        return $this->UPLOAD_DIR;
+    }
+    public static function getApiUrl()
+    {
+        return rex_url::base('index.php') . '?rex-api-call=upload_files';
+    }
+
+    protected function updateConfig()
+    {
+        $configKeys = [
+            'tmp_folder' => $this->TMP_DIR,
+            'upload_folder' => $this->UPLOAD_DIR,
+            'file_types' => '/\.(' . $this->FILE_TYPES . ')$/i',
+            'max_file_size' => $this->MAX_FILE_SIZE,
+            'min_file_size' => $this->MIN_FILE_SIZE
+        ];
+        foreach ($configKeys as $key => $value) {
+            $savedValue = rex_config::get('yform', 'mupload_' . $key, null);
+            if ($savedValue != $value) {
+                rex_config::set('yform', 'mupload_' . $key, $value);
+            }
+        }
+    }
+
+    public function init()
+    {
+        $this->cleanTmpFiles();
+
+        $this->TMP_DIR = $this->getElement('tmp_folder') ?: $this->TMP_DIR;
+        $this->UPLOAD_DIR = $this->getElement('upload_folder') ?: $this->UPLOAD_DIR;
+        $this->FILE_TYPES = $this->getElement('file_types') ?: $this->FILE_TYPES;
+        $this->MAX_FILE_SIZE = floatval($this->getElement('max_file_size')) ?: $this->MAX_FILE_SIZE;
+        $this->MIN_FILE_SIZE = floatval($this->getElement('min_file_size')) ?: $this->MIN_FILE_SIZE;
+
+        $path = $this->getTempFilePath();
+        $files = [];
+        if (is_dir($path)) {
+            $_files = scandir($path);
+            foreach ($_files as $file) {
+                if ($file != '.' && $file != '..') {
+                    $files[] = $path . $file;
+                }
+            }
+        }
+
+        $this->files = $files;
+
+        $this->updateConfig();
+    }
+
+    public static function getUserFolder()
+    {
+        return sha1(session_id() . rex::getProperty('instname')) . '/';
+    }
+
+    public static function getPreviewUrl($file = '')
+    {
+        return self::getApiUrl() . '&preview_upload=1&file=' . $file;
+    }
+
+    public static function getDownloadUrl($file = '')
+    {
+        return self::getApiUrl() . '&download_application=1&file=' . $file;
+    }
+
+    protected function getTempFilePath($file = '')
+    {
+        return rex_path::data($this->TMP_DIR . session_id() . '/' . $file);
+    }
+
+    protected function getUploadFilePath($file = '')
+    {
+        return rex_path::data($this->UPLOAD_DIR . $file);
+    }
+
+    public function getOption(string $key, $default = null)
+    {
+        if ($this->{$key} !== null) {
+            return $this->{$key};
+        }
+        return $default;
+    }
+
     public function enterObject()
     {
+
         $hasWarnings = count($this->params['warning']) != 0;
         $hasWarningMessages = count($this->params['warning_messages']) != 0;
+
         if (!rex::isBackend() && $this->params['send'] == "1" && !$hasWarnings && !$hasWarningMessages) {
             $this->setValue(self::handleUploads());
+
+            $this->params['value_pool']['email']['attachments'][$this->getName()]['name'] = basename($this->getValue() ?? '');
+            $this->params['value_pool']['email']['attachments'][$this->getName()]['path'] = $this->getUploadFilePath($this->getValue());
         }
 
         //$this->setValue($this->getValue());
@@ -28,13 +141,37 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
             $this->params['form_output'][$this->getId()] = $this->parse('value.mupload.tpl.php');
         }
 
-        $this->params['value_pool']['email'][$this->getName()] = $this->getValue();
+        $this->params['value_pool']['email'][$this->getName()] = basename($this->getValue() ?? '');
         if ($this->getElement('no_db') != 'no_db') {
             $this->params['value_pool']['sql'][$this->getName()] = $this->getValue();
         }
 
-
         return $this;
+    }
+
+
+    private function cleanTmpFiles($only_current_session = false)
+    {
+
+        $path = rex_path::data($this->TMP_DIR);
+        if ($only_current_session) {
+            $path .= session_id() . '/';
+        }
+
+        $files = glob($path . "*");
+        $now   = time();
+        $days  = 3;
+        $timeToKeep = 60 * 60 * 24 * $days;
+
+        // if ($now - filemtime($path) >= 60 * 60 * 24 * 3 || $only_current_session) { // 3 days
+        //     rex_dir::delete($path);
+        // }
+        foreach ($files as $file) {
+            if ($now - filemtime($file) >= $timeToKeep || $only_current_session) { // 3 days
+                if (!is_dir($file))
+                    rex_file::delete($file);
+            }
+        }
     }
 
     public static function deleteFile($id)
@@ -45,26 +182,22 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
             $sql->setTable($table);
             $sql->setWhere(['id' => $id]);
             $sql->select();
-            if ($sql->getValue('mupload')) {
-                $parsedUrl = parse_url($sql->getValue('mupload'));
-                $path = dirname(rex_path::frontend(ltrim($parsedUrl['path'], "/")));
-                $file = rex_path::basename($sql->getValue('mupload'));
-                if ($path != '' && $path != '/' && $path != dirname(rex_path::frontend())) {
+            if ($sql->getValue('attachment')) {
+                $file = $sql->getValue('attachment');
 
-                    rex_dir::delete($path);
+                rex_file::delete(rex_path::data("uploads_applications/" . $file));
 
-                    $sql->setTable($table);
-                    $sql->setWhere(['id' => $id]);
-                    $sql->setValue('mupload', '');
-                    $sql->update();
+                $sql->setTable($table);
+                $sql->setWhere(['id' => $id]);
+                $sql->setValue('attachment', '');
+                $sql->update();
 
-                    return '';
-                }
+                return '';
             }
         }
     }
 
-    protected static function getDeleteLink($id, $value, $list = true)
+    public static function getDeleteLink($id, $value, $list = true)
     {
         if ($value) {
             $_params = [
@@ -86,7 +219,7 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
 
     protected function handleUploads()
     {
-        $path = rex_path::media('tmp_uploads/' . session_id() . '/');
+        $path = rex_path::data($this->TMP_DIR . session_id() . '/');
         $files = [];
         $val = '';
         if (is_dir($path)) {
@@ -97,40 +230,27 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
                 }
             }
             if (count($files) > 0) {
-                $val = self::zipUploads($files, $path);
+                $val = self::zipUploads($files);
             }
         }
         return $val;
     }
 
-    public static function getUserFolder()
-    {
-        return sha1(session_id() . rex::getProperty('instname')) . '/';
-    }
-
-    protected function zipUploads($files, $tmpPath)
+    protected function zipUploads($files)
     {
         $zip = new ZipArchive();
-        $newPath = '_uploads_/' . sha1(time() . session_id() . rex::getProperty('instname')) . '/';
-        $url = rtrim(rex::getServer(), '/') . rex_url::media($newPath);
-        $path = rex_path::media($newPath);
+        $path = rex_path::data($this->UPLOAD_DIR . self::getUserFolder());
         if (!is_dir($path)) {
             rex_dir::create($path);
         }
-        $filename = 'unterlagen-' . date('Y-m-d_His') . '.zip';
+        $filename = 'bewerbungsunterlagen-' . date('Y-m-d_His') . '.zip';
         $zip->open($path . $filename, ZipArchive::CREATE);
         foreach ($files as $file) {
             $zip->addFile($file, basename($file));
         }
         $zip->close();
-        rex_dir::deleteFiles($tmpPath);
-        rex_dir::delete($tmpPath);
-        /*
-        foreach ($files as $file) {
-            rex_file::delete($file);
-        }
-        */
-        return $url . $filename;
+        $this->cleanTmpFiles(true);
+        return self::getUserFolder() . $filename;
     }
 
     public function getDescription(): string
@@ -144,10 +264,15 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
             'type' => 'value',
             'name' => 'mupload',
             'values' => [
-                'name' => ['type' => 'name',      'label' => rex_i18n::msg('yform_values_defaults_name')],
-                'label' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_label')]/*,
-                'sizes' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_sizes')],
-                'types' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_types')],
+                'name' => ['type' => 'text',      'label' => 'Feldname'],
+                'label' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_label')],
+                'tmp_folder' => ['type' => 'text',      'label' => 'Temporäres Verzeichnis'],
+                'upload_folder' => ['type' => 'text',      'label' => 'Upload Verzeichnis'],
+                'file_types' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_types')],
+                'file_types_human_readable' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_types')],
+                'max_file_size' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_sizes')],
+                'min_file_size' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_sizes')],
+                /*,
                 'required' => ['type' => 'boolean', 'label' => rex_i18n::msg('yform_values_upload_required')],
                 'messages' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_messages')],
                 'notice' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_notice')],*/
@@ -160,19 +285,22 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
 
     public static function getListValue($params)
     {
-        $value = basename($params['subject']);
+
+        $table_name = $params['params']['field']['table_name'];
+        $value = $params['subject'];
+
 
         $deleteId = rex_request('mupload_delete', 'int');
         if ((int) $deleteId) {
             $value = self::deleteFile($deleteId);
         }
 
-        $length = strlen($value);
         $title = $value;
+        $length = strlen($title);
         if ($length > 40) {
-            $value = mb_substr($value, 0, 20) . ' ... ' . mb_substr($value, -20);
+            $title = mb_substr($title, 0, 20) . ' ... ' . mb_substr($title, -20);
         }
-        return '<a href="' . $params['subject'] . '" target="_blank" title="' . rex_escape($title) . '">' . rex_escape($value) . '</a><br />' . self::getDeleteLink($params['list']->getValue('id'), $value);
+        return '<a href="' . rex_yform_value_mupload::getDownloadUrl($value, ['table_name' => $table_name]) . '" download title="' . rex_escape($value) . '">' . rex_escape($title) . '</a><br />' . self::getDeleteLink($params['list']->getValue('id'), $value);
     }
 
     public static function getSearchField($params)
@@ -202,10 +330,3 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
         return $sql->escapeIdentifier($field) . ' = ' . $sql->escape($value);
     }
 }
-
-
-rex_extension::register('YFORM_DATA_DELETE', function (rex_extension_point $ep) {
-
-    $params = $ep->getParams();
-    rex_yform_value_mupload::deleteFile($params['data_id']);
-});

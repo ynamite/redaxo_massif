@@ -13,11 +13,13 @@ class rex_yform_validate_mupload extends rex_yform_validate_abstract
     {
         if ($this->params['send'] == '1') {
 
+            $tmpDir = rex_config::get('yform', 'mupload_tmp_folder', '');
+
             $Object = $this->getValueObject();
 
             $error = false;
             $files = [];
-            $path = rex_path::media('tmp_uploads/' . session_id() . '/');
+            $path = rex_path::data($tmpDir . session_id() . '/');
             if (is_dir($path)) {
                 $_files = scandir($path);
                 foreach ($_files as $file) {
