@@ -9,8 +9,8 @@
 
 class rex_yform_value_mupload extends rex_yform_value_abstract
 {
-  protected $TMP_DIR = "tmp_uploads/";
-  protected $UPLOAD_DIR = "uploads_applications/";
+  protected $TMP_DIR = "addons/massif/tmp_uploads/";
+  protected $UPLOAD_DIR = "addons/massif/uploads_applications/";
   protected $FILE_TYPES = 'pdf|doc|docx|jpg|jpeg|png';
   protected float $MAX_FILE_SIZE = 15e+6;
   protected float $MIN_FILE_SIZE = 1;
@@ -27,15 +27,22 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
     return $human_readable ? $human_readable : str_replace('|', ', ', strtoupper($this->FILE_TYPES));
   }
 
-  public function getTempDir()
+  public static function getUserFolder()
   {
-    return $this->TMP_DIR;
+    return sha1(session_id() . rex::getProperty('instname')) . '/';
   }
 
-  public function getUploadDir()
+  protected function getUserTempFilePath($file = '')
   {
-    return $this->UPLOAD_DIR;
+    return rex_path::data($this->TMP_DIR . session_id() . '/' . $file);
   }
+
+  protected function getUploadFilePath($file = '')
+  {
+    return rex_path::data($this->UPLOAD_DIR . $file);
+  }
+
+
   public static function getApiUrl()
   {
     return rex_url::base('index.php') . '?rex-api-call=upload_files';
@@ -77,7 +84,7 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
 
   public function getTempFiles(): array
   {
-    $path = $this->getTempFilePath();
+    $path = $this->getUserTempFilePath();
     $files = [];
     if (is_dir($path)) {
       $_files = scandir($path);
@@ -90,11 +97,6 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
     return $files;
   }
 
-  public static function getUserFolder()
-  {
-    return sha1(session_id() . rex::getProperty('instname')) . '/';
-  }
-
   public static function getPreviewUrl($file = '')
   {
     return self::getApiUrl() . '&preview_upload=1&file=' . $file;
@@ -103,16 +105,6 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
   public static function getDownloadUrl($file = '')
   {
     return self::getApiUrl() . '&download_application=1&file=' . $file;
-  }
-
-  protected function getTempFilePath($file = '')
-  {
-    return rex_path::data($this->TMP_DIR . session_id() . '/' . $file);
-  }
-
-  protected function getUploadFilePath($file = '')
-  {
-    return rex_path::data($this->UPLOAD_DIR . $file);
   }
 
   public function getOption(string $key, $default = null)
@@ -232,7 +224,6 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
 
   protected function handleUploads()
   {
-    $path = rex_path::data($this->TMP_DIR . session_id() . '/');
     $files = $this->getTempFiles();
     $zip = '';
     if (count($files) > 0) {
@@ -254,7 +245,8 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
       $zip->addFile($file, basename($file));
     }
     $zip->close();
-    $this->cleanFiles($this->getTempDir(), true);
+    $this->cleanFiles($this->getUserTempFilePath(), true);
+    $this->cleanFiles($this->TMP_DIR);
     return self::getUserFolder() . $filename;
   }
 
@@ -271,12 +263,12 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
       'values' => [
         'name' => ['type' => 'text',      'label' => 'Feldname'],
         'label' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_defaults_label')],
-        'tmp_folder' => ['type' => 'text',      'label' => 'Temporäres Verzeichnis'],
-        'upload_folder' => ['type' => 'text',      'label' => 'Upload Verzeichnis'],
         'file_types' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_types')],
         'file_types_human_readable' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_types')],
         'max_file_size' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_sizes')],
         'min_file_size' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_sizes')],
+        'tmp_folder' => ['type' => 'text',      'label' => 'Temporäres Verzeichnis'],
+        'upload_folder' => ['type' => 'text',      'label' => 'Upload Verzeichnis'],
         /*,
                 'required' => ['type' => 'boolean', 'label' => rex_i18n::msg('yform_values_upload_required')],
                 'messages' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_messages')],
