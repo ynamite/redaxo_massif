@@ -33,7 +33,7 @@ class Form
     $settings['send_user_email'] = false;
     $settings['skip_field_types'] = ['html', 'validate', 'action', 'csrf', 'mupload'];
     $settings['skip_fields'] = ['termsofuse_accepted', 'type'];
-    $settings['replace_labels'] = ['subscribe_newsletter' => 'Newsletter', 'contact_city' => 'Stadt', 'confirm' => 'DSE akzeptiert?', 'context' => 'Interesse an', 'attachment' => 'Bewerbungsunterlagen'];
+    $settings['replace_labels'] = ['subscribe_newsletter' => 'Newsletter', 'contact_city' => 'Stadt', 'confirm' => 'DSE akzeptiert?', 'context' => 'Interesse an', 'attachment' => 'Bewerbungsunterlagen', 'vacancy' => 'Stelle'];
     $settings['date_fields'] = ['dob'];
     $settings = array_merge($settings, $params);
     if (!$settings['template_user'])
