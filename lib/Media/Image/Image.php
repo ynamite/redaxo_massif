@@ -295,16 +295,24 @@ class Image
     return $this->config->height ?: $this->rex_media->getHeight();
   }
   /**
+   * Get class name
+   *
+   * @return string
+   */
+  public function getClassName(): string
+  {
+    return $this->config->className;
+  }
+  /**
    * Set class name
    *
    * @param string $className
    * 
-   * @return self
+   * @return void
    */
-  public function setClassName(string $className): self
+  public function setClassName(string $className): void
   {
     $this->config->className = $className;
-    return $this;
   }
   /**
    *	get image meta info
