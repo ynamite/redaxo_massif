@@ -39,8 +39,10 @@
             </div>
         </div>
         <div class="dropzone-previews files <?= $hasFiles ? 'has-files' : '' ?>">
-            <div data-dropzone-previews></div>
-            <div class="clickable"></div>
+            <div>
+                <div data-dropzone-previews></div>
+                <div class="clickable clickable-area"></div>
+            </div>
         </div>
         <div hidden>
             <input type="file" name="files[]" <?= implode(' ', $attributes) ?> multiple hidden inert data-max-file-size="<?= $this->MAX_FILE_SIZE ?>" data-accepted-files="<?= $this->getDropzoneFileTypes() ?>" />
