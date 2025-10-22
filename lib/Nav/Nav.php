@@ -13,6 +13,7 @@ class Nav
   private static ?self $instance = null;
 
   protected $dropdowns = true;
+  protected $ignore_offlines = true;
   protected $dropdownClasses = 'dropdown';
   protected $addDropdownToggles = true;
   protected $dropdownToggleClass = 'transition-transform duration-300 dropdown-arrow';
@@ -32,21 +33,57 @@ class Nav
 
   private static $CACHE = [];
 
-  protected function __construct()
-  {
-    // nichts zu tun
+  protected function __construct(
+    ?int $depth = null,
+    bool $open = false,
+    bool $ignore_offlines = true,
+    ?bool $dropdowns = null,
+    ?string $dropdownClasses = null,
+    ?bool $addDropdownToggles = null,
+    string $dropdownToggleClass = '',
+    string $dropdownToggleContent = '',
+    string $dropdownToggleAriaLabel = ''
+  ) {
+    $this->depth = $depth ?? $this->depth;
+    $this->open = $open || $this->open;
+    $this->ignore_offlines = $ignore_offlines;
+    $this->dropdowns = $dropdowns ?? $this->dropdowns;
+    $this->dropdownClasses = $dropdownClasses ?: $this->dropdownClasses;
+    $this->addDropdownToggles = $addDropdownToggles ?? $this->addDropdownToggles;
+    $this->dropdownToggleClass = $dropdownToggleClass ?: $this->dropdownToggleClass;
+    $this->dropdownToggleContent = $dropdownToggleContent ?: $this->dropdownToggleContent;
+    $this->dropdownToggleAriaLabel = $dropdownToggleAriaLabel ?: $this->dropdownToggleAriaLabel;
   }
 
   /**
    * @return static
    */
-  public static function factory()
-  {
+  public static function factory(
+    ?int $depth = null,
+    bool $open = false,
+    bool $ignore_offlines = true,
+    ?bool $dropdowns = null,
+    ?string $dropdownClasses = null,
+    ?bool $addDropdownToggles = null,
+    string $dropdownToggleClass = '',
+    string $dropdownToggleContent = '',
+    string $dropdownToggleAriaLabel = ''
+  ) {
     if (self::$instance) {
       return self::$instance;
     }
 
-    return self::$instance = new self();
+    return self::$instance = new self(
+      $depth,
+      $open,
+      $ignore_offlines,
+      $dropdowns,
+      $dropdownClasses,
+      $addDropdownToggles,
+      $dropdownToggleClass,
+      $dropdownToggleContent,
+      $dropdownToggleAriaLabel
+    );
   }
 
   /**
@@ -84,7 +121,8 @@ class Nav
     $this->dropdownToggleAriaLabel = $dropdownToggleAriaLabel ?: $this->dropdownToggleAriaLabel;
     $this->name = $name ?: $this->name;
     $this->depth = $depth ?? $this->depth;
-    $this->open = $open;
+    $this->open = $open || $this->open;
+    $this->ignore_offlines = $ignore_offlines;
     if ($ignore_offlines) {
       $this->addFilter('status', 1, '==');
     }
