@@ -169,8 +169,12 @@ class Image
     $alt = $this->config->alt ?: $this->rex_media->getTitle();
     $sizes = $this->config->sizes ?: $this->getSizes($this->config->maxWidth);
     $style = [];
+    $style[] = '--ratio: ' . $this->rex_media->getWidth() . ' / ' . $this->rex_media->getHeight() . ';';
     $className = [];
     $className[] = $this->config->className ?: '';
+    if (!str_contains($this->config->className, 'aspect-')) {
+      $className[] = 'aspect-(--ratio)';
+    }
 
     $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
