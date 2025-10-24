@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Ynamite\Massif\Media;
 
+use media_negotiator\Helper as MediaNegotiatorHelper;
 use InvalidArgumentException;
 
 use rex_clang;
 use rex_media;
+use rex_file;
+use rex_path;
 
 class Image
 {
@@ -59,6 +62,9 @@ class Image
     if ($loading === 'eager') {
       if ($decoding === 'auto') $decoding = 'sync';
       if ($fetchPriority === 'auto') $fetchPriority = 'high';
+    } else if ($loading === 'lazy') {
+      if ($decoding === 'auto') $decoding = 'async';
+      if ($fetchPriority === 'auto') $fetchPriority = 'low';
     }
 
     $_loading = LoadingBehavior::tryFrom($loading) ?? LoadingBehavior::LAZY;
@@ -176,9 +182,8 @@ class Image
 
     $html = '<img alt="' . $alt . '" ';
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
-      $lip = $this->breakPoints[0];
       $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
-      $html .= 'src="' . self::getPath(size: $lip, ratio: $this->config->ratio) . '" ';
+      $html .= 'src="' . self::getLqip() . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
     }
@@ -216,7 +221,6 @@ class Image
    * 
    * @return string
    */
-
   public function getPath(int $size, float $ratio = 0): string
   {
     if (!in_array($size, ImageConfig::BREAKPOINTS))
@@ -227,7 +231,62 @@ class Image
 
     return self::MANAGER_PATH . 'auto/' . $size . '/' . $this->src . '?v=' . $this->rex_media->getUpdateDate();
   }
-
+  /**
+   * Get low quality image placeholder
+   *
+   * @return string
+   */
+  public function getLqip(): string
+  {
+    $data = null;
+    $lipSize = $this->breakPoints[0];
+    $negotiatedFormat = self::getNegotiatedFormat();
+    $imagePath = self::getPath(size: $lipSize, ratio: $this->config->ratio);
+    if ($negotiatedFormat) {
+      $cachePath = rex_path::cache('addons/media_manager/' . $negotiatedFormat . '-auto/' . $this->src . '__w' . $lipSize);
+      if (is_file($cachePath)) {
+        $cacheHeaderPath = $cachePath . '.header';
+        $cache = rex_file::getCache($cacheHeaderPath, null);
+        if ($cache) {
+          $mediapath = $cache['media_path'];
+          $cachetime = filemtime($cachePath);
+          $filetime = filemtime($mediapath);
+          if ($filetime <= $cachetime) {
+            $data = base64_encode(rex_file::get($cachePath));
+          }
+        }
+      }
+      if (!$data) {
+        $url = self::getAbsoluteUrl($imagePath);
+        $context = stream_context_create([
+          'http' => [
+            'method' => 'GET',
+            'header' =>   "Accept: image/avif,image/webp,image/*;q=0.8,*/*;q=0.5\r\n" .
+              "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              . "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\r\n" .
+              "Cache-Control: no-cache\r\n",
+            'timeout' => 2,
+            'ignore_errors' => true,
+          ],
+          'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+          ]
+        ]);
+        $data = @file_get_contents($url, false, $context);
+        if (!$data) {
+          return $imagePath;
+        }
+        $data = base64_encode($data);
+      }
+      if ($data) {
+        $ratio = $lipSize / $this->getWidth();
+        $height = (int)round($this->getHeight() * $ratio);
+        return "data:image/svg+xml;utf8,<?xml version='1.0'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$lipSize} {$height}'><filter id='b'><feGaussianBlur stdDeviation='3'/></filter><image filter='url(%23b)' href='data:image/{$negotiatedFormat};base64,{$data}' width='{$lipSize}' height='{$height}' /></svg>";
+      }
+    }
+    return $imagePath;
+  }
   /**
    * Get image srcset
    *
@@ -315,6 +374,25 @@ class Image
     $this->config->className = $className;
   }
   /**
+   * Get absolute URL
+   *
+   * @param string $path
+   * 
+   * @return string
+   */
+  public static function getAbsoluteUrl(string $path): string
+  {
+    // ensure leading slash
+    if ($path[0] !== '/') {
+      $path = '/' . $path;
+    }
+
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+    return $scheme . '://' . $host . $path;
+  }
+  /**
    *	get image meta info
    * @param string $file
    * @param string $field
@@ -331,5 +409,16 @@ class Image
 
       return $title;
     }
+  }
+  /**
+   * Get negotiated format
+   *
+   * @return string
+   */
+  public static function getNegotiatedFormat(): string
+  {
+    $possible_types = rex_server('HTTP_ACCEPT', 'string', '');
+    $types = explode(',', $possible_types);
+    return MediaNegotiatorHelper::getOutputFormat($types);
   }
 }
