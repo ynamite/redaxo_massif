@@ -49,6 +49,8 @@ class Image
     int $width = 0,
     int $height = 0,
     array $breakPoints = ImageConfig::BREAKPOINTS,
+    string|null $wrapperElement = null,
+    string $wrapperClassName = '',
     $loading = 'lazy',
     $decoding = 'auto',
     $fetchPriority = 'auto'
@@ -70,19 +72,21 @@ class Image
     $_loading = LoadingBehavior::tryFrom($loading) ?? LoadingBehavior::LAZY;
     $_decoding = DecodingBehavior::tryFrom($decoding) ?? DecodingBehavior::AUTO;
     $_fetchPriority = FetchPriorityBehavior::tryFrom($fetchPriority) ?? FetchPriorityBehavior::AUTO;
-    $config = new ImageConfig(
-      alt: $alt,
-      className: $className,
-      width: $width,
-      height: $height,
-      sizes: $sizes,
-      maxWidth: $maxWidth,
-      ratio: $ratio,
-      breakPoints: $breakPoints,
-      loading: $_loading,
-      decoding: $_decoding,
-      fetchPriority: $_fetchPriority
-    );
+
+    $config = new ImageConfig();
+    $config->alt = $alt ?? $config->alt;
+    $config->className = $className ?? $config->className;
+    $config->width = $width ?? $config->width;
+    $config->height = $height ?? $config->height;
+    $config->sizes = $sizes ?? $config->sizes;
+    $config->maxWidth = $maxWidth ?? $config->maxWidth;
+    $config->ratio = $ratio ?? $config->ratio;
+    $config->breakPoints = $breakPoints ?? $config->breakPoints;
+    $config->wrapperElement = $wrapperElement ?? $config->wrapperElement;
+    $config->wrapperClassName = $wrapperClassName ?? $config->wrapperClassName;
+    $config->loading = $_loading;
+    $config->decoding = $_decoding;
+    $config->fetchPriority = $_fetchPriority;
 
     $this->config = $config;
     return $this;
@@ -114,6 +118,8 @@ class Image
     int $width = 0,
     int $height = 0,
     array $breakPoints = ImageConfig::BREAKPOINTS,
+    string|null $wrapperElement = null,
+    string $wrapperClassName = '',
     $loading = 'lazy',
     $decoding = 'auto',
     $fetchPriority = 'auto'
@@ -132,6 +138,8 @@ class Image
       width: $width,
       height: $height,
       breakPoints: $breakPoints,
+      wrapperElement: $wrapperElement,
+      wrapperClassName: $wrapperClassName,
       loading: $loading,
       decoding: $decoding,
       fetchPriority: $fetchPriority
@@ -157,9 +165,12 @@ class Image
       throw new InvalidArgumentException('Invalid breakpoints');
     }
 
+    $isLazy = $this->config->loading === LoadingBehavior::LAZY;
+
     $url = $this->rex_media->getUrl();
 
     $ext = $this->rex_media->getExtension();
+    $isSvg = $ext === 'svg';
     if ($ext === 'gif') {
       $url .= '?' . time();
     }
@@ -169,11 +180,15 @@ class Image
     $alt = $this->config->alt ?: $this->rex_media->getTitle();
     $sizes = $this->config->sizes ?: $this->getSizes($this->config->maxWidth);
     $style = [];
-    $style[] = '--ratio: ' . $this->rex_media->getWidth() . ' / ' . $this->rex_media->getHeight() . ';';
+    $wrapperStyle = [];
+    $wrapperStyle[] = '--ratio: ' . $this->rex_media->getWidth() . ' / ' . $this->rex_media->getHeight();
     $className = [];
     $className[] = $this->config->className ?: '';
-    if (!str_contains($this->config->className, 'aspect-')) {
-      $className[] = 'aspect-(--ratio)';
+    $wrapperClassName = [];
+    $wrapperClassName[] = $this->config->wrapperClassName ?: '';
+    if (!str_contains($this->config->wrapperClassName, 'aspect-')) {
+      $wrapperClassName[] = 'aspect-(--ratio)';
+      $className[] = 'size-full';
     }
 
     $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
@@ -182,14 +197,24 @@ class Image
     }
 
     $className = array_filter($className);
+    $wrapperClassName = array_filter($wrapperClassName);
     $style = array_filter($style);
+    $wrapperStyle = array_filter($wrapperStyle);
 
-    $html = '<img alt="' . $alt . '" ';
+    $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '" style="' . implode('; ', $wrapperStyle) . '">';
+    if (!$isSvg && $isLazy) {
+      $html .= '<div class="absolute inset-0 bg-cover bg-center [&.loaded]:opacity-0 transition-opacity duration-300 will-change-[opacity] [background-image:var(--lqip)]" style="--lqip: url(&quot;' . \htmlspecialchars(self::getLqip()) . '&quot;)"></div>';
+    }
+
+    $html .= '<img alt="' . $alt . '" ';
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
-      $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
       $html .= 'src="' . self::getLqip() . '" ';
+      $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
+    }
+    if ($isLazy) {
+      $html .= 'onload="this.previousElementSibling.classList.add(\'loaded\');this.removeAttribute(\'onload\');setTimeout(() => this.previousElementSibling.remove(), 300)" ';
     }
     if ($width) $html .= 'width="' . $width . '" ';
     if ($height) $html .= 'height="' . $height . '" ';
@@ -200,6 +225,7 @@ class Image
     $html .= 'decoding="' . $this->config->decoding->value . '" ';
     $html .= 'fetchpriority="' . $this->config->fetchPriority->value . '" ';
     $html .= ' />';
+    $html .= '</' . $this->config->wrapperElement . '>';
 
     return $html;
   }
@@ -376,6 +402,32 @@ class Image
   public function setClassName(string $className): void
   {
     $this->config->className = $className;
+  }
+
+  /**
+   * Set config value
+   *
+   * @param string $key
+   * @param mixed $value
+   * 
+   * @return void
+   */
+  public function setConfig(string $key, mixed $value): void
+  {
+    if (property_exists($this->config, $key)) {
+      $this->config->{$key} = $value;
+    }
+  }
+  /**
+   * Get config value
+   *
+   * @param string $key
+   * 
+   * @return mixed
+   */
+  public function getConfig(string $key, mixed $default = null): mixed
+  {
+    return $this->config->{$key} ?? $default;
   }
   /**
    * Get absolute URL

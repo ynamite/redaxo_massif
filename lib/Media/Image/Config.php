@@ -36,6 +36,8 @@ class ImageConfig
     public ?string $sizes = '100vw',
     public ?array $breakPoints = ImageConfig::BREAKPOINTS,
     public ?string $className = '',
+    public ?string $wrapperElement = 'div',
+    public ?string $wrapperClassName = '',
     public LoadingBehavior $loading = LoadingBehavior::LAZY,
     public DecodingBehavior $decoding = DecodingBehavior::AUTO,
     public FetchPriorityBehavior $fetchPriority = FetchPriorityBehavior::AUTO,
