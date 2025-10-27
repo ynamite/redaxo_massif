@@ -207,7 +207,9 @@ class Image
 
     $html .= '<img alt="' . $alt . '" ';
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
-      $html .= 'src="' . self::getLqip() . '" ';
+      $qlipSize = $this->breakPoints[0];
+      $lip = self::getPath(size: $qlipSize, ratio: $this->config->ratio);
+      $html .= 'src="' . $lip . '" ';
       $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
@@ -268,11 +270,11 @@ class Image
   public function getLqip(): string
   {
     $data = null;
-    $lipSize = $this->breakPoints[0];
     $negotiatedFormat = self::getNegotiatedFormat();
-    $imagePath = self::getPath(size: $lipSize, ratio: $this->config->ratio);
+    $qlipSize = $this->breakPoints[0];
+    $imagePath = self::getPath(size: $qlipSize, ratio: $this->config->ratio);
     if ($negotiatedFormat) {
-      $cachePath = rex_path::cache('addons/media_manager/' . $negotiatedFormat . '-auto/' . $this->src . '__w' . $lipSize);
+      $cachePath = rex_path::cache('addons/media_manager/' . $negotiatedFormat . '-auto/' . $this->src . '__w' . $qlipSize);
       if (is_file($cachePath)) {
         $cacheHeaderPath = $cachePath . '.header';
         $cache = rex_file::getCache($cacheHeaderPath, null);
@@ -309,9 +311,9 @@ class Image
         $data = base64_encode($data);
       }
       if ($data) {
-        $ratio = $lipSize / $this->getWidth();
+        $ratio = $qlipSize / $this->getWidth();
         $height = (int)round($this->getHeight() * $ratio);
-        return "data:image/svg+xml;utf8,<?xml version='1.0'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$lipSize} {$height}'><filter id='b'><feGaussianBlur stdDeviation='3'/></filter><image filter='url(%23b)' href='data:image/{$negotiatedFormat};base64,{$data}' width='{$lipSize}' height='{$height}' /></svg>";
+        return "data:image/svg+xml;utf8,<?xml version='1.0'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$qlipSize} {$height}'><filter id='b'><feGaussianBlur stdDeviation='2'/></filter><image filter='url(%23b)' href='data:image/{$negotiatedFormat};base64,{$data}' width='{$qlipSize}' height='{$height}' /></svg>";
       }
     }
     return $imagePath;
@@ -355,7 +357,7 @@ class Image
     $maxWidths[] = $maxSize;
     for ($i = 0; $i < count($sizes); $i++) {
       $cSize = $i === 0 ? '100vw' : $sizes[$i] . 'px';
-      $output[] = '(max-width: ' . $maxWidths[$i] . 'px) ' . $cSize;
+      $output[] = '(max-width: ' . ($maxWidths[$i] - 1) . 'px) ' . $cSize;
       if ($maxWidth > 0 && $maxWidth < $maxWidths[$i]) {
         $output[] = $maxWidths[$i] . 'px';
         break;
