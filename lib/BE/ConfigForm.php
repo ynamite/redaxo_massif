@@ -45,6 +45,12 @@ class ConfigForm extends rex_config_form
         case "textarea":
           $field = $form->addTextAreaField($name);
           break;
+        case "checkbox":
+          $field = $form->addCheckboxField($name);
+          foreach ($f['options'] as $option) {
+            $field->addOption($option['label'], $option['value']);
+          }
+          break;
         case "text":
         default:
           $field = $form->addTextField($name);
