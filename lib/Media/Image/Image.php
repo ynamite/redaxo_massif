@@ -180,15 +180,11 @@ class Image
     $sizes = $this->config->sizes ?: $this->getSizes($this->config->maxWidth);
     $style = [];
     $wrapperStyle = [];
-    $wrapperStyle[] = '--ratio: ' . $this->rex_media->getWidth() . ' / ' . $this->rex_media->getHeight();
+    $wrapperStyle[] = $this->config->wrapperStyle ?: '--ratio: ' . $width . '/' . $height;
     $className = [];
     $className[] = $this->config->className ?: '';
     $wrapperClassName = [];
     $wrapperClassName[] = $this->config->wrapperClassName ?: '';
-    if (!str_contains($this->config->wrapperClassName, 'aspect-')) {
-      $wrapperClassName[] = 'aspect-(--ratio)';
-      $className[] = 'size-full';
-    }
 
     $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
@@ -391,7 +387,7 @@ class Image
    */
   public function getClassName(): string
   {
-    return $this->config->className;
+    return $this->getConfig('className', '');
   }
   /**
    * Set class name
@@ -402,7 +398,7 @@ class Image
    */
   public function setClassName(string $className): void
   {
-    $this->config->className = $className;
+    $this->setConfig('className', $className);
   }
 
   /**
