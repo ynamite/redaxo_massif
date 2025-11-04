@@ -40,51 +40,50 @@ class Output
     if ($this->backend === true || rex::isBackend()) {
       $html = str_replace(['<details>'], ['<details open>'], $html);
       $html = preg_replace('/<details name="([^"]+)">/', '<details open>', $html);
-      return $html;
-    } else {
-      // replace all images with class "redactor-image" with massif image syntax
-      $html = preg_replace_callback(
-        '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
-        function ($matches) use ($imageMaxWidth) {
-          if (preg_match('/data-filename=["\']?([^"\'>\s]+)["\']?/i', $matches[0], $filenameMatch)) {
-            $filename = $filenameMatch[1];
-            return Media\Image::get(src: $filename, maxWidth: $imageMaxWidth);
-          }
-          return $matches[0];
-        },
-        $html
-      );
-      // replace anchors pointing to pdf media with styled link
-      $html = preg_replace_callback(
-        '/<a[^>]+href=["\']?([^"\'>\s]+\.pdf)["\']?[^>]*>(.*?)<\/a>/is',
-        function ($matches) {
-          $href = $matches[1];
-          $text = strip_tags($matches[2]);
-          $media = rex_media::get(basename($href));
-          if ($media) {
-            return '<p class="print-pdf">
+    }
+    // replace all images with class "redactor-image" with massif image syntax
+    $html = preg_replace_callback(
+      '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
+      function ($matches) use ($imageMaxWidth) {
+        if (preg_match('/data-filename=["\']?([^"\'>\s]+)["\']?/i', $matches[0], $filenameMatch)) {
+          $filename = $filenameMatch[1];
+          return Media\Image::get(src: $filename, maxWidth: $imageMaxWidth);
+        }
+        return $matches[0];
+      },
+      $html
+    );
+    // replace anchors pointing to pdf media with styled link
+    $html = preg_replace_callback(
+      '/<a[^>]+href=["\']?([^"\'>\s]+\.pdf)["\']?[^>]*>(.*?)<\/a>/is',
+      function ($matches) {
+        $href = $matches[1];
+        $text = strip_tags($matches[2]);
+        $media = rex_media::get(basename($href));
+        if ($media) {
+          return '<p class="print-pdf">
             <a href="' . $href . '" target="_blank" class="icon-link">
               <i class="text-accent iconify fa-solid--file-pdf"></i>
               <span><span class="label">' . $text . ' PDF speichern</span></span>
             </a>
             </p>';
-          }
+        }
 
-          return $matches[0];
-        },
-        $html
-      );
-      // parse URLs starting with www. or http(s):// that include an actual URL, that are not already wrapped in an anchor tag (add target="_blank" and rel="noopener")
-      $html = preg_replace_callback(
-        '/(?<!href=["\'])(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?)(?![^<]*<\/a>)/i',
-        function ($matches) {
-          $url = $matches[1];
-          $href = preg_match('/^https?:\/\//i', $url) ? $url : 'http://' . $url;
-          return '<a href="' . $href . '" target="_blank" rel="noopener">' . $url . '</a>';
-        },
-        $html
-      );
-    }
+        return $matches[0];
+      },
+      $html
+    );
+    // parse URLs starting with www. or http(s):// that include an actual URL, that are not already wrapped in an anchor tag (add target="_blank" and rel="noopener")
+    $html = preg_replace_callback(
+      '/(?<!href=["\'])(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?)(?![^<]*<\/a>)/i',
+      function ($matches) {
+        $url = $matches[1];
+        $href = preg_match('/^https?:\/\//i', $url) ? $url : 'http://' . $url;
+        return '<a href="' . $href . '" target="_blank" rel="noopener">' . $url . '</a>';
+      },
+      $html
+    );
+
 
     // Add name attribute to details tag to avoid duplicate IDs
     $html = str_replace(
