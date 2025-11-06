@@ -184,7 +184,7 @@ class Image
     $className = [];
     $className[] = $this->config->className ?: '';
     $wrapperClassName = [];
-    $wrapperClassName[] = $this->config->wrapperClassName ?: '';
+    $wrapperClassName[] = $this->config->wrapperClassName ?: 'relative';
 
     $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
