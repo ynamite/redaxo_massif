@@ -41,6 +41,16 @@ class Output
       $html = str_replace(['<details>'], ['<details open>'], $html);
       $html = preg_replace('/<details name="([^"]+)">/', '<details open>', $html);
     }
+    // parse URLs starting with www. or http(s):// that include an actual URL, that are not already wrapped in an anchor tag (add target="_blank" and rel="noopener")
+    $html = preg_replace_callback(
+      '/(?<!href=["\'])(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?)(?![^<]*<\/a>)/i',
+      function ($matches) {
+        $url = $matches[1];
+        $href = preg_match('/^https?:\/\//i', $url) ? $url : 'http://' . $url;
+        return '<a href="' . $href . '" target="_blank" rel="noopener">' . $url . '</a>';
+      },
+      $html
+    );
     // replace all images with class "redactor-image" with massif image syntax
     $html = preg_replace_callback(
       '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
@@ -73,17 +83,6 @@ class Output
       },
       $html
     );
-    // parse URLs starting with www. or http(s):// that include an actual URL, that are not already wrapped in an anchor tag (add target="_blank" and rel="noopener")
-    $html = preg_replace_callback(
-      '/(?<!href=["\'])(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?)(?![^<]*<\/a>)/i',
-      function ($matches) {
-        $url = $matches[1];
-        $href = preg_match('/^https?:\/\//i', $url) ? $url : 'http://' . $url;
-        return '<a href="' . $href . '" target="_blank" rel="noopener">' . $url . '</a>';
-      },
-      $html
-    );
-
 
     // Add name attribute to details tag to avoid duplicate IDs
     $html = str_replace(
