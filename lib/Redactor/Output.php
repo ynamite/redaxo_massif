@@ -81,12 +81,12 @@ class Output
         $text = strip_tags($matches[2]);
         $media = rex_media::get(basename($href));
         if ($media) {
-          return '<p class="print-pdf">
+          return '<span class="download-file">
             <a href="' . $href . '" target="_blank" class="icon-link">
               <i class="text-accent iconify fa-solid--file-pdf"></i>
               <span><span class="label">' . $text . '</span></span>
             </a>
-            </p>';
+            </span>';
         } else {
           return '';
         }
@@ -95,6 +95,29 @@ class Output
       },
       $html
     );
+    // replace anchors pointing to docx and dotx media with styled link
+    $html = preg_replace_callback(
+      '/<a[^>]+href=["\']?([^"\'>\s]+\.(docx|dotx))["\']?[^>]*>(.*?)<\/a>/is',
+      function ($matches) {
+        $href = $matches[1];
+        $text = strip_tags($matches[3]);
+        $media = rex_media::get(basename($href));
+        if ($media) {
+          return '<span class="download-file">
+            <a href="' . $href . '" target="_blank" class="icon-link">
+              <i class="text-accent iconify fa-solid--file-word"></i>
+              <span><span class="label">' . $text . '</span></span>
+            </a>
+            </span>';
+        } else {
+          return '';
+        }
+
+        return $matches[0];
+      },
+      $html
+    );
+
 
     // Add name attribute to details tag to avoid duplicate IDs
     $html = str_replace(
