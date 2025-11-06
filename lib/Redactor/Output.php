@@ -3,7 +3,6 @@
 namespace Ynamite\Massif\Redactor;
 
 use FriendsOfRedaxo\MBlock\MBlock;
-
 use rex;
 use rex_media;
 use rex_view;
@@ -34,6 +33,7 @@ class Output
 
   public function parse(string $html): string
   {
+
     $html = MassifSettings\Utils::replaceStrings($html);
     $imageMaxWidth = rex_view::getJsProperties()['redactor_img_maxWidth'] ?? 1024;
 
@@ -42,15 +42,25 @@ class Output
       $html = preg_replace('/<details name="([^"]+)">/', '<details open>', $html);
     }
     // parse URLs starting with www. or http(s):// that include an actual URL, that are not already wrapped in an anchor tag (add target="_blank" and rel="noopener")
-    $html = preg_replace_callback(
-      '/(?<!href=["\'])(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?)(?![^<]*<\/a>)/i',
-      function ($matches) {
-        $url = $matches[1];
-        $href = preg_match('/^https?:\/\//i', $url) ? $url : 'http://' . $url;
-        return '<a href="' . $href . '" target="_blank" rel="noopener">' . $url . '</a>';
-      },
-      $html
-    );
+    // Split on <a> tags to avoid processing content inside them
+    $parts = preg_split('/(<a\b[^>]*>.*?<\/a>)/is', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+    foreach ($parts as $i => $part) {
+      // Only process parts that are NOT anchor tags (even indices)
+      if ($i % 2 === 0) {
+        $parts[$i] = preg_replace_callback(
+          '/(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?|www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s<]*)?)/i',
+          function ($matches) {
+            $url = $matches[1];
+            $href = preg_match('/^https?:\/\//i', $url) ? $url : 'http://' . $url;
+            return '<a href="' . $href . '" target="_blank" rel="noopener">' . $url . '</a>';
+          },
+          $part
+        );
+      }
+    }
+
+    $html = implode('', $parts);
     // replace all images with class "redactor-image" with massif image syntax
     $html = preg_replace_callback(
       '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
@@ -77,6 +87,8 @@ class Output
               <span><span class="label">' . $text . '</span></span>
             </a>
             </p>';
+        } else {
+          return '';
         }
 
         return $matches[0];
