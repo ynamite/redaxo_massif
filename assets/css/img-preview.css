@@ -3,6 +3,8 @@
 }
 .rex-js-widget-media:not(.rex-js-widget-imglist) {
   display: flex;
+  position: relative;
+  z-index: 1030;
   .rex-js-media-preview {
     display: none;
   }
@@ -24,5 +26,4 @@
 #rex-page-sidebar-metainfo .thumbnail:hover {
   transform: scale(2.5);
   z-index: 5;
-  padding: 0;
 }
