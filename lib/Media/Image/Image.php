@@ -182,7 +182,7 @@ class Image
     $className = [];
     $className[] = $this->config->className ?: '';
     $wrapperClassName = [];
-    $wrapperClassName[] = $this->config->wrapperClassName ?: 'relative';
+    $wrapperClassName[] = $this->config->wrapperClassName ?: 'relative bg-gray-200';
 
     $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
@@ -199,9 +199,7 @@ class Image
 
     $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '" style="' . implode('; ', $wrapperStyle) . '">';
     if (!$isSvg && $isLazy) {
-      $html .= '<div class="absolute inset-0 [&.loaded]:opacity-0 overflow-clip transition-opacity duration-300 will-change-[opacity] ' . implode(' ', $className) . '">
-      <img src="' . $lip . '" class="blur-md size-full"/>
-        </div>';
+      $html .= '<div class="absolute backdrop-blur-md inset-0 [&.loaded]:opacity-0 overflow-clip transition-opacity duration-300 will-change-[opacity] ' . implode(' ', $className) . '"></div>';
     }
 
     $html .= '<img alt="' . $alt . '" ';
