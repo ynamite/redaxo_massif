@@ -7,7 +7,7 @@ namespace Ynamite\Massif\Media;
 class ImageConfig
 {
   public const BREAKPOINTS = [
-    16,
+    8,
     280,
     320,
     480,
