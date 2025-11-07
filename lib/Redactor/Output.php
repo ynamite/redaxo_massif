@@ -4,6 +4,8 @@ namespace Ynamite\Massif\Redactor;
 
 use FriendsOfRedaxo\MBlock\MBlock;
 use rex;
+use rex_extension;
+use rex_extension_point;
 use rex_media;
 use rex_view;
 
@@ -35,6 +37,7 @@ class Output
   {
 
     $html = MassifSettings\Utils::replaceStrings($html);
+
     $imageMaxWidth = rex_view::getJsProperties()['redactor_img_maxWidth'] ?? 1024;
 
     if ($this->backend === true || rex::isBackend()) {
@@ -73,43 +76,8 @@ class Output
       },
       $html
     );
-    // replace anchors pointing to pdf media with styled link
-    $html = preg_replace_callback(
-      '/<a[^>]+href=["\']?([^"\'>\s]+\.pdf)["\']?[^>]*>(.*?)<\/a>/is',
-      function ($matches) {
-        $href = $matches[1];
-        $text = strip_tags($matches[2]);
-        $media = rex_media::get(basename($href));
-        if ($media) {
-          return '<span class="download-inline download-file">
-            <a href="' . $href . '" target="_blank" class="icon-link"><i class="text-accent iconify fa-solid--file-pdf"></i><span><span class="label">' . $text . '</span></span></a></span>';
-        } else {
-          return '';
-        }
 
-        return $matches[0];
-      },
-      $html
-    );
-    // replace anchors pointing to docx and dotx media with styled link
-    $html = preg_replace_callback(
-      '/<a[^>]+href=["\']?([^"\'>\s]+\.(docx|dotx))["\']?[^>]*>(.*?)<\/a>/is',
-      function ($matches) {
-        $href = $matches[1];
-        $text = strip_tags($matches[3]);
-        $media = rex_media::get(basename($href));
-        if ($media) {
-          return '<span class="download-inline download-file">
-            <a href="' . $href . '" target="_blank" class="icon-link"><i class="text-accent iconify fa-solid--file-word"></i><span><span class="label">' . $text . '</span></span></a></span>';
-        } else {
-          return '';
-        }
-
-        return $matches[0];
-      },
-      $html
-    );
-
+    $html = rex_extension::registerPoint(new rex_extension_point('MASSIF_REDACTOR_OUTPUT', $html));
 
     // Add name attribute to details tag to avoid duplicate IDs
     $html = str_replace(
