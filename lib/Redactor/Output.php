@@ -81,12 +81,8 @@ class Output
         $text = strip_tags($matches[2]);
         $media = rex_media::get(basename($href));
         if ($media) {
-          return '<span class="download-file">
-            <a href="' . $href . '" target="_blank" class="icon-link">
-              <i class="text-accent iconify fa-solid--file-pdf"></i>
-              <span><span class="label">' . $text . '</span></span>
-            </a>
-            </span>';
+          return '<span class="download-inline download-file">
+            <a href="' . $href . '" target="_blank" class="icon-link"><i class="text-accent iconify fa-solid--file-pdf"></i><span><span class="label">' . $text . '</span></span></a></span>';
         } else {
           return '';
         }
@@ -103,12 +99,8 @@ class Output
         $text = strip_tags($matches[3]);
         $media = rex_media::get(basename($href));
         if ($media) {
-          return '<span class="download-file">
-            <a href="' . $href . '" target="_blank" class="icon-link">
-              <i class="text-accent iconify fa-solid--file-word"></i>
-              <span><span class="label">' . $text . '</span></span>
-            </a>
-            </span>';
+          return '<span class="download-inline download-file">
+            <a href="' . $href . '" target="_blank" class="icon-link"><i class="text-accent iconify fa-solid--file-word"></i><span><span class="label">' . $text . '</span></span></a></span>';
         } else {
           return '';
         }
