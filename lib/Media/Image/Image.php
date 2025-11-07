@@ -64,6 +64,7 @@ class Image
       if ($fetchPriority === 'auto') $fetchPriority = 'high';
     } else if ($loading === 'lazy') {
       if ($decoding === 'auto') $decoding = 'async';
+      if ($fetchPriority === 'auto') $fetchPriority = 'low';
     }
 
     $_loading = LoadingBehavior::tryFrom($loading) ?? LoadingBehavior::LAZY;
