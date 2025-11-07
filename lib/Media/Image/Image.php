@@ -199,7 +199,7 @@ class Image
 
     $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '" style="' . implode('; ', $wrapperStyle) . '">';
     if (!$isSvg && $isLazy) {
-      $html .= '<div class="absolute backdrop-blur-md inset-0 [&.loaded]:opacity-0 overflow-clip transition-opacity duration-300 will-change-[opacity] ' . implode(' ', $className) . '"></div>';
+      $html .= '<div class="absolute backdrop-blur-md inset-0 [&.loaded]:opacity-0 overflow-clip transition-opacity duration-300 will-change-[opacity] ' . implode(' ', $className) . '"><div class="spinner"></div></div>';
     }
 
     $html .= '<img alt="' . $alt . '" ';
