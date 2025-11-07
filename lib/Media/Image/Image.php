@@ -312,7 +312,7 @@ class Image
    */
   public function getWidth(): int
   {
-    return $this->config->width ?: $this->rex_media->getWidth();
+    return (int)$this->config->width ?: (int)$this->rex_media->getWidth();
   }
   /**
    * Get image height
@@ -321,7 +321,7 @@ class Image
    */
   public function getHeight(): int
   {
-    return $this->config->height ?: $this->rex_media->getHeight();
+    return (int)$this->config->height ?: (int)$this->rex_media->getHeight();
   }
   /**
    * Get class name
