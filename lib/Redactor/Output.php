@@ -6,7 +6,6 @@ use FriendsOfRedaxo\MBlock\MBlock;
 use rex;
 use rex_extension;
 use rex_extension_point;
-use rex_media;
 use rex_view;
 
 use Ynamite\Massif\Media;
