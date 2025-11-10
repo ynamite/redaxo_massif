@@ -46,7 +46,7 @@ class rex_effect_auto extends rex_effect_abstract
     if (!in_array($type, ['auto', 'auto-sq', 'auto-c'])) {
       return $ep->setSubject($effects);
     }
-    list($width, $height) = explode('x', $width);
+    @list($width, $height) = explode('x', $width);
 
     if (!in_array($width, $breakPoints)) {
       $width = $breakPoints[1];
