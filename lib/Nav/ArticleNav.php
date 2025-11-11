@@ -69,9 +69,9 @@ class ArticleNav
           $item_out .= ' active';
         }
         $item_out .= '"';
-        $attr = 'target="_self"';
+        $attr = ' target="_self"';
         if ($item->getValue('yrewrite_url_type') === 'REDIRECTION_EXTERNAL')
-          $attr = 'target="_blank" rel="nofollow noopener noreferrer"';
+          $attr = ' target="_blank" rel="nofollow noopener noreferrer"';
 
 
         $item_out .= $attr . '>' . $item->getName() . '</a>';
