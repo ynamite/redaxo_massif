@@ -200,14 +200,12 @@ class Image
 
     $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '" style="' . implode('; ', $wrapperStyle) . '">';
     if (!$isSvg && $isLazy) {
-      $html .= '<div class="absolute backdrop-blur-md inset-0 [&.loaded]:opacity-0 overflow-clip transition-opacity duration-300 will-change-[opacity] ' . implode(' ', $className) . '"><div class="spinner"></div></div>';
+      $html .= '<div class="absolute inset-0 bg-cover bg-center [&.loaded]:opacity-0 transition-opacity duration-300 will-change-auto [background-image:var(--lqip)]" style="--lqip: url(&quot;' . \htmlspecialchars(self::getLqip()) . '&quot;)"><div class="spinner"></div></div>';
     }
 
     $html .= '<img alt="' . $alt . '" ';
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
-      $qlipSize = $this->breakPoints[0];
-      $lip = self::getPath(width: $qlipSize, ratio: $this->config->ratio);
-      $html .= 'src="' . $lip . '" ';
+      $html .= 'src="' . self::getLqip() . '" ';
       $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
@@ -270,7 +268,7 @@ class Image
       $cdnParamQualityValue = ImageConfig::$paramQualityValue;
       $cdnParams = 'tr:e-sharpen,' . $cdnParamWidth . $width . ',' . $cdnParamQuality;
       if ($width == ImageConfig::BREAKPOINTS[0]) {
-        $cdnParams .= '5,bl-3';
+        $cdnParams .= '16,bl-3';
       } else {
         $cdnParams .= $cdnParamQualityValue;
       }
@@ -288,15 +286,15 @@ class Image
    */
   public function getLqip(): string
   {
-    $qlipSize = $this->breakPoints[0];
+    $lqipSize = $this->breakPoints[0];
     if (ImageConfig::$useCDN) {
-      return self::getPath(width: $qlipSize, ratio: $this->config->ratio);
+      return self::getPath(width: $lqipSize, ratio: $this->config->ratio);
     }
     $data = null;
     $negotiatedFormat = self::getNegotiatedFormat();
-    $imagePath = self::getPath(width: $qlipSize, ratio: $this->config->ratio);
+    $imagePath = self::getPath(width: $lqipSize, ratio: $this->config->ratio);
     if ($negotiatedFormat) {
-      $cachePath = rex_path::cache('addons/media_manager/' . $negotiatedFormat . '-auto/' . $this->src . '__w' . $qlipSize);
+      $cachePath = rex_path::cache('addons/media_manager/' . $negotiatedFormat . '-auto/' . $this->src . '__w' . $lqipSize);
       if (is_file($cachePath)) {
         $cacheHeaderPath = $cachePath . '.header';
         $cache = rex_file::getCache($cacheHeaderPath, null);
@@ -333,9 +331,9 @@ class Image
         $data = base64_encode($data);
       }
       if ($data) {
-        $ratio = $qlipSize / $this->getWidth();
+        $ratio = $lqipSize / $this->getWidth();
         $height = (int)round($this->getHeight() * $ratio);
-        return "data:image/svg+xml;utf8,<?xml version='1.0'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$qlipSize} {$height}'><filter id='b'><feGaussianBlur stdDeviation='2'/></filter><image filter='url(%23b)' href='data:image/{$negotiatedFormat};base64,{$data}' width='{$qlipSize}' height='{$height}' /></svg>";
+        return "data:image/svg+xml;utf8,<?xml version='1.0'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$lqipSize} {$height}'><filter id='b'><feGaussianBlur stdDeviation='2'/></filter><image filter='url(%23b)' href='data:image/{$negotiatedFormat};base64,{$data}' width='{$lqipSize}' height='{$height}' /></svg>";
       }
     }
     return $imagePath;
