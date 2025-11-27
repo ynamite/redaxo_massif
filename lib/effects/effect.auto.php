@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Ynamite\Massif\Media\Image;
 use Ynamite\Massif\Media\ImageConfig;
 
 class rex_effect_auto extends rex_effect_abstract
@@ -28,9 +29,9 @@ class rex_effect_auto extends rex_effect_abstract
     $width = $parts[1];
     $filename = $parts[0];
     $format = pathinfo($filename, PATHINFO_EXTENSION);
+
     return [$filename, $width, $format];
   }
-
   public static function handle(\rex_extension_point $ep)
   {
     $breakPoints = ImageConfig::BREAKPOINTS;
@@ -46,10 +47,15 @@ class rex_effect_auto extends rex_effect_abstract
     if (!in_array($type, ['auto', 'auto-sq', 'auto-c'])) {
       return $ep->setSubject($effects);
     }
-    @list($width, $height) = explode('x', $width);
+    $dimensiones = explode('x', $width);
+    $width = (int)$dimensiones[0];
+    $height = isset($dimensiones[1]) ? (int)$dimensiones[1] : 0;
 
     if (!in_array($width, $breakPoints)) {
       $width = $breakPoints[1];
+    }
+    if ($height) {
+      $height = Image::getNearestHeight((int)$height);
     }
     if (count($effects) < 1) {
       $effects = rex_media_manager::create('auto', $filename)->effectsFromType('auto');
@@ -65,16 +71,6 @@ class rex_effect_auto extends rex_effect_abstract
           $effect['params']['height'] = $width;
         } else {
           if ($height) {
-            // find nearest breakpoint larger than height
-            $height = in_array($height, $breakPoints) ? $height : array_reduce($breakPoints, function ($carry, $item) use ($height) {
-              if ($carry === null && $item >= $height) {
-                return $item;
-              }
-              return $carry;
-            });
-            if ($height === null) {
-              $height = $breakPoints[count($breakPoints) - 1];
-            }
             $effect['params']['height'] = $height;
           } elseif (
             isset($effect['params']['height']) && (int)$effect['params']['height'] > 0

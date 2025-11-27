@@ -9,9 +9,12 @@ use InvalidArgumentException;
 
 use rex_clang;
 use rex_media;
+use rex_file;
+use rex_path;
 
 class Image
 {
+
   public ?array $breakPoints = [];
 
   private string $src;
@@ -195,9 +198,6 @@ class Image
     $style = array_filter($style);
     $wrapperStyle = array_filter($wrapperStyle);
 
-    $lqipSize = $this->breakPoints[0];
-    $lip = self::getPath(size: $lqipSize, ratio: $this->config->ratio);
-
     $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '" style="' . implode('; ', $wrapperStyle) . '">';
     if (!$isSvg && $isLazy) {
       $html .= '<div class="absolute backdrop-blur-md inset-0 [&.loaded]:opacity-0 overflow-clip transition-opacity duration-300 will-change-[opacity] ' . implode(' ', $className) . '"><div class="spinner"></div></div>';
@@ -205,6 +205,8 @@ class Image
 
     $html .= '<img alt="' . $alt . '" ';
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
+      $qlipSize = $this->breakPoints[0];
+      $lip = self::getPath(width: $qlipSize, ratio: $this->config->ratio);
       $html .= 'src="' . $lip . '" ';
       $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
     } else {
@@ -244,28 +246,106 @@ class Image
    * Get image path
    *
    * @param string $src
-   * @param int $size
+   * @param int $width
    * 
    * @return string
    */
-  public function getPath(int $size, float $ratio = 0): string
+  public function getPath(int $width, float $ratio = 0): string
   {
-    if (!in_array($size, ImageConfig::BREAKPOINTS))
-      $size = ImageConfig::BREAKPOINTS[0];
-    if ($ratio > 0) {
-      $size .= 'x' . (int)round($size * $ratio);
+    if (!in_array($width, ImageConfig::BREAKPOINTS)) {
+      $width = ImageConfig::BREAKPOINTS[0];
     }
-
-    return self::MANAGER_PATH . 'auto/' . $size . '/' . $this->src . '?v=' . $this->rex_media->getUpdateDate();
+    $size = (string)$width;
+    $height = 0;
+    if ($ratio > 0) {
+      $height = (int)round($size * $ratio);
+      $size .= 'x' . $height;
+    }
+    $updateDate = $this->rex_media->getUpdateDate();
+    if (ImageConfig::$useCDN) {
+      $cdnBase = ImageConfig::$cdnBase;
+      $cdnParamWidth = ImageConfig::$paramWidth;
+      $cdnParamHeight = ImageConfig::$paramHeight;
+      $cdnParamQuality = ImageConfig::$paramQuality;
+      $cdnParamQualityValue = ImageConfig::$paramQualityValue;
+      $cdnParams = 'tr:e-sharpen,' . $cdnParamWidth . $width . ',' . $cdnParamQuality;
+      if ($width == ImageConfig::BREAKPOINTS[0]) {
+        $cdnParams .= '5,bl-3';
+      } else {
+        $cdnParams .= $cdnParamQualityValue;
+      }
+      if ($height) {
+        $cdnParams .= ',' . $cdnParamHeight . $height;
+      }
+      return $cdnBase . $cdnParams . '/' . $this->src . '?v=' . $updateDate;
+    }
+    return self::MANAGER_PATH . 'auto/' . $size . '/' . $this->src . '?v=' . $updateDate;
+  }
+  /**
+   * Get low quality image placeholder
+   *
+   * @return string
+   */
+  public function getLqip(): string
+  {
+    $qlipSize = $this->breakPoints[0];
+    if (ImageConfig::$useCDN) {
+      return self::getPath(width: $qlipSize, ratio: $this->config->ratio);
+    }
+    $data = null;
+    $negotiatedFormat = self::getNegotiatedFormat();
+    $imagePath = self::getPath(width: $qlipSize, ratio: $this->config->ratio);
+    if ($negotiatedFormat) {
+      $cachePath = rex_path::cache('addons/media_manager/' . $negotiatedFormat . '-auto/' . $this->src . '__w' . $qlipSize);
+      if (is_file($cachePath)) {
+        $cacheHeaderPath = $cachePath . '.header';
+        $cache = rex_file::getCache($cacheHeaderPath, null);
+        if ($cache) {
+          $mediapath = $cache['media_path'];
+          $cachetime = filemtime($cachePath);
+          $filetime = filemtime($mediapath);
+          if ($filetime <= $cachetime) {
+            $data = base64_encode(rex_file::get($cachePath));
+          }
+        }
+      }
+      if (!$data) {
+        $url = self::getAbsoluteUrl($imagePath);
+        $context = stream_context_create([
+          'http' => [
+            'method' => 'GET',
+            'header' =>   "Accept: image/avif,image/webp,image/*;q=0.8,*/*;q=0.5\r\n" .
+              "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              . "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\r\n" .
+              "Cache-Control: no-cache\r\n",
+            'timeout' => 2,
+            'ignore_errors' => true,
+          ],
+          'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+          ]
+        ]);
+        $data = @file_get_contents($url, false, $context);
+        if (!$data) {
+          return $imagePath;
+        }
+        $data = base64_encode($data);
+      }
+      if ($data) {
+        $ratio = $qlipSize / $this->getWidth();
+        $height = (int)round($this->getHeight() * $ratio);
+        return "data:image/svg+xml;utf8,<?xml version='1.0'?><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {$qlipSize} {$height}'><filter id='b'><feGaussianBlur stdDeviation='2'/></filter><image filter='url(%23b)' href='data:image/{$negotiatedFormat};base64,{$data}' width='{$qlipSize}' height='{$height}' /></svg>";
+      }
+    }
+    return $imagePath;
   }
   /**
    * Get image srcset
-   *
-   * @param string $src
-   * 
+   *   * 
    * @return string
    */
-  public function getSrcset(string $src): string
+  public function getSrcset(): string
   {
     $srcset = [];
 
@@ -273,7 +353,7 @@ class Image
     array_shift($sizes);
 
     foreach ($sizes as $key => $size) {
-      $srcset[] = self::getPath(size: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
+      $srcset[] = self::getPath(width: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
       if ($this->config->maxWidth > 0 && $size >= $this->config->maxWidth * 2) break;
     }
 
@@ -417,5 +497,23 @@ class Image
     $possible_types = rex_server('HTTP_ACCEPT', 'string', '');
     $types = explode(',', $possible_types);
     return MediaNegotiatorHelper::getOutputFormat($types);
+  }
+
+  public static function getNearestHeight(int $height = 0): int
+  {
+    $breakPoints = ImageConfig::BREAKPOINTS;
+    // find nearest breakpoint larger than height
+    if ($height) {
+      $height = in_array($height, $breakPoints) ? $height : array_reduce($breakPoints, function ($carry, $item) use ($height) {
+        if ($carry === null && $item >= $height) {
+          return $item;
+        }
+        return $carry;
+      });
+      if ($height === null) {
+        $height = $breakPoints[count($breakPoints) - 1];
+      }
+    }
+    return $height;
   }
 }

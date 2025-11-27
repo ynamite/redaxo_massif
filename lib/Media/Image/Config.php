@@ -6,6 +6,13 @@ namespace Ynamite\Massif\Media;
 
 class ImageConfig
 {
+  static bool $useCDN = false;
+  static string $cdnBase = '';
+  static string $paramWidth = 'w-';
+  static string $paramHeight = 'h-';
+  static string $paramQuality = 'q-';
+  static string $paramQualityValue = '96';
+
   public const BREAKPOINTS = [
     8,
     280,
