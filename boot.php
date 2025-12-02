@@ -54,15 +54,15 @@ rex_extension::register('PACKAGES_INCLUDED', function (rex_extension_point $ep) 
         rex_yform::addTemplatePath($this->getPath('ytemplates'));
     }
 
-    rex_extension::register('REDACTOR_PLUGIN_DIR', Redactor\Extension::register(...));
+    // rex_extension::register('REDACTOR_PLUGIN_DIR', Redactor\Extension::register(...));
 
-    rex_extension::register('BLOCK_PEEK_OUTPUT', function (rex_extension_point $ep) {
-        $html = $ep->getSubject();
-        $sliceId = $ep->getParam('slice_id', 0);
-        $output = new Output($sliceId);
-        $html = $output->parse($html);
-        $ep->setSubject($html);
-    });
+    // rex_extension::register('BLOCK_PEEK_OUTPUT', function (rex_extension_point $ep) {
+    //     $html = $ep->getSubject();
+    //     $sliceId = $ep->getParam('slice_id', 0);
+    //     $output = new Output($sliceId);
+    //     $html = $output->parse($html);
+    //     $ep->setSubject($html);
+    // });
 });
 
 if (rex::isBackend() && rex::getUser() && rex_plugin::get('yform', 'manager')) {
