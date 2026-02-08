@@ -155,7 +155,7 @@ class Url
    * 
    * @return array
    */
-  public static function parseCustomLink(string $url, string $label = ''): array
+  public static function parseCustomLink(string $url = '', string $label = ''): array
   {
     $linkObject = ['link' => $url, 'text' => $label];
     $hash = '';
