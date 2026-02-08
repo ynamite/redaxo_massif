@@ -6,40 +6,16 @@ namespace Ynamite\Massif\Media;
 
 use media_negotiator\Helper as MediaNegotiatorHelper;
 use InvalidArgumentException;
-
-use rex_clang;
 use rex_media;
 use rex_file;
 use rex_path;
 
-class Image
+class Image extends Media
 {
-
   public ?array $breakPoints = [];
-
-  private string $src;
-  private ImageConfig $config;
-  private rex_media|null $rex_media;
-
   private const EXCLUDE_EXTENSIONS_FROM_RESIZE = ['svg', 'gif'];
   private const MANAGER_PATH = '/image/';
 
-  /**
-   * Get image markup
-   * @param string $src
-   * @param string $alt
-   * @param string $sizes
-   * @param int $maxWidth
-   * @param float $ratio
-   * @param string $className
-   * @param int $width
-   * @param int $height
-   * @param string $loading
-   * @param string $decoding
-   * @param string $fetchPriority
-   *
-   * @return self
-   */
   public function __construct(
     string $src,
     string $alt = '',
@@ -56,12 +32,10 @@ class Image
     $decoding = 'auto',
     $fetchPriority = 'auto'
   ) {
-    if ($src == '') {
-      return '';
-    }
-    $this->src = $src;
-    $this->rex_media = rex_media::get($this->src);
 
+    $this->initializeMedia($src);
+
+    // Handle loading/decoding/fetchPriority logic
     if ($loading === 'eager') {
       if ($decoding === 'auto') $decoding = 'sync';
       if ($fetchPriority === 'auto') $fetchPriority = 'high';
@@ -74,40 +48,29 @@ class Image
     $_decoding = DecodingBehavior::tryFrom($decoding) ?? DecodingBehavior::AUTO;
     $_fetchPriority = FetchPriorityBehavior::tryFrom($fetchPriority) ?? FetchPriorityBehavior::AUTO;
 
+    // Create ImageConfig
     $config = new ImageConfig();
-    $config->alt = $alt ?? $config->alt;
-    $config->className = $className ?? $config->className;
-    $config->width = $width ?? $config->width;
-    $config->height = $height ?? $config->height;
-    $config->sizes = $sizes ?? $config->sizes;
-    $config->maxWidth = $maxWidth ?? $config->maxWidth;
-    $config->ratio = $ratio ?? $config->ratio;
-    $config->breakPoints = $breakPoints ?? $config->breakPoints;
-    $config->wrapperElement = $wrapperElement ?? $config->wrapperElement;
-    $config->wrapperClassName = $wrapperClassName ?? $config->wrapperClassName;
+    $config->rex_media = $this->rex_media;
+    $config->type = MediaType::IMAGE;
+    $config->alt = $alt;
+    $config->className = $className;
+    $config->width = $width;
+    $config->height = $height;
+    $config->sizes = $sizes;
+    $config->maxWidth = $maxWidth;
+    $config->ratio = $ratio;
+    $config->breakPoints = $breakPoints;
+    $config->wrapperElement = $wrapperElement ?? 'div';
+    $config->wrapperClassName = $wrapperClassName;
     $config->loading = $_loading;
     $config->decoding = $_decoding;
     $config->fetchPriority = $_fetchPriority;
 
     $this->config = $config;
-    return $this;
   }
 
   /**
-   * Get image markup
-   * @param string $src
-   * @param string $alt
-   * @param string $sizes
-   * @param int $maxWidth
-   * @param float $ratio
-   * @param string $className
-   * @param int $width
-   * @param int $height
-   * @param string $loading
-   * @param string $decoding
-   * @param string $fetchPriority
-   *
-   * @return string
+   * Static helper for quick rendering
    */
   public static function get(
     string $src,
@@ -150,16 +113,12 @@ class Image
   }
 
   /**
-   *	render image markup
-   * @param ImageConfig $config
-   *
-   * @return string
+   * Render image markup
    */
-
   public function render(): string
   {
     $html = '';
-    if ($this->src == '' || $this->rex_media == null) return $html;
+    if ($this->src == '' || $this->config->rex_media == null) return $html;
 
     $this->breakPoints = array_values(array_intersect($this->config->breakPoints, ImageConfig::BREAKPOINTS));
     if (empty($this->breakPoints)) {
@@ -168,9 +127,9 @@ class Image
 
     $isLazy = $this->config->loading === LoadingBehavior::LAZY;
 
-    $url = $this->rex_media->getUrl();
+    $url = $this->config->rex_media->getUrl();
 
-    $ext = $this->rex_media->getExtension();
+    $ext = $this->config->rex_media->getExtension();
     $isSvg = $ext === 'svg';
     if ($ext === 'gif') {
       $url .= '?' . time();
@@ -178,17 +137,15 @@ class Image
 
     $width = $this->getWidth();
     $height = $this->getHeight();
-    $alt = $this->config->alt ?: $this->rex_media->getTitle();
+    $alt = $this->config->alt ?: $this->config->rex_media->getTitle();
     $sizes = $this->config->sizes ?: $this->getSizes($this->config->maxWidth);
     $style = [];
-    $wrapperStyle = [];
-    $wrapperStyle[] = $this->config->wrapperStyle ?: '--ratio: ' . $width . '/' . $height;
     $className = [];
     $className[] = $this->config->className ?: '';
     $wrapperClassName = [];
     $wrapperClassName[] = $this->config->wrapperClassName ?: 'relative bg-gray-200';
 
-    $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
+    $focuspoint = array_filter(explode(',', $this->config->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
       $style[] = 'object-position: ' . $focuspoint[0] . '% ' . $focuspoint[1] . '%';
     }
@@ -196,17 +153,16 @@ class Image
     $className = array_filter($className);
     $wrapperClassName = array_filter($wrapperClassName);
     $style = array_filter($style);
-    $wrapperStyle = array_filter($wrapperStyle);
 
-    $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '" style="' . implode('; ', $wrapperStyle) . '">';
+    $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '">';
     if (!$isSvg && $isLazy) {
-      $html .= '<div class="absolute inset-0 bg-cover bg-center [&.loaded]:opacity-0 transition-opacity duration-300 will-change-auto [background-image:var(--lqip)]" style="--lqip: url(&quot;' . \htmlspecialchars(self::getLqip()) . '&quot;)"><div class="spinner"></div></div>';
+      $html .= '<div class="absolute inset-0 bg-cover bg-center [&.loaded]:opacity-0 transition-opacity duration-300 will-change-auto [background-image:var(--lqip)]" style="--lqip: url(&quot;' . \htmlspecialchars($this->getLqip()) . '&quot;)"><div class="spinner"></div></div>';
     }
 
     $html .= '<img alt="' . $alt . '" ';
     if (!in_array($ext, self::EXCLUDE_EXTENSIONS_FROM_RESIZE)) {
-      $html .= 'src="' . self::getLqip() . '" ';
-      $html .= 'srcset="' . $this->getSrcset($this->src) . '" ';
+      $html .= 'src="' . $this->getLqip() . '" ';
+      $html .= 'srcset="' . $this->getSrcset() . '" ';
     } else {
       $html .= 'src="' . $url . '" ';
     }
@@ -228,25 +184,7 @@ class Image
   }
 
   /**
-   *	to string
-   *
-   * @return string
-   */
-  public function __toString(): string
-  {
-    return $this->render();
-  }
-  public function getMedia(): rex_media
-  {
-    return $this->rex_media;
-  }
-  /**
    * Get image path
-   *
-   * @param string $src
-   * @param int $width
-   * 
-   * @return string
    */
   public function getPath(int $width, float $ratio = 0): string
   {
@@ -259,7 +197,7 @@ class Image
       $height = (int)round($size * $ratio);
       $size .= 'x' . $height;
     }
-    $updateDate = $this->rex_media->getUpdateDate();
+    $updateDate = $this->config->rex_media->getUpdateDate();
     if (ImageConfig::$useCDN) {
       $cdnBase = ImageConfig::$cdnBase;
       $cdnParamWidth = ImageConfig::$paramWidth;
@@ -279,20 +217,19 @@ class Image
     }
     return self::MANAGER_PATH . 'auto/' . $size . '/' . $this->src . '?v=' . $updateDate;
   }
+
   /**
    * Get low quality image placeholder
-   *
-   * @return string
    */
   public function getLqip(): string
   {
     $lqipSize = $this->breakPoints[0];
     if (ImageConfig::$useCDN) {
-      return self::getPath(width: $lqipSize, ratio: $this->config->ratio);
+      return $this->getPath(width: $lqipSize, ratio: $this->config->ratio);
     }
     $data = null;
     $negotiatedFormat = self::getNegotiatedFormat();
-    $imagePath = self::getPath(width: $lqipSize, ratio: $this->config->ratio);
+    $imagePath = $this->getPath(width: $lqipSize, ratio: $this->config->ratio);
     if ($negotiatedFormat) {
       $cachePath = rex_path::cache('addons/media_manager/' . $negotiatedFormat . '-auto/' . $this->src . '__w' . $lqipSize);
       if (is_file($cachePath)) {
@@ -338,10 +275,9 @@ class Image
     }
     return $imagePath;
   }
+
   /**
    * Get image srcset
-   *   * 
-   * @return string
    */
   public function getSrcset(): string
   {
@@ -351,7 +287,7 @@ class Image
     array_shift($sizes);
 
     foreach ($sizes as $key => $size) {
-      $srcset[] = self::getPath(width: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
+      $srcset[] = $this->getPath(width: $size, ratio: $this->config->ratio) . ' ' . $size . 'w';
       if ($this->config->maxWidth > 0 && $size >= $this->config->maxWidth * 2) break;
     }
 
@@ -360,9 +296,6 @@ class Image
 
   /**
    * Get image sizes
-   * @param int $maxWidth
-   *
-   * @return string
    */
   public function getSizes(int $maxWidth = 0): string
   {
@@ -381,114 +314,27 @@ class Image
         break;
       }
     }
-    // $output[] = $maxSize . 'px';
     return implode(', ', $output);
   }
+
   /**
    * Get image width
-   *
-   * @return int
    */
   public function getWidth(): int
   {
-    return (int)$this->config->width ?: (int)$this->rex_media->getWidth();
+    return (int)$this->config->width ?: (int)$this->config->rex_media->getWidth();
   }
+
   /**
    * Get image height
-   *
-   * @return int
    */
   public function getHeight(): int
   {
-    return (int)$this->config->height ?: (int)$this->rex_media->getHeight();
-  }
-  /**
-   * Get class name
-   *
-   * @return string
-   */
-  public function getClassName(): string
-  {
-    return $this->getConfig('className', '');
-  }
-  /**
-   * Set class name
-   *
-   * @param string $className
-   * 
-   * @return void
-   */
-  public function setClassName(string $className): void
-  {
-    $this->setConfig('className', $className);
+    return (int)$this->config->height ?: (int)$this->config->rex_media->getHeight();
   }
 
-  /**
-   * Set config value
-   *
-   * @param string $key
-   * @param mixed $value
-   * 
-   * @return void
-   */
-  public function setConfig(string $key, mixed $value): void
-  {
-    if (property_exists($this->config, $key)) {
-      $this->config->{$key} = $value;
-    }
-  }
-  /**
-   * Get config value
-   *
-   * @param string $key
-   * 
-   * @return mixed
-   */
-  public function getConfig(string $key, mixed $default = null): mixed
-  {
-    return $this->config->{$key} ?? $default;
-  }
-  /**
-   * Get absolute URL
-   *
-   * @param string $path
-   * 
-   * @return string
-   */
-  public static function getAbsoluteUrl(string $path): string
-  {
-    // ensure leading slash
-    if ($path[0] !== '/') {
-      $path = '/' . $path;
-    }
-
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-
-    return $scheme . '://' . $host . $path;
-  }
-  /**
-   *	get image meta info
-   * @param string $file
-   * @param string $field
-
-   * @return string|null
-   */
-  public static function getMeta($file, $field = 'title')
-  {
-
-    if ($file = rex_media::get($file)) {
-      $title = $file->getValue($field);
-      if (rex_clang::getCurrentId() == 2)
-        $title = $file->getValue('med_title_2');
-
-      return $title;
-    }
-  }
   /**
    * Get negotiated format
-   *
-   * @return string
    */
   public static function getNegotiatedFormat(): string
   {
@@ -500,7 +346,6 @@ class Image
   public static function getNearestHeight(int $height = 0): int
   {
     $breakPoints = ImageConfig::BREAKPOINTS;
-    // find nearest breakpoint larger than height
     if ($height) {
       $height = in_array($height, $breakPoints) ? $height : array_reduce($breakPoints, function ($carry, $item) use ($height) {
         if ($carry === null && $item >= $height) {

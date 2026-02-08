@@ -4,15 +4,8 @@ declare(strict_types=1);
 
 namespace Ynamite\Massif\Media;
 
-class ImageConfig
+class ImageConfig extends MediaConfig
 {
-  static bool $useCDN = false;
-  static string $cdnBase = '';
-  static string $paramWidth = 'w-';
-  static string $paramHeight = 'h-';
-  static string $paramQuality = 'q-';
-  static string $paramQualityValue = '96';
-
   public const BREAKPOINTS = [
     8,
     280,
@@ -34,20 +27,45 @@ class ImageConfig
     5120,
     6016
   ];
+
   public function __construct(
-    public ?string $alt = '',
-    public ?int $width = 0,
-    public ?int $height = 0,
+    // Image-specific properties
     public ?float $ratio = 0,
     public ?int $maxWidth = 0,
-    public ?string $sizes = '100vw',
-    public ?array $breakPoints = ImageConfig::BREAKPOINTS,
-    public ?string $className = '',
-    public ?string $wrapperElement = 'div',
-    public ?string $wrapperClassName = '',
-    public ?string $wrapperStyle = '',
-    public LoadingBehavior $loading = LoadingBehavior::LAZY,
+    public ?array $breakPoints = self::BREAKPOINTS,
     public DecodingBehavior $decoding = DecodingBehavior::AUTO,
     public FetchPriorityBehavior $fetchPriority = FetchPriorityBehavior::AUTO,
-  ) {}
+
+    // Parent properties with defaults
+    ?string $alt = '',
+    ?string $className = '',
+    ?string $wrapperElement = 'div',
+    ?string $wrapperClassName = '',
+    ?int $width = 0,
+    ?int $height = 0,
+    ?string $sizes = '100vw',
+    LoadingBehavior $loading = LoadingBehavior::LAZY,
+  ) {
+    parent::__construct(
+      className: $className,
+      wrapperElement: $wrapperElement,
+      wrapperClassName: $wrapperClassName,
+      width: $width,
+      height: $height,
+      sizes: $sizes,
+      loading: $loading,
+      alt: $alt,
+    );
+  }
+
+  public function toArray(): array
+  {
+    return array_merge(parent::toArray(), [
+      'ratio' => $this->ratio,
+      'maxWidth' => $this->maxWidth,
+      'breakPoints' => $this->breakPoints,
+      'decoding' => $this->decoding,
+      'fetchPriority' => $this->fetchPriority,
+    ]);
+  }
 }
