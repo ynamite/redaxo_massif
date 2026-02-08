@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Ynamite\Massif\Utils;
 
+use FriendsOfRedaxo\MForm\Utils\MFormOutputHelper;
+
 use Exception;
 
 use rex_article;
@@ -143,5 +145,26 @@ class Url
 
     $return['class'] = $params['class'];
     return $return;
+  }
+
+  /**
+   * Parse a custom link from the given URL and parameters.
+   *
+   * @param string $url
+   * @param array $params
+   * 
+   * @return array
+   */
+  public static function parseCustomLink(string $url, string $label = ''): array
+  {
+    $linkObject = ['link' => $url, 'text' => $label];
+    $hash = '';
+    if (str_contains($linkObject['link'], '#slice-')) {
+      [$id, $hash] = explode('#', $linkObject['link'], 2);
+      $linkObject['link'] = $id;
+    }
+    $customLink = MFormOutputHelper::prepareCustomLink($linkObject);
+    $customLink['customlink_url'] = $customLink['customlink_url'] . ($hash ? '#' . $hash : '');
+    return $customLink;
   }
 }
