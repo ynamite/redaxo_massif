@@ -6,10 +6,12 @@ namespace Ynamite\Massif\Media;
 
 use media_negotiator\Helper as MediaNegotiatorHelper;
 use InvalidArgumentException;
-use rex_media;
 use rex_file;
 use rex_path;
 
+/**
+ * @property ImageConfig $config
+ */
 class Image extends Media
 {
   public ?array $breakPoints = [];
@@ -48,23 +50,28 @@ class Image extends Media
     $_decoding = DecodingBehavior::tryFrom($decoding) ?? DecodingBehavior::AUTO;
     $_fetchPriority = FetchPriorityBehavior::tryFrom($fetchPriority) ?? FetchPriorityBehavior::AUTO;
 
-    // Create ImageConfig
-    $config = new ImageConfig();
+    // Create ImageConfig with proper parent constructor call
+    $config = new ImageConfig(
+      // ImageConfig-specific params
+      ratio: $ratio,
+      maxWidth: $maxWidth,
+      breakPoints: $breakPoints,
+      decoding: $_decoding,
+      fetchPriority: $_fetchPriority,
+      // MediaConfig params (from parent)
+      alt: $alt,
+      className: $className,
+      wrapperElement: $wrapperElement ?? 'div',
+      wrapperClassName: $wrapperClassName,
+      width: $width,
+      height: $height,
+      sizes: $sizes,
+      loading: $_loading,
+    );
+
+    // Set properties that aren't constructor params
     $config->rex_media = $this->rex_media;
     $config->type = MediaType::IMAGE;
-    $config->alt = $alt;
-    $config->className = $className;
-    $config->width = $width;
-    $config->height = $height;
-    $config->sizes = $sizes;
-    $config->maxWidth = $maxWidth;
-    $config->ratio = $ratio;
-    $config->breakPoints = $breakPoints;
-    $config->wrapperElement = $wrapperElement ?? 'div';
-    $config->wrapperClassName = $wrapperClassName;
-    $config->loading = $_loading;
-    $config->decoding = $_decoding;
-    $config->fetchPriority = $_fetchPriority;
 
     $this->config = $config;
   }
@@ -118,7 +125,7 @@ class Image extends Media
   public function render(): string
   {
     $html = '';
-    if ($this->src == '' || $this->config->rex_media == null) return $html;
+    if ($this->src == '' || $this->rex_media == null) return $html;
 
     $this->breakPoints = array_values(array_intersect($this->config->breakPoints, ImageConfig::BREAKPOINTS));
     if (empty($this->breakPoints)) {
@@ -127,9 +134,9 @@ class Image extends Media
 
     $isLazy = $this->config->loading === LoadingBehavior::LAZY;
 
-    $url = $this->config->rex_media->getUrl();
+    $url = $this->rex_media->getUrl();
 
-    $ext = $this->config->rex_media->getExtension();
+    $ext = $this->rex_media->getExtension();
     $isSvg = $ext === 'svg';
     if ($ext === 'gif') {
       $url .= '?' . time();
@@ -137,7 +144,7 @@ class Image extends Media
 
     $width = $this->getWidth();
     $height = $this->getHeight();
-    $alt = $this->config->alt ?: $this->config->rex_media->getTitle();
+    $alt = $this->config->alt ?: $this->rex_media->getTitle();
     $sizes = $this->config->sizes ?: $this->getSizes($this->config->maxWidth);
     $style = [];
     $className = [];
@@ -145,7 +152,7 @@ class Image extends Media
     $wrapperClassName = [];
     $wrapperClassName[] = $this->config->wrapperClassName ?: 'relative bg-gray-200';
 
-    $focuspoint = array_filter(explode(',', $this->config->rex_media->getValue('med_focuspoint')));
+    $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
       $style[] = 'object-position: ' . $focuspoint[0] . '% ' . $focuspoint[1] . '%';
     }
@@ -197,7 +204,7 @@ class Image extends Media
       $height = (int)round($size * $ratio);
       $size .= 'x' . $height;
     }
-    $updateDate = $this->config->rex_media->getUpdateDate();
+    $updateDate = $this->rex_media->getUpdateDate();
     if (ImageConfig::$useCDN) {
       $cdnBase = ImageConfig::$cdnBase;
       $cdnParamWidth = ImageConfig::$paramWidth;
@@ -322,7 +329,7 @@ class Image extends Media
    */
   public function getWidth(): int
   {
-    return (int)$this->config->width ?: (int)$this->config->rex_media->getWidth();
+    return (int)$this->config->width ?: (int)$this->rex_media->getWidth();
   }
 
   /**
@@ -330,7 +337,7 @@ class Image extends Media
    */
   public function getHeight(): int
   {
-    return (int)$this->config->height ?: (int)$this->config->rex_media->getHeight();
+    return (int)$this->config->height ?: (int)$this->rex_media->getHeight();
   }
 
   /**
