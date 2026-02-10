@@ -51,6 +51,10 @@ class ConfigForm extends rex_config_form
             $field->addOption($option['label'], $option['value']);
           }
           break;
+        case "number":
+          $field = $form->addTextField($name);
+          $field->setAttribute('type', 'number');
+          break;
         case "text":
         default:
           $field = $form->addTextField($name);
