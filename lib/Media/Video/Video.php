@@ -107,7 +107,6 @@ class Video extends Media
     /** @var VideoConfig $config */
     $config = $this->config;
 
-    $url = $this->rex_media->getUrl();
     $ext = $this->rex_media->getExtension();
 
     $width = $this->getWidth();
@@ -144,7 +143,7 @@ class Video extends Media
     $html .= '>';
 
     // Add source element(s)
-    $html .= '<source src="' . $url . '" type="video/' . $ext . '">';
+    $html .= '<source src="' . $this->getPath() . '" type="video/' . $ext . '">';
 
     // Fallback text
     $html .= 'Your browser does not support the video tag.';
@@ -154,6 +153,18 @@ class Video extends Media
 
     return $html;
   }
+
+  public function getPath(): string
+  {
+    $url = $this->rex_media->getUrl();
+    $updateDate = $this->rex_media->getUpdateDate();
+    if (MediaConfig::$useCDN) {
+      $cdnBase = MediaConfig::$cdnBase;
+      return $cdnBase . $this->src . '?v=' . $updateDate;
+    }
+    return $url . '?v=' . $updateDate;
+  }
+
 
   /**
    * Set autoplay
