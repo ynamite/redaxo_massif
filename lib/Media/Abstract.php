@@ -33,9 +33,9 @@ abstract class Media
     string $sizes = '100vw',
     string $loading = 'lazy',
     string $alt = '',
-  ): Media {
+  ): Media|null {
     if ($src == '') {
-      throw new InvalidArgumentException('Source cannot be empty');
+      return null;
     }
 
     $rex_media = rex_media::get($src);
