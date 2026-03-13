@@ -347,7 +347,8 @@ class Image extends Media
   {
     $possible_types = rex_server('HTTP_ACCEPT', 'string', '');
     $types = explode(',', $possible_types);
-    return MediaNegotiatorHelper::getOutputFormat($types);
+    $outputFormat = MediaNegotiatorHelper::getOutputFormat($types);
+    return $outputFormat === 'default' ? 'webp' : $outputFormat;
   }
 
   public static function getNearestHeight(int $height = 0): int
