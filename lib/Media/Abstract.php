@@ -7,6 +7,7 @@ namespace Ynamite\Massif\Media;
 use InvalidArgumentException;
 use rex_clang;
 use rex_media;
+use rex_logger;
 
 abstract class Media
 {
@@ -18,7 +19,7 @@ abstract class Media
 
   protected string $src;
   protected MediaConfig $config;
-  protected rex_media $rex_media;
+  protected ?rex_media $rex_media = null;
 
   /**
    * Factory method to create the appropriate Media subclass with shared options
@@ -84,7 +85,7 @@ abstract class Media
     $this->rex_media = rex_media::get($src);
 
     if (!$this->rex_media) {
-      throw new InvalidArgumentException('Media not found for source: ' . $src);
+      rex_logger::logException(new InvalidArgumentException('Media not found for source: ' . $src));
     }
   }
 
@@ -104,7 +105,7 @@ abstract class Media
   /**
    * Get rex_media object
    */
-  public function getMedia(): rex_media
+  public function getMedia(): ?rex_media
   {
     return $this->rex_media;
   }

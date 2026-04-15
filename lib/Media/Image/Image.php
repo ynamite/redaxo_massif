@@ -329,6 +329,9 @@ class Image extends Media
    */
   public function getWidth(): int
   {
+    if (!$this->rex_media) {
+      return (int)$this->config->width;
+    }
     return (int)$this->config->width ?: (int)$this->rex_media->getWidth();
   }
 
@@ -337,6 +340,9 @@ class Image extends Media
    */
   public function getHeight(): int
   {
+    if (!$this->rex_media) {
+      return (int)$this->config->height;
+    }
     return (int)$this->config->height ?: (int)$this->rex_media->getHeight();
   }
 
