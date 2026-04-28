@@ -1,5 +1,5 @@
-name: 'HTML Head'
-key: html-head
+name: 'Meta'
+key: meta
 active: false
 attributes:
     ctype: {  }
