@@ -22,7 +22,18 @@ use rex_yform;
 
 use Ynamite\Massif\Media;
 use Ynamite\Massif\Usability;
-use Ynamite\Massif\Redactor\Output;
+// use Ynamite\Massif\Redactor\Output;
+use Ynamite\ViteRex\StubsInstaller;
+
+if (
+    !class_exists(\FriendsOfRedaxo\MediaNegotiator\Helper::class, false)
+    && class_exists(\media_negotiator\Helper::class)
+) {
+    class_alias(
+        \media_negotiator\Helper::class,
+        \FriendsOfRedaxo\MediaNegotiator\Helper::class
+    );
+}
 
 /** @var rex_addon_interface $this */
 
@@ -267,5 +278,34 @@ if (rex::isBackend() && rex::getUser()) {
 
 
         return $warning;
+    });
+}
+
+
+// VITEREX_INSTALL_STUBS hook: re-run our frontend install when the user clicks
+// viterex's "Install stubs" button, so both addons' stubs land in one click.
+// Bypasses install.php's idempotency marker — clicking the button = explicit consent.
+if (rex_addon::get('viterex')->isAvailable()) {
+    rex_extension::register('VITEREX_INSTALL_STUBS', static function (rex_extension_point $ep) {
+        $overwrite = (bool) $ep->getParam('overwrite', false);
+        $stubsMap = require __DIR__ . '/frontend/stubs-map.php';
+        $deps = json_decode((string) file_get_contents(__DIR__ . '/frontend/package-deps.json'), true);
+
+        $massifResult = StubsInstaller::installFromDir(
+            __DIR__ . '/frontend',
+            $stubsMap,
+            $overwrite,
+            $deps,
+        );
+        StubsInstaller::appendRefreshGlobs([
+            'src/addons/massif/fragments/**/*.php',
+            'src/addons/massif/lib/**/*.php',
+        ]);
+
+        $subject = $ep->getSubject();
+        foreach (['written', 'skipped', 'backedUp'] as $k) {
+            $subject[$k] = array_merge($subject[$k] ?? [], $massifResult[$k] ?? []);
+        }
+        return $subject;
     });
 }

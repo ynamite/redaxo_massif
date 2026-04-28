@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ynamite\Massif\Media;
 
-use media_negotiator\Helper as MediaNegotiatorHelper;
+use FriendsOfRedaxo\MediaNegotiator\Helper as MediaNegotiatorHelper;
 use InvalidArgumentException;
 use rex_file;
 use rex_path;
