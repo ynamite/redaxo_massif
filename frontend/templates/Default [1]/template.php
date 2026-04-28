@@ -1,8 +1,3 @@
-<?php
-
-use Ynamite\Massif\Media;
-
-?>
 REX_TEMPLATE[key="config"]
 
 REX_TEMPLATE[key="meta"]
@@ -16,4 +11,5 @@ REX_TEMPLATE[key="meta"]
 	REX_TEMPLATE[key="footer"]
 
 </body>
+
 </html>
