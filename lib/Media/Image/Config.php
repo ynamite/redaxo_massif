@@ -32,6 +32,8 @@ class ImageConfig extends MediaConfig
     // Image-specific properties
     public ?float $ratio = 0,
     public ?int $maxWidth = 0,
+    public ?bool $asFigure = false,
+    public ?string $captionClassName = '',
     public ?array $breakPoints = self::BREAKPOINTS,
     public DecodingBehavior $decoding = DecodingBehavior::AUTO,
     public FetchPriorityBehavior $fetchPriority = FetchPriorityBehavior::AUTO,
@@ -66,6 +68,8 @@ class ImageConfig extends MediaConfig
       'breakPoints' => $this->breakPoints,
       'decoding' => $this->decoding,
       'fetchPriority' => $this->fetchPriority,
+      'asFigure' => $this->asFigure,
+      'captionClassName' => $this->captionClassName,
     ]);
   }
 }
