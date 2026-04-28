@@ -1,0 +1,14 @@
+.spinner {
+  @apply w-12 h-12 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  &::after,
+  &::before {
+    @apply content-[''];
+    @apply size-full absolute rounded-full bg-grey top-0 left-0;
+    @apply animate-spinner;
+  }
+  &::after {
+    @apply [animation-delay:_1s];
+    transform: scale(0);
+    opacity: 0;
+  }
+}

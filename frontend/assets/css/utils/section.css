@@ -1,0 +1,27 @@
+@utility section-pl {
+  @apply clamp-[pl,5,12];
+}
+@utility section-pr {
+  @apply clamp-[pr,5,12];
+}
+@utility section-pt {
+  @apply clamp-[pt,5,12];
+}
+@utility section-pb {
+  @apply clamp-[pb,5,12];
+}
+@utility section-px {
+  @apply section-pl section-pr;
+}
+@utility section-py {
+  @apply section-pt section-pb;
+}
+@utility section-p {
+  @apply section-px section-py;
+}
+@utility page-margin {
+  @apply mx-auto w-full lg:max-w-[90svw] xl:max-w-410;
+}
+@utility base-grid {
+  @apply grid grid-cols-4 lg:grid-cols-12 *:col-span-4 lg:*:col-span-12 clamp-[gap-x,0.625rem,2.5rem];
+}

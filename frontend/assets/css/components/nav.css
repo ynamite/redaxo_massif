@@ -1,0 +1,20 @@
+.main-nav {
+  li {
+    > a {
+      @apply transition-colors duration-350;
+    }
+    &:hover,
+    &:focus,
+    &:has(.rex-current, .rex-active) {
+      > a {
+        @apply text-accent;
+      }
+    }
+  }  
+  .rex-navi2 {
+    @apply relative overflow-hidden;
+  }
+  .dropdown-toggle {
+    @apply flex items-center justify-center relative z-1;
+  }
+}

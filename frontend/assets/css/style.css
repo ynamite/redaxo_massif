@@ -1,0 +1,24 @@
+@layer theme, base, components, utilities, typography, layout;
+
+@import "tailwindcss";
+
+@import "./plugins.css";
+
+@import "./properties.css" layer(base);
+@import "./base.css" layer(base);
+@import "./theme/";
+
+@import "./utils/";
+@import "./components/" layer(components);
+
+@import "./typography.css" layer(typography);
+@import "./layout/";
+
+@source "/src/templates/**/*.php";
+@source "/src/modules/**/*.php";
+@source "/src/addons/massif/fragments/**/*.php";
+@source "/src/addons/massif/lib/**/*.php";
+@source "/src/addons/project/lib/**/*.php";
+@source "/src/addons/project/fragments/**/*.php";
+@source not "/src/addons/massif/fragments/massif-vidstack.php";
+@source not "/src/addons/**/vendor/**/*";

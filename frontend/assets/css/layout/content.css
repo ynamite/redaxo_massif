@@ -1,0 +1,8 @@
+/* .content > section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px;
+  &.swupped {
+    content-visibility: visible;
+    contain-intrinsic-size: none;
+  }  
+} */

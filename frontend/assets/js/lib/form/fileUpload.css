@@ -1,0 +1,114 @@
+@reference "@/css/style.css";
+
+@layer components {
+  .rex-yform-wrap {
+    .form-group-mupload {
+      label {
+        @apply cursor-pointer;
+      }
+
+      .files-header,
+      .files {
+        .file-row {
+          @apply text-sm grid grid-cols-[1fr_max-content_max-content] gap-2;
+          > * {
+            @apply py-1;
+            &:first-child {
+              @apply truncate;
+            }
+          }
+          .file-size {
+            @apply text-accent;
+          }
+          .file-delete {
+            @apply cursor-pointer place-self-center;
+          }
+          + .file-row {
+            @apply border-t border-accent/30;
+            @apply mt-1 pt-1;
+          }
+        }
+      }
+
+      .files {
+        @apply grid-cols-1 mt-6;
+        @apply p-[0.05px];
+        > div {
+          @apply grid *:col-span-1;
+          @apply bg-accent/10 p-[calc(var(--p-base)_/_2)];
+          @apply w-full aspect-video rounded-[3px];
+          background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='3' ry='3' stroke='currentColor' stroke-width='3' stroke-dasharray='8%2c8' stroke-dashoffset='0' stroke-linecap='butt'/%3e%3c/svg%3e");
+        }
+        .clickable-area {
+          @apply size-full grid place-content-center cursor-pointer;
+          &::before,
+          &::after {
+            @apply content-[''] self-center place-self-center pointer-events-none [grid-area:1/1];
+            @apply transition-colors duration-300 ease-in-out;
+          }
+          &::before {
+            @apply size-15;
+            @apply border border-accent/30;
+            @apply rounded-full;
+          }
+          &::after {
+            @apply size-[12px];
+            @apply text-primary;
+            @apply bg-current;
+            mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path d="M11 5H7V1c0-.55-.45-1-1-1S5 .45 5 1v4H1c-.55 0-1 .45-1 1s.45 1 1 1h4v4c0 .55.45 1 1 1s1-.45 1-1V7h4c.55 0 1-.45 1-1s-.45-1-1-1" /></svg>');
+            mask-position: center;
+            mask-size: 12px 12px;
+            mask-repeat: no-repeat;
+          }
+          &:hover {
+            &::before {
+              @apply bg-accent;
+            }
+            &::after {
+              @apply text-white;
+            }
+          }
+        }
+        &:not(.has-files) > div {
+          @apply place-content-center *:[grid-area:1/1];
+        }
+        &.has-files {
+          .clickable-area {
+            @apply place-self-end ml-auto size-15 order-last mt-3;
+          }
+        }
+      }
+
+      .fileupload-process {
+        @apply bg-accent/10 h-2 rounded-[3px] overflow-hidden relative;
+        @apply my-1;
+        @apply hidden;
+        .progress-bar {
+          @apply w-0 h-2 overflow-hidden bg-accent transition-[width] duration-300 ease-in-out;
+        }
+      }
+
+      .dz-processing:not(.dz-success) {
+        .fileupload-process {
+          @apply block;
+        }
+      }
+      .progress-bar-info {
+        @apply bg-accent;
+      }
+      .progress-bar-warning {
+        @apply bg-red-500;
+      }
+
+      .btn-delete {
+        @apply cursor-pointer;
+      }
+      .error {
+        @apply text-red-800 text-xs;
+      }
+      .file-info {
+        @apply mt-3 text-xs text-accent;
+      }
+    }
+  }
+}

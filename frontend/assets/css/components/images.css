@@ -1,0 +1,7 @@
+.img-cell {
+  @apply relative m-0 overflow-hidden;
+  img.lazyload:not(.lazyloaded) {
+    @apply blur-[5px] filter;
+    /* @apply filter blur-[5px] invisible; */
+  }
+}

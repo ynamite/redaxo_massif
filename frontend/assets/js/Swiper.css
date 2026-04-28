@@ -1,0 +1,4 @@
+@import 'swiper/css' layer(components.swiper);
+@import 'swiper/css/navigation' layer(components.swiper);
+@import 'swiper/css/pagination' layer(components.swiper);
+@import 'swiper/css/effect-fade' layer(components.swiper);

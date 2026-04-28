@@ -1,0 +1,33 @@
+#mobile-menu {
+  @apply top-0 right-0 z-50 isolate fixed bg-white w-full lg:max-w-1/2 h-dvh overflow-auto overscroll-contain translate-x-full;
+}
+
+.main-nav-mobile {
+  @apply clamp-[pl,1.25rem,6.5rem] pt-35;
+  .rex-navi1 {
+    > li {
+      @apply flex justify-between items-center flex-wrap;
+      &:has(.rex-current, .rex-active) {
+        > a {
+          @apply text-accent;
+        }
+      }
+    }
+  }
+  .rex-navi2 {
+    @apply py-3 pl-5 flex flex-col gap-3;
+  }
+  .dropdown {
+    @apply w-full;
+    .rex-navi2 {
+      @apply flex flex-col;
+      > li:has(.rex-current, .rex-active) > a {
+        @apply text-accent;
+      }
+    }
+  }
+}
+
+#mobile-menu-overlay {
+  @apply z-40 isolate fixed inset-0 bg-[rgba(243,243,243,0.81)] opacity-0 backdrop-blur-xs transition-opacity duration-300 pointer-events-none;
+}

@@ -1,0 +1,21 @@
+masonry-list {
+  --cols: 1;
+  --row-gap: clamp(0.625rem, -0.035211rem + 2.816901vw, 2.5rem);
+
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-auto-flow: dense;
+  @apply clamp-[gap,0.625rem,2.5rem];
+  /* correct last item adding extra size when masonry is patched */
+  margin-block-end: calc(var(--row-gap) * -1px);
+  @variant lg {
+    --cols: 2;
+  }
+  @variant xl {
+    --cols: 3;
+  }
+}
+
+masonry-item {
+  align-self: start;
+}

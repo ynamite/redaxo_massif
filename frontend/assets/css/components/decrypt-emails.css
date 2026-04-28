@@ -1,0 +1,6 @@
+span.unicorn {
+  @apply before:content-['@'];
+  > span {
+    @apply absolute m-[-1px] h-[1px] w-[1px] overflow-hidden border-0 border-none p-0;
+  }
+}

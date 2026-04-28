@@ -1,0 +1,23 @@
+@theme {
+  --font-sans: 'Roboto', sans-serif;
+
+  --color-primary: #1b1a21;
+  --color-secondary: #ff269e;
+  /* --color-accent: #50b3d8; */
+  --color-accent: oklch(from var(--color-secondary) calc(h + 180) s l);
+
+  --color-body: #fff;
+
+  --animate-spinner: spinner 2s linear infinite;
+  @keyframes spinner {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+
+}

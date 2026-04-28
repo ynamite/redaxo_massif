@@ -1,0 +1,9 @@
+.hr-not-top {
+  .header {
+    @apply bg-white/90 backdrop-blur-md;
+    @apply lg:pt-[var(--padding)];
+  }
+  /* .header {
+    @apply sticky top-0 -translate-y-[calc(100%-68px)];
+  }   */
+}

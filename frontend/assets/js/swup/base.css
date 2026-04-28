@@ -1,0 +1,50 @@
+main:focus:not(:focus-visible) {
+  outline: none;
+}
+
+html {
+  &.is-changing {
+    a {
+      pointer-events: none;
+    }
+  }
+  &.is-animating {
+    cursor: progress;
+    .transition-duration-helper {
+      visibility: visible;
+    }
+  }
+}
+
+.transition-duration-helper {
+  visibility: hidden;
+  transition-duration: 500ms;
+}
+
+#transition-fx {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 22;
+  width: 100svw;
+  min-height: 100svh;
+}
+
+[data-swup-scroll-target],
+:target h1 {
+  animation: highlight-fade 4s ease-out;
+}
+
+@keyframes highlight-fade {
+  0% {
+    background-color: transparent;
+  }
+  25%,
+  75% {
+    background-color: var(--color-secondary);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
