@@ -8,7 +8,7 @@ The backend tools (image generation, MJML mail, YForm extensions, MASSIF setting
 
 ### Added
 
-- **`frontend/` folder** — bundles the MASSIF page templates (`Config`, `Default`, `Meta`, `Header`, `Menu`, `Main`, `Footer`, `MJML-Mail`), modules (`Text-Block`, `Swiper`, `Kontaktformular`), and asset sources (CSS, JS, fonts, images).
+- **`frontend/` folder** — bundles the MASSIF page templates (`Config`, `Default`, `Meta`, `Header`, `Menu`, `Main`, `Footer`), modules (`Text-Block`, `Swiper`, `Kontaktformular`), and asset sources (CSS, JS, fonts, images).
 - **`install.php`** — auto-installs `frontend/` into the user's project on first activation iff `viterex_addon` is available and the idempotency marker `rex_config('massif','frontend_installed_at')` is unset. Sets the marker on success. Failure is logged but does not block addon activation.
 - **`pages/frontend.php`** — backend Settings subpage at *AddOns → MASSIF → MASSIF Frontend*. Shows install status, offers an explicit re-install button with an "Overwrite existing files" checkbox (overwritten files are backed up with a `.bak.<timestamp>` suffix). Bypasses the idempotency marker — explicit click = explicit consent. Hidden when `viterex_addon` is unavailable.
 - **`VITEREX_INSTALL_STUBS` extension-point handler** in `boot.php` — when the user clicks "Install stubs" on viterex's Settings page, the MASSIF frontend is re-installed in the same operation, with the user's overwrite choice respected and results merged into the success summary.
@@ -24,6 +24,8 @@ The backend tools (image generation, MJML mail, YForm extensions, MASSIF setting
   - **`Default [1]`** — outer shell now: `REX_TEMPLATE[config]` → `REX_TEMPLATE[meta]` → `<body>` → `REX_TEMPLATE[header]` → `REX_TEMPLATE[main]` → `REX_TEMPLATE[footer]` → `</body>` → conditional `</html>` (preserved swup partial-request behavior).
   - **`Header [8]`** — already migrated in B1: `Server::getImg('massif-logo.svg')` → `Assets::inline('img/massif-logo.svg')`.
 - **Removed**: `HTML Head [5]/`, `HTML Meta [6]/`, `HTML Favicon [11]/`, `HTML Scripts [2]/` template folders — folded into the consolidated `Meta` and the simpler `REX_VITE` contract.
+- **Removed `MJML-Mail [10]/`** — no longer used.
+- **Removed swup `req-with` / `HTTP_X_REQUESTED_WITH` server-side hooks** — `Config` no longer sets the `req-with` rex property; `Default` always emits the closing `</html>` tag. (The swup *JS* integration is still imported across many `frontend/assets/js/*` files; remove separately if/when swup is dropped entirely.)
 - **`package.yml`** — adds `requires.redaxo: ^5.13.0` and `requires.php: >=8.1`. Adds the `frontend` subpage. Adds `installer_ignore` for `.DS_Store`, `.git`, `.gitignore`, `node_modules`.
 - **`lang/de_de.lang`** — adds `massif_frontend_*` keys for the new Settings page.
 

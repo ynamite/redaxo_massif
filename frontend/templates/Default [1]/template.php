@@ -16,4 +16,4 @@ REX_TEMPLATE[key="meta"]
 	REX_TEMPLATE[key="footer"]
 
 </body>
-<?php if (!rex::getProperty('req-with')) echo '</html>'; ?>
+</html>

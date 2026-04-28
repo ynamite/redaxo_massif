@@ -4,7 +4,6 @@ use Url\Url;
 use Ynamite\Massif\Utils;
 
 header('Content-Type: text/html; charset=utf-8');
-rex::setProperty('req-with', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'swup');
 
 /*
 	*	config
