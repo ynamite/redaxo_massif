@@ -22,8 +22,18 @@ use rex_yform;
 
 use Ynamite\Massif\Media;
 use Ynamite\Massif\Usability;
-use Ynamite\Massif\Redactor\Output;
+// use Ynamite\Massif\Redactor\Output;
 use Ynamite\ViteRex\StubsInstaller;
+
+if (
+    !class_exists(\FriendsOfRedaxo\MediaNegotiator\Helper::class, false)
+    && class_exists(\media_negotiator\Helper::class)
+) {
+    class_alias(
+        \media_negotiator\Helper::class,
+        \FriendsOfRedaxo\MediaNegotiator\Helper::class
+    );
+}
 
 /** @var rex_addon_interface $this */
 
