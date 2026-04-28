@@ -1,0 +1,34 @@
+:root,
+:host {
+  --scrollbar-thumb: var(--color-accent);
+  --scrollbar-track: var(--color-body);
+
+  --spacer: 1rem;
+
+  --shoulder: calc(65 / 16 * 1rem);
+  --scroll-padding: calc((100 / 16 * 1rem) + var(--shoulder));
+
+  --color-primary-50: color-mix(in srgb, var(--color-primary) 50%, transparent);
+
+  --p-min: 1.25rem /* 20px */;
+  --p-max: 2.5rem /* 40px */;
+  --p-base: clamp(
+    var(--p-min),
+    calc(
+      var(--p-min) + (var(--p-max) - var(--p-min)) *
+        (
+          (100vw - var(--min-viewport)) /
+            (var(--max-viewport) - var(--min-viewport))
+        )
+    ),
+    var(--p-max)
+  );
+
+  @variant lg {
+
+    --spacer: 2rem;
+
+    --shoulder: calc(86 / 16 * 1rem);
+
+  }
+}

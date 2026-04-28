@@ -1,0 +1,222 @@
+@counter-style custom {
+  system: cyclic;
+  symbols: '–';
+  suffix: ' ';
+}
+
+body {
+  @apply antialiased;
+}
+
+.tw-prose {
+  --tw-prose-body: var(--color-primary);
+  --tw-prose-headings: var(--color-primary);
+  --tw-prose-bullets: var(--color-primary-50);
+  --tw-prose-lead: var(--color-primary-50);
+  --tw-prose-quotes: var(--color-primary-50);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-bold: var(--color-primary-50);
+  --tw-prose-captions: var(--color-primary-50);
+  --tw-prose-code: var(--color-primary);
+  a {
+    @apply custom-underline no-underline;
+    &:where(.maps-links, .links-underlined-i) {
+      @apply custom-underline-i;
+    }
+  }
+  p {
+    @apply hyphens-auto text-pretty;
+  }
+  details {
+    summary {
+      @apply flex gap-4 cursor-pointer;
+      &::-webkit-details-marker {
+        @apply !hidden;
+      }
+      &::before {
+        @apply content-['▼'];
+        @apply transition-transform duration-750 ease-spring-4 transform-gpu;
+      }
+    }
+    .details-content {
+      @apply clamp-[ml,6,8];
+    }    
+    &[open] {
+      summary {
+        &::before {
+          @apply rotate-180;
+        }
+      }
+    }
+  }
+
+}
+
+/**
+ * custom classes
+ */
+
+body,
+.text-default {
+  @apply clamp-[text,base,xl];
+}
+
+/*
+.prose {
+  
+  h1,
+  .h1 {
+    @apply clamp-[text, 3rem, 3.75rem] leading-[1.1] font-normal text-balance hyphens-auto md:leading-[1.05] lg:leading-[1];
+  }
+
+  h2,
+  .h2 {
+    @apply clamp-[text, 1.875rem, 2.5rem] clamp-[leading, 2.5625rem, 3.125rem] font-normal text-balance hyphens-auto;
+  }
+
+ h3,
+.h3 {
+  @apply font-bold ~text-base/xl;
+}
+
+  h1,
+  h2,
+  h3,
+  p {
+    + *:where(:not(ul, ol)) {
+      @apply mt-[1.25em];
+    }
+  }
+
+  * {
+    + {
+      h1,
+      .h1,
+      h2,
+      .h2,
+      h3,
+      .h3 {
+        @apply mt-[1.25em];
+      }
+    }
+  }
+
+  h4,
+  h5,
+  h6,
+  ul,
+  ol {
+    + * {
+      @apply mt-[0.8em];
+    }
+  }
+
+  h3,
+  .h3 {
+    + * {
+      @apply mt-[0.2em];
+      &.text-small {
+        @apply mt-[0.4em];
+      }
+    }
+  }
+  p {
+    @apply hyphens-auto;
+  }
+  .text-small {
+    @apply text-sm md:text-base;
+  }
+  ol {
+    counter-reset: list-counter;
+    @apply my-5;
+    > li {
+      counter-increment: list-counter;
+      @apply relative pl-7;
+      &::before {
+        content: counter(list-counter) '.';
+        @apply absolute font-normal;
+      }
+    }
+  }
+  ul {
+    @apply list-[custom] pl-[1em];
+  }
+  &.text-center ul > li {
+    @apply pl-0;
+  }
+  iframe {
+    @apply aspect-video h-auto w-full;
+  }
+  * + * > iframe {
+    @apply mt-5;
+  }
+    
+}
+*/
+
+/* .anchor-icon {
+  @apply inline-flex gap-[0.3em] [&_i]:transition-transform [&_i]:duration-300;
+  &:hover i {
+    @apply translate-x-2;
+  }
+} */
+
+/* 
+.prose {
+  a:where(:not(.icon, .button)) {
+    @apply underline-a;
+    &:where(.maps-links, .links-underlined-i) {
+      @apply underline-a-i;
+    }
+  }
+  p:has(> a > img) {
+    @apply flex flex-wrap gap-4;
+    a {
+      @apply col-span-full bg-none;
+    }
+  }
+}
+
+.links-color-hover {
+  a:where(:not(.icon, .button)) {
+    @apply hover:text-accent hover:font-medium;
+  }
+}
+
+.links-underlined {
+  a:where(:not(.icon, .button)) {
+    @apply underline-a;
+  }
+}
+.button-underlined {
+  :where(button) {
+    @apply underline-a hover:text-accent;
+  }
+}
+
+.links-underlined-i {
+  a:where(:not(.icon, .button)) {
+    @apply underline-a;
+    @apply underline-a-i;
+  }
+}
+
+.links-swap {
+  li {
+    @apply relative overflow-clip pr-[1em];
+    &.rex-current > a,
+    &.rex-active > a,
+    > a:hover {
+      @apply before:translate-y-0 before:skew-y-0 before:opacity-100;
+      span {
+        @apply -translate-y-full;
+      }
+    }
+  }
+  a {
+    @apply before:text-accent before:absolute before:translate-y-full before:font-bold before:whitespace-nowrap before:opacity-0 before:transition-all before:duration-300 before:ease-in-out before:content-[attr(title)];
+    span {
+      @apply relative block transition-all duration-300 ease-in-out;
+    }
+  }
+} */

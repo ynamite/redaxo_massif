@@ -1,0 +1,82 @@
+.rex-yform-wrap {
+  form {
+      @apply grid grid-cols-1 clamp-[gap,3,4];
+  }
+  input[type='text'],
+  input[type='email'],
+  textarea,
+  select {
+        @apply rounded-none bg-slate-100 clamp-[px,2,4] clamp-[py,1,2];
+  }
+  .form-group {
+    @apply text-current;
+    @apply grid grid-cols-1 clamp-[gap,1,2] text-4;
+    label {
+      @apply relative z-10;
+    }
+    &:has(input[type='text'], input[type='email'], textarea, select) {
+      @apply border border-accent;
+      @apply grid place-content-center items-start *:[grid-area:1/1];
+      > label {
+        @apply origin-top-left transition-all;
+      }
+      &.filled,
+      &.focused {
+        > label {
+          @apply -translate-y-4 text-xs;
+        }
+        input {
+          @apply !pb-1 clamp-[pt,2,3];
+        }
+      }
+      .alert-danger {
+        @apply justify-self-end;
+      }
+    }
+  }
+  .formcheckbox {
+    > label {
+      @apply flex gap-3;
+    }
+    input[type='checkbox'] {
+      @apply sr-only;
+    }
+    .form-helper {
+      @apply cursor-pointer relative size-7.5 aspect-square;
+      &:before,
+      &:after {
+        @apply content-[''] absolute;
+        @apply block aspect-square;
+      }
+      &:before {
+        @apply inset-0 rounded-[3px] border border-accent bg-white;
+      }
+      &:after {
+        @apply w-3.5 left-1/2 top-1/2 -mt-1.75 -ml-1.75;
+        @apply text-primary bg-current;
+        @apply transition-all duration-400 ease-spring-2 opacity-0 scale-50 -translate-y-1.5;
+        mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 11"><path d="M4.28 10.55 0 6.27l1.41-1.41 2.87 2.86L12 0l1.41 1.41z"/></svg>');
+        mask-position: center;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+      }
+    }
+    input[type='checkbox']:focus + .form-helper {
+        @apply before:outline before:outline-primary;
+    }
+    input[type='checkbox']:checked + .form-helper {
+      @apply after:opacity-100 after:scale-100 after:translate-y-0;
+    }
+  }
+  #yform-form-general-confirm {
+    @apply -mt-9 text-base;
+  }
+  .alert-danger {
+    @apply max-w-max rounded bg-red-100 text-red-800 text-6 clamp-[px,2,3] clamp-[py,1,2];
+  }
+
+  .alert.success {
+    @apply rounded bg-green-100 px-6 py-4 text-green-800;
+  }
+
+}

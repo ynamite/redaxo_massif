@@ -1,0 +1,20 @@
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}
+
+#header {
+  view-transition-name: header;
+}
+
+#content {
+  view-transition-name: content;
+}
+
+#footer {
+  view-transition-name: footer;
+}

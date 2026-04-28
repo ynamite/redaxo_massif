@@ -1,0 +1,19 @@
+#mobile-menu-toggle {
+  @apply inline-flex justify-center items-center;
+  @apply top-0 right-0 z-51 fixed;
+  @apply p-2 rounded-md text-primary cursor-pointer;
+  @apply hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus:ring-inset transition-colors;
+  .icon {
+    &.hamburger {
+      @apply flex flex-col justify-center items-center w-(--width) transform-3d;
+      span {
+        @apply block bg-current w-full h-(--bar-height);
+        @apply transition-all duration-300 ease-out;
+        &:nth-child(2),
+        &:nth-child(3) {
+          @apply mt-(--bar-gap);
+        }
+      }
+    }
+  }
+}

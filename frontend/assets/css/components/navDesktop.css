@@ -1,0 +1,35 @@
+.main-nav-desktop {
+  .rex-navi1 {
+    @apply flex gap-2;
+    a {
+      span {
+        @apply relative block;
+      }
+    }
+  }
+
+  .dropdown-toggle {
+    @apply mr-5;
+  }
+
+  li:has(.rex-current, .rex-active) > .dropdown-toggle {
+    @apply text-accent;
+  }
+  
+  .dropdown {
+    interpolate-size: allow-keywords;
+    @apply absolute left-0 top-full min-w-full w-max z-1;
+    @apply opacity-0 h-0 overflow-hidden transition-all duration-300;
+    transition-behavior: interpolate-size;
+    > li:has(.rex-current, .rex-active) > a {
+      @apply text-accent;
+    }
+  }
+  li.has-children {
+    @apply flex items-center gap-2;
+    &:hover > .dropdown {
+      @apply opacity-100 h-auto;
+    }
+  }
+
+}

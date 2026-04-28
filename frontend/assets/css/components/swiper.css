@@ -1,0 +1,20 @@
+
+[data-swiper-type='default'] {
+  @apply size-full;
+  .swiper-container {
+    @apply min-w-0;
+  }
+  .swiper-container,
+  .swiper-wrapper,
+  .swiper-slide-inner {
+    @apply size-full;
+  }
+
+}
+/* potential fix for swiper width blowout */
+  /* .swiper {
+    display: grid;
+  }
+  .swiper-wrapper {
+    min-width: 0;
+  } */

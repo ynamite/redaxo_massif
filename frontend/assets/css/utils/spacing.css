@@ -1,0 +1,66 @@
+/* Space 20 - fixed value with trim */
+@utility space-t-* {
+  margin-top: calc(
+    clamp(
+        --value(integer) / 2,
+        calc(
+          --value(integer) / 2 + (--value(integer) - --value(integer) / 2) *
+            (
+              (100vw - var(--min-viewport)) /
+                (var(--max-viewport) - var(--min-viewport))
+            )
+        ),
+        --value(integer)
+      ) *
+      1px
+  );
+}
+@utility -space-t-* {
+  margin-top: calc(
+    clamp(
+        --value(integer) / 2,
+        calc(
+          --value(integer) / 2 + (--value(integer) - --value(integer) / 2) *
+            (
+              (100vw - var(--min-viewport)) /
+                (var(--max-viewport) - var(--min-viewport))
+            )
+        ),
+        --value(integer)
+      ) *
+      1px * -1
+  );
+}
+
+@utility space-b-* {
+  margin-bottom: calc(
+    clamp(
+        --value(integer) / 2,
+        calc(
+          --value(integer) / 2 + (--value(integer) - --value(integer) / 2) *
+            (
+              (100vw - var(--min-viewport)) /
+                (var(--max-viewport) - var(--min-viewport))
+            )
+        ),
+        --value(integer)
+      ) *
+      1px
+  );
+}
+@utility -space-b-* {
+  margin-bottom: calc(
+    clamp(
+        --value(integer) / 2,
+        calc(
+          --value(integer) / 2 + (--value(integer) - --value(integer) / 2) *
+            (
+              (100vw - var(--min-viewport)) /
+                (var(--max-viewport) - var(--min-viewport))
+            )
+        ),
+        --value(integer)
+      ) *
+      1px * -1
+  );
+}

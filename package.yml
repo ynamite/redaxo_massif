@@ -1,7 +1,18 @@
 package: massif
-version: 1.0.0
+version: 2.0.0
 author: Yves Torres
 supportpage: massif.ch
+
+requires:
+  redaxo: '^5.13.0'
+  php:
+    version: '>=8.1'
+
+installer_ignore:
+  - .DS_Store
+  - .git
+  - .gitignore
+  - node_modules
 
 page:
   title: 'MASSIF'
@@ -21,6 +32,10 @@ page:
       package:
       pjax: true
       hidden: true
+    frontend:
+      title: 'MASSIF Frontend'
+      icon: rex-icon fa-rocket
+      customPage: true
 
 console_commands:
   massif:exec-php: console_massif_execute_php

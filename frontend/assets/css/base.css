@@ -1,0 +1,17 @@
+html {
+  @apply [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)] [scrollbar-width:thin] [scrollbar-gutter:stable];
+  @apply scroll-pt-(--scroll-padding);
+  @apply not-[.menu-open]:scroll-smooth;
+  @apply [.menu-open]:overscroll-none;
+  &.disable-smooth-scroll {
+    @apply scroll-auto!;
+  }
+}
+body {
+  @apply flex min-h-svh flex-col transition-all;
+  overflow-anchor: none;
+}
+
+::target-text {
+  @apply bg-amber-200 text-primary;
+}
