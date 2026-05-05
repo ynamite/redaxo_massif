@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ynamite\Massif\Media;
 
-use media_negotiator\Helper as MediaNegotiatorHelper;
+use FriendsOfRedaxo\MediaNegotiator\Helper as MediaNegotiatorHelper;
 use InvalidArgumentException;
 use rex_file;
 use rex_path;
@@ -30,6 +30,8 @@ class Image extends Media
     array $breakPoints = ImageConfig::BREAKPOINTS,
     string|null $wrapperElement = null,
     string $wrapperClassName = '',
+    bool $asFigure = false,
+    string $captionClassName = '',
     $loading = 'lazy',
     $decoding = 'auto',
     $fetchPriority = 'auto'
@@ -58,6 +60,8 @@ class Image extends Media
       breakPoints: $breakPoints,
       decoding: $_decoding,
       fetchPriority: $_fetchPriority,
+      asFigure: $asFigure,
+      captionClassName: $captionClassName,
       // MediaConfig params (from parent)
       alt: $alt,
       className: $className,
@@ -91,6 +95,8 @@ class Image extends Media
     array $breakPoints = ImageConfig::BREAKPOINTS,
     string|null $wrapperElement = null,
     string $wrapperClassName = '',
+    bool $asFigure = false,
+    string $captionClassName = '',
     $loading = 'lazy',
     $decoding = 'auto',
     $fetchPriority = 'auto'
@@ -105,6 +111,8 @@ class Image extends Media
       className: $className,
       sizes: $sizes,
       maxWidth: $maxWidth,
+      asFigure: $asFigure,
+      captionClassName: $captionClassName,
       ratio: $ratio,
       width: $width,
       height: $height,
@@ -150,7 +158,7 @@ class Image extends Media
     $className = [];
     $className[] = $this->config->className ?: '';
     $wrapperClassName = [];
-    $wrapperClassName[] = $this->config->wrapperClassName ?: 'relative bg-gray-200';
+    $wrapperClassName[] = $this->config->wrapperClassName ?: 'relative';
 
     $focuspoint = array_filter(explode(',', $this->rex_media->getValue('med_focuspoint')));
     if (!empty($focuspoint)) {
@@ -160,6 +168,11 @@ class Image extends Media
     $className = array_filter($className);
     $wrapperClassName = array_filter($wrapperClassName);
     $style = array_filter($style);
+    $caption = $this->rex_media->getValue('caption');
+
+    if ($this->config->asFigure || $caption) {
+      $this->config->wrapperElement = 'figure';
+    }
 
     $html = '<' . $this->config->wrapperElement . ' class="' . implode(' ', $wrapperClassName) . '">';
     if (!$isSvg && $isLazy) {
@@ -185,6 +198,9 @@ class Image extends Media
     $html .= 'decoding="' . $this->config->decoding->value . '" ';
     $html .= 'fetchpriority="' . $this->config->fetchPriority->value . '" ';
     $html .= ' />';
+    if ($caption) {
+      $html .= '<figcaption class="' . $this->config->captionClassName . '">' . $caption . '</figcaption>';
+    }
     $html .= '</' . $this->config->wrapperElement . '>';
 
     return $html;
