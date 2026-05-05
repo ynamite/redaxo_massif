@@ -2,7 +2,7 @@
 
 use Ynamite\ViteRex\StubsInstaller;
 
-if (!rex_addon::get('viterex')->isAvailable()) {
+if (!rex_addon::get('viterex_addon')->isAvailable()) {
     echo rex_view::warning(rex_i18n::msg('massif_frontend_viterex_required'));
     return;
 }

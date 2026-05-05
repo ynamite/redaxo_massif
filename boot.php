@@ -275,7 +275,7 @@ if (rex::isBackend() && rex::getUser()) {
 // VITEREX_INSTALL_STUBS hook: re-run our frontend install when the user clicks
 // viterex's "Install stubs" button, so both addons' stubs land in one click.
 // Bypasses install.php's idempotency marker — clicking the button = explicit consent.
-if (rex_addon::get('viterex')->isAvailable()) {
+if (rex_addon::get('viterex_addon')->isAvailable()) {
     rex_extension::register('VITEREX_INSTALL_STUBS', static function (rex_extension_point $ep) {
         $overwrite = (bool) $ep->getParam('overwrite', false);
         $stubsMap = require __DIR__ . '/frontend/stubs-map.php';

@@ -3,6 +3,7 @@ html {
   @apply scroll-pt-(--scroll-padding);
   @apply not-[.menu-open]:scroll-smooth;
   @apply [.menu-open]:overscroll-none;
+  @apply antialiased;
   &.disable-smooth-scroll {
     @apply scroll-auto!;
   }
@@ -14,4 +15,8 @@ body {
 
 ::target-text {
   @apply bg-amber-200 text-primary;
+}
+
+[x-cloak] {
+  display: none !important;
 }

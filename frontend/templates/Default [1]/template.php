@@ -1,6 +1,11 @@
 REX_TEMPLATE[key="config"]
 
-REX_TEMPLATE[key="meta"]
+<!doctype html>
+<html class="<?= $isMobileOrTablet ?>" lang="<?= $lang->getCode() ?>">
+
+<head>
+	REX_TEMPLATE[key="meta"]
+</head>
 
 <body class="<?= $pageClass ?> bg-body text-primary font-sans">
 

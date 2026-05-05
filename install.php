@@ -19,7 +19,7 @@
 use Ynamite\ViteRex\StubsInstaller;
 
 if (
-    rex_addon::get('viterex')->isAvailable()
+    rex_addon::get('viterex_addon')->isAvailable()
     && rex_config::get('massif', 'frontend_installed_at') === null
 ) {
     try {

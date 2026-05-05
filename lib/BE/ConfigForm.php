@@ -12,7 +12,7 @@ use rex_string;
 class ConfigForm extends rex_config_form
 {
 
-  private static $addonName = 'viterex';
+  private static $addonName = 'viterex_addon';
   protected $addon = null;
   protected $subpage = '';
 

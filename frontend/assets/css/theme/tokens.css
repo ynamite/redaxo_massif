@@ -1,5 +1,5 @@
 @theme {
-  --font-sans: 'Roboto', sans-serif;
+  --font-sans: "Roboto", sans-serif;
 
   --color-primary: #1b1a21;
   --color-secondary: #ff269e;
@@ -7,6 +7,8 @@
   --color-accent: oklch(from var(--color-secondary) calc(h + 180) s l);
 
   --color-body: #fff;
+
+  --spacing-safe: calc(env(safe-area-inset-bottom, 0rem) + 2rem);
 
   --animate-spinner: spinner 2s linear infinite;
   @keyframes spinner {
@@ -19,5 +21,4 @@
       opacity: 0;
     }
   }
-
 }

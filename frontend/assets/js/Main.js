@@ -8,7 +8,6 @@ import { logger } from "@/js/lib/logger/index.js";
 import { detectTouchDevice, getScrollBarWidth } from "@/js/utils/Device.js";
 import { decryptEmailaddresses } from "@/js/utils/Dom.js";
 
-window.Alpine = Alpine;
 Alpine.plugin([collapse, focus, morph, persist]);
 
 Alpine.store("debugMode", process.env.NODE_ENV === "development");
@@ -41,18 +40,19 @@ export const init = () => {
 
 	decryptEmailaddresses();
 
+	window.Alpine = Alpine;
 	Alpine.start();
 };
 
 init();
 
-// load the following scripts async in parallel
-Promise.all([
-	// import('@/js/Lightbox.js'),
-	// import('@/js/Accordions.js'),
-	// import('@/js/Form.js'),
-	// import('@/js/Headroom.js'),
-	// import("@/js/History.js"),
-	import("@/js/Menu.js"),
-	// import('@/js/Swiper.js')
-]);
+// // load the following scripts async in parallel
+// Promise.all([
+// 	// import('@/js/Lightbox.js'),
+// 	// import('@/js/Accordions.js'),
+// 	// import('@/js/Form.js'),
+// 	// import('@/js/Headroom.js'),
+// 	// import("@/js/History.js"),
+// 	import("@/js/Menu.js"),
+// 	// import('@/js/Swiper.js')
+// ]);
