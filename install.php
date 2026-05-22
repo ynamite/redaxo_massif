@@ -26,7 +26,7 @@ if (
         $stubsMap = require __DIR__ . '/frontend/stubs-map.php';
         $packageDeps = json_decode((string) file_get_contents(__DIR__ . '/frontend/package-deps.json'), true);
 
-        StubsInstaller::installFromDir(__DIR__ . '/frontend', $stubsMap, false, $packageDeps);
+        StubsInstaller::installFromDir(__DIR__ . '/frontend', $stubsMap, true, $packageDeps);
         StubsInstaller::appendRefreshGlobs([
             'src/addons/massif/fragments/**/*.php',
             'src/addons/massif/lib/**/*.php',

@@ -1,15 +1,17 @@
 <?php
 
-namespace Ynamite\Massif\Redactor;
+namespace Ynamite\Massif\Utils;
 
 use FriendsOfRedaxo\MBlock\MBlock;
 use rex;
+use rex_article_content;
+use rex_article_slice;
 use rex_extension;
 use rex_extension_point;
 use rex_view;
 
 use Ynamite\Massif\Media;
-use Ynamite\MassifSettings;
+use Ynamite\MassifSettings\Utils as MassifSettings;
 
 class Output
 {
@@ -22,9 +24,16 @@ class Output
     $this->sliceId = $sliceId;
   }
 
-  public function setExclusiveDetails(bool $exclusive = true): void
+  public static function factory(int $sliceId = 0): self
   {
-    $this->exclusiveDetails = $exclusive;
+    return new self($sliceId);
+  }
+
+  public static function parse(string $html, int $sliceId = 0, bool $backend = false): string
+  {
+    $instance = new self($sliceId);
+    $instance->setIsBackend($backend);
+    return $instance->_parse($html);
   }
 
   public function setIsBackend(bool $backend = true): void
@@ -32,12 +41,12 @@ class Output
     $this->backend = $backend;
   }
 
-  public function parse(string $html): string
+  private function _parse(string $html): string
   {
 
-    $html = MassifSettings\Utils::replaceStrings($html);
+    $html = MassifSettings::replaceStrings($html);
 
-    $imageMaxWidth = rex_view::getJsProperties()['redactor_img_maxWidth'] ?? 1024;
+    // $imageMaxWidth = rex_view::getJsProperties()['redactor_img_maxWidth'] ?? 1024;
 
     if ($this->backend === true || rex::isBackend()) {
       $html = str_replace(['<details>'], ['<details open>'], $html);
@@ -62,21 +71,21 @@ class Output
       }
     }
 
-    $html = implode('', $parts);
-    // replace all images with class "redactor-image" with massif image syntax
-    $html = preg_replace_callback(
-      '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
-      function ($matches) use ($imageMaxWidth) {
-        if (preg_match('/data-filename=["\']?([^"\'>\s]+)["\']?/i', $matches[0], $filenameMatch)) {
-          $filename = $filenameMatch[1];
-          return Media\Image::get(src: $filename, maxWidth: $imageMaxWidth);
-        }
-        return $matches[0];
-      },
-      $html
-    );
+    // $html = implode('', $parts);
+    // // replace all images with class "redactor-image" with massif image syntax
+    // $html = preg_replace_callback(
+    //   '/<img[^>]+class=["\']?redactor-image["\']?[^>]*>/i',
+    //   function ($matches) use ($imageMaxWidth) {
+    //     if (preg_match('/data-filename=["\']?([^"\'>\s]+)["\']?/i', $matches[0], $filenameMatch)) {
+    //       $filename = $filenameMatch[1];
+    //       return Media\Image::get(src: $filename, maxWidth: $imageMaxWidth);
+    //     }
+    //     return $matches[0];
+    //   },
+    //   $html
+    // );
 
-    $html = rex_extension::registerPoint(new rex_extension_point('MASSIF_REDACTOR_OUTPUT', $html));
+    $html = rex_extension::registerPoint(new rex_extension_point('MASSIF_OUTPUT', $html));
 
     // Add name attribute to details tag to avoid duplicate IDs
     $html = str_replace(

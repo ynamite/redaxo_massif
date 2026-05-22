@@ -19,6 +19,7 @@
                                 $message = rex_addon::get('yform')->i18n('yform_values_message_is_missing', $this->objparams['values'][$k]->getLabel(), $this->objparams['values'][$k]->getName());
                             }
                             $data_id = isset($this->objparams['values'][$k]) ? $this->objparams['values'][$k]->getName() : rex_i18n::translate("$v", null);
+                            $label = isset($this->objparams['values'][$k]) ? str_replace('*', '', $this->objparams['values'][$k]->getLabel()) : rex_i18n::translate("$v", null);
                             $warning_messages[$data_id] = '<li data-id="' . $data_id . '">' . $message . '</li>';
                         }
                         if (count($warning_messages) > 0) {

@@ -1,21 +1,22 @@
 <?php
-$align = $this->getVar('align');
-$buttonSet = $this->getVar('buttonSet');
-?>
 
-<div class="flex gap-8 <?= $align ?>">
-  <?php foreach ($buttonSet as $button) {
-    if ($button['style'] == 'simple') {
-  ?>
-      <a href="<?= $button['url'] ?>" <?= $button['target'] ?> class="button rounded-full border text-sm border-primary uppercase tracking-widest px-6 py-3">
-        <?= $button['label'] ?>
-      </a>
+use Ynamite\Massif\Utils;
+
+$items = $this->getVar('items', '');
+$buttons = array_filter(json_decode(html_entity_decode($items, ENT_QUOTES | ENT_HTML5, 'UTF-8'), true)) ?? [];
+
+if (count($buttons) > 0) {
+?>
+  <div class="flex flex-wrap gap-4 mt-8 mb-16 clamp-[text,base,lg]">
     <?php
-    } else {
-    ?>
-      <a href="<?= $button['url'] ?>" <?= $button['target'] ?> class="button text-sm bg-accent text-white font-medium uppercase py-2 px-4 rounded-[0.1875rem] transition hover:bg-accent-light <?= implode(' ', $button['class']) ?>"><?= $button['label'] ?></a>
-  <?php
+    foreach ($buttons as $index => $url) {
+      $url = Utils\Url::parseCustomLink($url);
+      $class = $index === 0 ? 'btn-primary' : 'btn-ghost';
+      echo '<a href="' . $url['customlink_url'] . '" class="' . $class . '" ' . $url['customlink_target'] . ' rel="noopener">' . $url['customlink_text'] . '</a>';
     }
-  }
-  ?>
-</div>
+    ?>
+  </div>
+<?php
+}
+
+?>

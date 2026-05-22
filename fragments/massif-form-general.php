@@ -11,9 +11,8 @@
   $email_template = 'email/email.tpl.default-form';
   $send_user_mail = false;
 
-  $url = rex_getUrl(rex_article::getCurrentId());
-
   $form_name = 'form-general';
+  $url = rex_getUrl(rex_article::getCurrentId()) . '#' . $form_name . '_wrap';
 
   $yform = new rex_yform();
   $yform->setDebug(false);
@@ -39,7 +38,7 @@
   $yform->setValidateField('empty', ["confirm", "Bitte bestätigen!"]);
 
   // $yform->setValueField('html', ['required', '<p class="text-smaller form-required typo-margin">* {{Pflichtfelder}}</p>']);
-  $yform->setValueField('html', ['required', '<p class="btn-set"><button class="btn" type="submit" value="Senden"><span>Senden</span></button></p>']);
+  $yform->setValueField('html', ['required', '<p class="btn-set"><button class="btn-ghost" type="submit" value="Senden"><span>Senden</span></button></p>']);
 
   $yform->setValueField('spam_protection', array("honeypot", "Bitte nicht ausfüllen.", "Ihre Anfrage wurde als Spam erkannt und gelöscht. Bitte versuchen Sie es in einigen Minuten erneut oder wenden Sie sich persönlich an uns.", 0));
 
@@ -63,7 +62,7 @@
   }
 
   ?>
-  <div class="rex-yform-wrap typo-margin">
+  <div class="rex-yform-wrap">
 
     <?= $yformOut ?>
   </div>
