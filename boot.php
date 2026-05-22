@@ -50,6 +50,7 @@ if (rex::isBackend() && rex::getUser()) {
 
 rex_fragment::addDirectory($this->getPath('fragments'));
 rex_fragment::addDirectory(rex_path::addon('project/fragments'));
+rex_fragment::addDirectory(rex_path::base('src/fragments'));
 
 
 if (rex_addon::get('media_manager')->isAvailable()) {
