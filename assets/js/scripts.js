@@ -209,10 +209,7 @@ var massifUsability = (($) => {
 
 		const $mediaInputs = $(".rex-js-widget-media");
 		const $mediaListInputs = $(".rex-js-widget-medialist");
-		const descriptor = Object.getOwnPropertyDescriptor(
-			HTMLInputElement.prototype,
-			"value",
-		);
+		const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
 
 		const preview = (element) => {
 			const $element = $(element);
@@ -235,11 +232,7 @@ var massifUsability = (($) => {
 						'" class="thumbnail" style="max-height: 34px" />',
 				);
 			} else if ($.inArray(ext, vectorExtensions) !== -1) {
-				$element.prepend(
-					'<img src="/media/' +
-						file +
-						'" class="thumbnail" style="max-height: 34px" />',
-				);
+				$element.prepend('<img src="/media/' + file + '" class="thumbnail" style="max-height: 34px" />');
 			} else if ($.inArray(ext, videoExtensions) !== -1) {
 				$element.prepend(
 					'<video class="thumbnail" style="max-height: 34px" muted loop autoplay><source src="/media/' +
@@ -294,17 +287,12 @@ var massifUsability = (($) => {
 			const extension = value.split(".").pop().toLowerCase();
 			const videoExtensions = ["mp4", "webm", "ogg"];
 			if (!["svg", ...videoExtensions].includes(extension))
-				url =
-					"./index.php?rex_media_type=" + img_type + "&rex_media_file=" + value;
+				url = "./index.php?rex_media_type=" + img_type + "&rex_media_file=" + value;
 			else {
 				url = "../media/" + value;
 			}
 
-			if (
-				value &&
-				value.length != 0 &&
-				rex.imageExtensions.includes(extension)
-			) {
+			if (value && value.length != 0 && rex.imageExtensions.includes(extension)) {
 				// img tag nur einmalig einfuegen, ggf erzeugen wenn nicht vorhanden
 				let img = $("img", div);
 				if (img.length == 0) {
@@ -313,11 +301,7 @@ var massifUsability = (($) => {
 				}
 				img.attr("src", url);
 				div.css("display", "block");
-			} else if (
-				value &&
-				value.length != 0 &&
-				videoExtensions.includes(extension)
-			) {
+			} else if (value && value.length != 0 && videoExtensions.includes(extension)) {
 				const video = document.createElement("video");
 				video.setAttribute("src", url);
 				video.setAttribute("muted", "muted");
@@ -331,21 +315,9 @@ var massifUsability = (($) => {
 
 		// Medialist preview neu anzeigen, beim wechsel der auswahl
 		$("body")
-			.on(
-				"click",
-				".rex-js-widget-medialist.massif-preview",
-				rexShowMediaListPreview,
-			)
-			.on(
-				"mouseenter",
-				".rex-js-widget-medialist.massif-preview",
-				rexShowMediaListPreview,
-			)
-			.on(
-				"mouseleave",
-				".rex-js-widget-medialist.massif-preview",
-				rexShowMediaListPreview,
-			);
+			.on("click", ".rex-js-widget-medialist.massif-preview", rexShowMediaListPreview)
+			.on("mouseenter", ".rex-js-widget-medialist.massif-preview", rexShowMediaListPreview)
+			.on("mouseleave", ".rex-js-widget-medialist.massif-preview", rexShowMediaListPreview);
 	}
 
 	function selectizeMassif() {
@@ -358,9 +330,7 @@ var massifUsability = (($) => {
 			this.search = (() => {
 				var original = this.search;
 				return function () {
-					if (
-						typeof this.plugin_silent_drag_and_drop_in_change !== "undefined"
-					) {
+					if (typeof this.plugin_silent_drag_and_drop_in_change !== "undefined") {
 						// re-enable normal searching
 						delete this.plugin_silent_drag_and_drop_in_change;
 						return {
