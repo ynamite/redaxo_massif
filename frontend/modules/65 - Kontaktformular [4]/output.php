@@ -2,29 +2,33 @@
 
 use Ynamite\Massif\Utils;
 
-$tag = 'h1';
-if (rex::getProperty('has-text-block')) {
-    $tag = 'h3';
+$slice = null;
+try {
+    $slice = $this->getCurrentSlice();
+} catch (Exception) {
+} finally {
+    $slice = $slice ?? rex_article_slice::getArticleSliceById('REX_SLICE_ID');
 }
+$isFirst = $slice->getPriority() === 1;
 
-rex::setProperty('has-text-block', true);
 ?>
+<section class="fluid-grid stack-16 form-section" <?= $isFirst ? ' data-first-row' : '' ?>>
 
-<div class="page-margin row-padding row-prose">
+    <div class="span-md">
+        <div class="prose prose-lg">
 
-    <div class="wrap">
-        <?php if ('REX_VALUE[1]') { ?><h1>REX_VALUE[1]</h1><?php } ?>
-        <div class="contact-grid">
-            <div class="contact-grid__address">
-                REX_VALUE[2 output=html]
-            </div>
-            <div class="contact-grid__form">
-                <h3>Anfrageformular</h3>
-                <?php
-                echo Utils\Rex::parse('massif-form-general', ['response' => 'REX_VALUE[4 output=html]']);
-                ?>
-            </div>
+            <?php if ('REX_VALUE[1]') { ?><h1>REX_VALUE[1]</h1><?php } ?>
+            REX_VALUE[2 output=html]
+
         </div>
+
+    </div>
+    <div class="span-md stack-8">
+        <h3>Anfrageformular</h3>
+        <?php
+        echo Utils\Rex::parse('massif-form-general', ['response' => 'REX_VALUE[3 output=html]']);
+        ?>
+
     </div>
 
-</div>
+</section>

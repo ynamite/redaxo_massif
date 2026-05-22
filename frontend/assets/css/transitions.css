@@ -1,0 +1,45 @@
+@keyframes page-out {
+	0% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateY(-4px);
+		opacity: 0;
+	}
+}
+
+@keyframes page-in {
+	0% {
+		transform: translateY(4px);
+		opacity: 0;
+	}
+
+	100% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+	animation-duration: 0.6s;
+	animation-timing-function: var(--ease-spring-2);
+	animation-fill-mode: forwards; /* important if you mix durations */
+}
+
+main {
+	view-transition-name: main;
+}
+
+::view-transition-old(main) {
+	animation-duration: 400ms;
+	animation-name: page-out;
+}
+
+::view-transition-new(main) {
+	animation-duration: 400ms;
+	animation-name: page-in;
+}

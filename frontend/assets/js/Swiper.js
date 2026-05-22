@@ -134,12 +134,8 @@ const initSwipers = (containers) => {
 			return;
 		}
 
-		config.navigation.nextEl = $swiper.querySelector(
-			CONFIG.navigation.nextSelector,
-		);
-		config.navigation.prevEl = $swiper.querySelector(
-			CONFIG.navigation.prevSelector,
-		);
+		config.navigation.nextEl = $swiper.querySelector(CONFIG.navigation.nextSelector);
+		config.navigation.prevEl = $swiper.querySelector(CONFIG.navigation.prevSelector);
 		config.pagination.el = $swiper.querySelector(CONFIG.pagination.selector);
 
 		const swiper = new SwiperImpl(container, config);
@@ -178,8 +174,7 @@ const init = async () => {
 
 	await import("@/js/Swiper.css");
 	SwiperImpl = (await import("swiper")).default;
-	const { Navigation, Pagination, Keyboard, Autoplay, EffectFade } =
-		await import("swiper/modules");
+	const { Navigation, Pagination, Keyboard, Autoplay, EffectFade } = await import("swiper/modules");
 	SwiperImpl.use([Navigation, Pagination, Keyboard, Autoplay, EffectFade]);
 	initSwipers(containers);
 };

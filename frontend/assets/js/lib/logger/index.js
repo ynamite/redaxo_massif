@@ -4,8 +4,7 @@ class Logger {
 	constructor(options) {
 		var opts = options || {};
 		this.options = {};
-		this.options.debug =
-			typeof opts["debug"] !== "undefined" ? opts["debug"] : true;
+		this.options.debug = typeof opts["debug"] !== "undefined" ? opts["debug"] : true;
 		// if (logger !== true) {
 		//     this.options.debug = false;
 		// }
@@ -44,11 +43,7 @@ class Logger {
 	output = function (type = "log", ...args) {
 		const debugMode = Alpine.store("debugMode") ?? false;
 
-		if (
-			debugMode &&
-			this.options.debug &&
-			typeof console[type] === "function"
-		) {
+		if (debugMode && this.options.debug && typeof console[type] === "function") {
 			console[type](...args);
 		}
 	};

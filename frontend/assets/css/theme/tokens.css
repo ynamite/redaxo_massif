@@ -1,24 +1,31 @@
+:root {
+	color-scheme: light dark;
+}
+
 @theme {
-  --font-sans: "Roboto", sans-serif;
+	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary: #1b1a21;
-  --color-secondary: #ff269e;
-  /* --color-accent: #50b3d8; */
-  --color-accent: oklch(from var(--color-secondary) calc(h + 180) s l);
+	--color-brand-primary: #1b1a21;
+	--color-brand-secondary: #ff269e;
+	--color-brand-tertiary: #ff3b3b;
+	--color-brand-accent: #00d29a;
 
-  --color-body: #fff;
+	--color-accent: oklch(from var(--color-brand-accent) l c calc(h + 0));
 
-  --spacing-safe: calc(env(safe-area-inset-bottom, 0rem) + 2rem);
+	--color-body: light-dark(white, var(--color-brand-primary));
+	--color-fg: light-dark(var(--color-brand-primary), oklch(from var(--color-brand-primary) 92% c h));
 
-  --animate-spinner: spinner 2s linear infinite;
-  @keyframes spinner {
-    0% {
-      transform: scale(0);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 0;
-    }
-  }
+	--spacing-safe: calc(env(safe-area-inset-bottom, 0rem) + 2rem);
+
+	--animate-spinner: spinner 2s linear infinite;
+	@keyframes spinner {
+		0% {
+			transform: scale(0);
+			opacity: 1;
+		}
+		100% {
+			transform: scale(1);
+			opacity: 0;
+		}
+	}
 }

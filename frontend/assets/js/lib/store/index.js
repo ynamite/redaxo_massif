@@ -28,11 +28,7 @@ function deepClone(obj) {
  * @returns {boolean}
  */
 function isPlainObjectOrArray(v) {
-	return (
-		v !== null &&
-		typeof v === "object" &&
-		(Array.isArray(v) || v.constructor === Object)
-	);
+	return v !== null && typeof v === "object" && (Array.isArray(v) || v.constructor === Object);
 }
 
 // ── Reactive Proxy Factory ──────────────────────────────────────────
@@ -60,12 +56,7 @@ function unwrap(v) {
  * @param {WeakMap} [cache]  – shared across one reactive tree
  * @returns {Proxy}
  */
-function createReactiveProxy(
-	target,
-	onChange,
-	path = "",
-	cache = new WeakMap(),
-) {
+function createReactiveProxy(target, onChange, path = "", cache = new WeakMap()) {
 	if (!isPlainObjectOrArray(target)) return target;
 	if (cache.has(target)) return cache.get(target);
 
@@ -75,12 +66,7 @@ function createReactiveProxy(
 
 			const value = obj[prop];
 			if (isPlainObjectOrArray(value)) {
-				return createReactiveProxy(
-					value,
-					onChange,
-					path ? `${path}.${String(prop)}` : String(prop),
-					cache,
-				);
+				return createReactiveProxy(value, onChange, path ? `${path}.${String(prop)}` : String(prop), cache);
 			}
 			return value;
 		},
@@ -319,8 +305,7 @@ export function createState(key, defaultValue) {
 	const get = () => store.get(key, defaultValue);
 
 	const set = (value) => {
-		const resolved =
-			typeof value === "function" ? value(store.get(key, defaultValue)) : value;
+		const resolved = typeof value === "function" ? value(store.get(key, defaultValue)) : value;
 		return store.setReactive(key, resolved);
 	};
 
@@ -345,8 +330,7 @@ export function createStaticState(key, defaultValue) {
 	const get = () => store.get(key, defaultValue);
 
 	const set = (value) => {
-		const resolved =
-			typeof value === "function" ? value(store.get(key, defaultValue)) : value;
+		const resolved = typeof value === "function" ? value(store.get(key, defaultValue)) : value;
 		return store.set(key, resolved);
 	};
 

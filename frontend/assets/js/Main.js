@@ -30,10 +30,7 @@ htmlElement.classList.add(isTouchDevice ? "touch-device" : "not-touch-device");
 htmlElement.classList.add(isFirefox ? "firefox" : "not-firefox");
 htmlElement.classList.add(isSsafari ? "safari" : "not-safari");
 
-document.documentElement.style.setProperty(
-	"--scrollbarwidth",
-	`${scrollBarWidth}px`,
-);
+document.documentElement.style.setProperty("--scrollbarwidth", `${scrollBarWidth}px`);
 
 export const init = () => {
 	logger.log("commonInits");
@@ -42,17 +39,13 @@ export const init = () => {
 
 	window.Alpine = Alpine;
 	Alpine.start();
+
+	// Lazy-load the form library only on pages that have a yform form.
+	if (document.querySelector(".rex-yform")) {
+		import("@/js/lib/form/index.js").then(({ default: initForms }) => {
+			initForms(".rex-yform", { animateLabels: true });
+		});
+	}
 };
 
 init();
-
-// // load the following scripts async in parallel
-// Promise.all([
-// 	// import('@/js/Lightbox.js'),
-// 	// import('@/js/Accordions.js'),
-// 	// import('@/js/Form.js'),
-// 	// import('@/js/Headroom.js'),
-// 	// import("@/js/History.js"),
-// 	import("@/js/Menu.js"),
-// 	// import('@/js/Swiper.js')
-// ]);

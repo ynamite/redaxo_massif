@@ -1,71 +1,69 @@
-import swup from '@/js/swup/index.js'
-import { gsap } from '@/js/gsap/index.js'
-import { increment } from '@/js/lib/store/index.js'
+import swup from "@/js/swup/index.js";
+import { gsap } from "@/js/gsap/index.js";
+import { increment } from "@/js/lib/store/index.js";
 
-let scrollTrigger = []
+let scrollTrigger = [];
 
 const HorizontalScroll = () => {
-  const containers = document.querySelectorAll('[data-scroll-horizontally]')
+	const containers = document.querySelectorAll("[data-scroll-horizontally]");
 
-  containers.forEach((container) => {
-    const section = container.closest('section')
+	containers.forEach((container) => {
+		const section = container.closest("section");
 
-    // insert container after section
-    section.insertAdjacentElement('afterend', container)
+		// insert container after section
+		section.insertAdjacentElement("afterend", container);
 
-    // wrap container in a div
-    const wrapper = document.createElement('div')
-    container.parentNode.insertBefore(wrapper, container)
-    wrapper.appendChild(container)
+		// wrap container in a div
+		const wrapper = document.createElement("div");
+		container.parentNode.insertBefore(wrapper, container);
+		wrapper.appendChild(container);
 
-    // append the wrappers all following siblings to the wrapper
-    // if (wrapper.nextElementSibling)
-    //   wrapper.appendChild(wrapper.nextElementSibling)
-    // if (wrapper.nextElementSibling)
-    //   wrapper.appendChild(wrapper.nextElementSibling)
+		// append the wrappers all following siblings to the wrapper
+		// if (wrapper.nextElementSibling)
+		//   wrapper.appendChild(wrapper.nextElementSibling)
+		// if (wrapper.nextElementSibling)
+		//   wrapper.appendChild(wrapper.nextElementSibling)
 
-    let next = wrapper.nextElementSibling
-    while (next) {
-      wrapper.appendChild(next)
-      next = wrapper.nextElementSibling
-    }
+		let next = wrapper.nextElementSibling;
+		while (next) {
+			wrapper.appendChild(next);
+			next = wrapper.nextElementSibling;
+		}
 
-    const scrollWrapper = container.querySelector('[data-scroll-wrapper]')
+		const scrollWrapper = container.querySelector("[data-scroll-wrapper]");
 
-    gsap.to(scrollWrapper, {
-      x: () => window.innerWidth - scrollWrapper.scrollWidth,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: () =>
-          window.innerWidth > window.innerHeight ? container : scrollWrapper,
-        start: 'bottom bottom',
-        end: '+=' + scrollWrapper.scrollWidth / 2,
-        // end: '+=' + cards.length * 50 + '%',
-        scrub: 0.5,
-        pin: wrapper,
-        anticipatePin: 1,
-        invalidateOnRefresh: true
-        // markers: true
-      }
-    })
-    increment('scrollTriggerOrder')
-
-  })
-}
+		gsap.to(scrollWrapper, {
+			x: () => window.innerWidth - scrollWrapper.scrollWidth,
+			ease: "none",
+			scrollTrigger: {
+				trigger: () => (window.innerWidth > window.innerHeight ? container : scrollWrapper),
+				start: "bottom bottom",
+				end: "+=" + scrollWrapper.scrollWidth / 2,
+				// end: '+=' + cards.length * 50 + '%',
+				scrub: 0.5,
+				pin: wrapper,
+				anticipatePin: 1,
+				invalidateOnRefresh: true,
+				// markers: true
+			},
+		});
+		increment("scrollTriggerOrder");
+	});
+};
 
 swup.hooks.on(
-  'page:view',
-  () => {
-    if (scrollTrigger.length) {
-      scrollTrigger.forEach((ST) => {
-        ST.kill()
-      })
-    }
-  },
-  { before: true }
-)
-swup.hooks.on('page:view', () => {
-  HorizontalScroll()
-})
+	"page:view",
+	() => {
+		if (scrollTrigger.length) {
+			scrollTrigger.forEach((ST) => {
+				ST.kill();
+			});
+		}
+	},
+	{ before: true },
+);
+swup.hooks.on("page:view", () => {
+	HorizontalScroll();
+});
 
-export default HorizontalScroll
+export default HorizontalScroll;

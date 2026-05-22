@@ -8,11 +8,7 @@ import { logger } from "@/js/lib/logger/index.js";
 
 class MobileMenu {
 	hooks = {};
-	constructor({
-		dropdowns = true,
-		menuItemsSelector = ".rex-navi1 > li",
-		focusFirstLinkOnOpen = false,
-	} = {}) {
+	constructor({ dropdowns = true, menuItemsSelector = ".rex-navi1 > li", focusFirstLinkOnOpen = false } = {}) {
 		logger.log("Initializing mobile menu...");
 		this.menu = document.getElementById("mobile-menu");
 		if (!this.menu) return;
@@ -25,18 +21,9 @@ class MobileMenu {
 		this.dropdowns = dropdowns && this.menu.querySelectorAll(".dropdown");
 		this.activeDropdown = null;
 		this.lockY = 0;
-		this.menuButtonWidth = parseInt(
-			this.menuButton.style.getPropertyValue("--width").replace("px", ""),
-			10,
-		);
-		this.menuButtonBarHeight = parseInt(
-			this.menuButton.style.getPropertyValue("--bar-height").replace("px", ""),
-			10,
-		);
-		this.menuButtonBarGap = parseInt(
-			this.menuButton.style.getPropertyValue("--bar-gap").replace("px", ""),
-			10,
-		);
+		this.menuButtonWidth = parseInt(this.menuButton.style.getPropertyValue("--width").replace("px", ""), 10);
+		this.menuButtonBarHeight = parseInt(this.menuButton.style.getPropertyValue("--bar-height").replace("px", ""), 10);
+		this.menuButtonBarGap = parseInt(this.menuButton.style.getPropertyValue("--bar-gap").replace("px", ""), 10);
 		this.matchMedia = gsap.matchMedia();
 
 		this.init();
@@ -113,12 +100,7 @@ class MobileMenu {
 
 			menuLinks.forEach((link) => {
 				const href = link.getAttribute("href");
-				if (
-					href &&
-					(href.startsWith("/") ||
-						href.startsWith("#") ||
-						href.startsWith(window.location.origin))
-				) {
+				if (href && (href.startsWith("/") || href.startsWith("#") || href.startsWith(window.location.origin))) {
 					swupActive && link.setAttribute("data-no-swup", "true");
 					link.classList.add("menu-link");
 				}
@@ -170,10 +152,7 @@ class MobileMenu {
 
 		// Update ARIA attributes
 		this.menuButton.setAttribute("aria-expanded", "true");
-		this.menuButton.setAttribute(
-			"aria-label",
-			this.menuButton.dataset.labelClose,
-		);
+		this.menuButton.setAttribute("aria-label", this.menuButton.dataset.labelClose);
 		this.menu.removeAttribute("inert");
 
 		// Make menu elements focusable
@@ -259,9 +238,7 @@ class MobileMenu {
 		if (this.focusFirstLinkOnOpen) {
 			setTimeout(() => {
 				// Focus the first menu link instead of a close button
-				const firstLink = this.menu.querySelector(
-					".mobile-menu-link, .dropdown-toggle",
-				);
+				const firstLink = this.menu.querySelector(".mobile-menu-link, .dropdown-toggle");
 				if (firstLink) firstLink.focus();
 			}, 100);
 		}
@@ -278,10 +255,7 @@ class MobileMenu {
 
 		// Update ARIA attributes
 		this.menuButton.setAttribute("aria-expanded", "false");
-		this.menuButton.setAttribute(
-			"aria-label",
-			this.menuButton.dataset.labelOpen,
-		);
+		this.menuButton.setAttribute("aria-label", this.menuButton.dataset.labelOpen);
 		this.menu.setAttribute("inert", "true");
 
 		// Remove focusable elements from tab order

@@ -1,1 +1,1 @@
-import '@/js/lib/viewTransitions/index.js'
+import "@/js/lib/viewTransitions/index.js";

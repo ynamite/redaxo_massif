@@ -22,13 +22,13 @@ $isExactPage = static fn(rex_category $cat): bool => $cat->getId() === $currentI
     ?>
       <li class="relative py-2"
         <?= $children ? 'x-data="{ openSub: false }" @mouseenter="openSub = true" @mouseleave="openSub = false" @focusin="openSub = true" @focusout.away="openSub = false"' : '' ?>>
-        <a href="<?= rex_escape($top->getUrl()) ?>"
-          class="inline-flex items-center gap-1 py-2 transition-colors <?= $active ? 'text-brand-cyan' : 'text-muted hover:text-fg' ?> focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan rounded"
+        <a href="<?= $top->getUrl() ?>"
+          class="inline-flex items-center uppercase font-bold tracking-wider gap-1 py-2 transition-color duration-300 <?= $active ? 'text-accent' : 'text-muted hover:text-accent' ?> focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
           <?= $active ? 'aria-current="page"' : '' ?>
           <?= $children ? ':aria-expanded="openSub"' : '' ?>>
-          <span><?= rex_escape($top->getName()) ?></span>
+          <span><?= $top->getName() ?></span>
           <?php if ($children): ?>
-            <span class="size-4 motion-safe:transition-transform icon-[lucide--chevron-down]" :class="openSub && 'rotate-180'" aria-hidden="true"></span>
+            <span class="size-4 motion-safe:transition-transform iconify lucide--chevron-down" :class="openSub && 'rotate-180'" aria-hidden="true"></span>
           <?php endif ?>
         </a>
         <?php if ($children): ?>
@@ -39,15 +39,15 @@ $isExactPage = static fn(rex_category $cat): bool => $cat->getId() === $currentI
             x-transition:leave="motion-safe:transition motion-safe:ease-in motion-safe:duration-100"
             x-transition:leave-start="opacity-100 translate-y-0"
             x-transition:leave-end="opacity-0 translate-y-1"
-            class="top-full left-0 absolute bg-surface shadow-xl p-2 border border-white/10 rounded-lg min-w-44">
+            class="top-full left-0 absolute bg-body/85 shadow-xl backdrop-blur p-2 border border-white/10 rounded-lg min-w-44">
             <?php foreach ($children as $child):
               $childActive = $isExactPage($child);
             ?>
               <li>
-                <a href="<?= rex_escape($child->getUrl()) ?>"
-                  class="block rounded px-3 py-2 text-sm transition-colors <?= $childActive ? 'text-brand-cyan' : 'text-muted hover:bg-white/5 hover:text-fg' ?>"
+                <a href="<?= $child->getUrl() ?>"
+                  class="block rounded px-3 py-2 text-sm transition-colors <?= $childActive ? 'text-accent' : 'text-muted hover:bg-white/5 hover:text-fg' ?>"
                   <?= $childActive ? 'aria-current="page"' : '' ?>>
-                  <?= rex_escape($child->getName()) ?>
+                  <?= $child->getName() ?>
                 </a>
               </li>
             <?php endforeach ?>
@@ -71,11 +71,11 @@ $isExactPage = static fn(rex_category $cat): bool => $cat->getId() === $currentI
     @click.prevent.stop="mobileOpen = !mobileOpen"
     :aria-expanded="mobileOpen"
     :aria-label="mobileOpen ? 'Menü schließen' : 'Menü öffnen'"
-    class="right-safe bottom-safe z-30 fixed flex justify-center items-center bg-bg/85 backdrop-blur border border-white/10 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan size-10 text-fg">
+    class="right-safe bottom-safe z-30 fixed flex justify-center items-center bg-body/85 backdrop-blur border border-white/10 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent size-10 text-fg">
     <span
       class="sr-only"
       x-text="mobileOpen ? 'Menü schließen' : 'Menü öffnen'"></span>
-    <span :class="mobileOpen ? 'icon-[lucide--x]' : 'icon-[lucide--menu]'" class="size-6" aria-hidden="true"></span>
+    <span :class="mobileOpen ? 'lucide--x' : 'lucide--menu'" class="size-6 iconify" aria-hidden="true"></span>
   </button>
 
   <!-- MOBILE drawer (<md) -->
@@ -88,27 +88,27 @@ $isExactPage = static fn(rex_category $cat): bool => $cat->getId() === $currentI
     x-transition:leave="transition ease-out duration-300"
     x-transition:leave-start="opacity-100 translate-x-0"
     x-transition:leave-end="translate-x-full"
-    class="z-20 fixed inset-0 flex flex-col justify-end bg-bg px-8 pt-24 pb-12">
+    class="z-20 fixed after:absolute inset-0 after:inset-0 flex flex-col justify-end bg-body/80 after:backdrop-blur px-8 pt-24 pb-12">
     <ul
       @click.outside.stop="mobileOpen = false"
-      class="flex flex-col overflow-y-auto">
+      class="z-10 relative flex flex-col divide-y divide-fg/10 overflow-y-auto">
       <?php foreach ($rootCategories as $top):
         $children = $top->getChildren();
         $active = $isActiveBranch($top);
       ?>
-        <li class="py-3 border-white/10 border-b"
+        <li class="py-3"
           <?= $children ? 'x-data="{ subOpen: ' . ($isActiveBranch($top) ? 'true' : 'false') . ' }"' : '' ?>>
           <div class="flex justify-between items-center">
-            <a href="<?= rex_escape($top->getUrl()) ?>"
+            <a href="<?= $top->getUrl() ?>"
               class="text-2xl font-bold transition-colors <?= $active ? 'text-fg' : 'text-muted hover:text-fg' ?>"
               <?= $active ? 'aria-current="page"' : '' ?>>
-              <?= rex_escape($top->getName()) ?>
+              <?= $top->getName() ?>
             </a>
             <?php if ($children): ?>
               <button type="button" @click="subOpen = !subOpen" :aria-expanded="subOpen"
                 :aria-label="subOpen ? 'Untermenü schließen' : 'Untermenü öffnen'"
-                class="inline-flex justify-center items-center ml-auto rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan size-8 text-brand-cyan">
-                <span class="size-5 motion-safe:transition-transform icon-[lucide--chevron-down]" :class="subOpen && 'rotate-180'" aria-hidden="true"></span>
+                class="inline-flex justify-center items-center ml-auto rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent size-8 text-accent">
+                <span class="size-5 motion-safe:transition-transform iconify lucide--chevron-down" :class="subOpen && 'rotate-180'" aria-hidden="true"></span>
               </button>
             <?php endif ?>
           </div>
@@ -118,10 +118,10 @@ $isExactPage = static fn(rex_category $cat): bool => $cat->getId() === $currentI
                 $childActive = $isExactPage($child);
               ?>
                 <li>
-                  <a href="<?= rex_escape($child->getUrl()) ?>"
-                    class="block py-2 text-base transition-colors <?= $childActive ? 'text-brand-cyan' : 'text-muted hover:text-fg' ?>"
+                  <a href="<?= $child->getUrl() ?>"
+                    class="block py-2 text-base transition-colors <?= $childActive ? 'text-accent' : 'text-muted hover:text-fg' ?>"
                     <?= $childActive ? 'aria-current="page"' : '' ?>>
-                    <?= rex_escape($child->getName()) ?>
+                    <?= $child->getName() ?>
                   </a>
                 </li>
               <?php endforeach ?>

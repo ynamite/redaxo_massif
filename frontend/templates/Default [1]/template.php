@@ -1,3 +1,9 @@
+<?php
+
+/** @var bool $isMobileOrTablet */
+/** @var rex_clang $lang */
+/** @var string $pageClass */
+?>
 REX_TEMPLATE[key="config"]
 
 <!doctype html>
@@ -7,7 +13,7 @@ REX_TEMPLATE[key="config"]
 	REX_TEMPLATE[key="meta"]
 </head>
 
-<body class="<?= $pageClass ?> bg-body text-primary font-sans">
+<body class="<?= $pageClass ?>">
 
 	REX_TEMPLATE[key="header"]
 

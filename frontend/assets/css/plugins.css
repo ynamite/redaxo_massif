@@ -1,8 +1,6 @@
 @plugin "tailwind-clamp";
-@plugin "@tailwindcss/typography" {
-  /* prettier-ignore */
-  className: tw-prose;
-}
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
 @plugin "@iconify/tailwind4" {
-  prefixes: lucide;
+	prefixes: lucide;
 }

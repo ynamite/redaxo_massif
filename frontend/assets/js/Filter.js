@@ -1,4 +1,4 @@
-import { init, setActive, applyFilter } from '@/js/lib/filter/index.js'
+import { init, setActive, applyFilter } from "@/js/lib/filter/index.js";
 
 // init();
 
