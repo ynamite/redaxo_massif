@@ -1,6 +1,0 @@
-@layer components {
-	[data-accordion-id] {
-		position: relative;
-		overflow: hidden;
-	}
-}

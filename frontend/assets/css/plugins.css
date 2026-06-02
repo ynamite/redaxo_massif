@@ -1,6 +1,0 @@
-@plugin "tailwind-clamp";
-@plugin "@tailwindcss/forms";
-@plugin "@tailwindcss/typography";
-@plugin "@iconify/tailwind4" {
-	prefixes: lucide;
-}

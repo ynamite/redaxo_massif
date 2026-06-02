@@ -1,5 +1,31 @@
 # Changelog
 
+## **Version 3.0.0**
+
+Breaking release. The `frontend/` half — MASSIF's page templates, content modules and asset sources — is extracted out of this addon. It now lives in the standalone **`viterex-massif-preset`** repo and is installed by `create-viterex`'s "Install preset frontend" pipeline task. This addon is backend-only again (media helpers, navigation builder, YForm extensions, MASSIF Settings, R4→R5 converter, MarkItUp/Redactor parsing, file uploads, the `MASSIF Auto-Effekt` media manager effect).
+
+Decoupling the frontend also fixes an ordering bug: it was previously scaffolded PHP-side on addon activation, *after* the project's package-manager install had run, so the frontend's npm deps were missing from the first `vite build`. `create-viterex` now installs it before the dependency step.
+
+### Removed
+
+- **`frontend/` folder** — templates, modules, asset sources, `stubs-map.php`, `package-deps.json`. Moved to the `viterex-massif-preset` repo.
+- **`pages/frontend.php`** — the *MASSIF Frontend* settings subpage, plus its `frontend` entry in `package.yml` and the `massif_frontend_*` keys in `lang/de_de.lang`.
+- **`VITEREX_INSTALL_STUBS` handler** in `boot.php` — the addon no longer contributes stubs to viterex_addon's "Install stubs" operation.
+- **Frontend auto-install in `install.php`** — the `StubsInstaller::installFromDir()` call and the `rex_config('massif','frontend_installed_at')` idempotency marker.
+
+### Changed
+
+- **`install.php`** — slimmed to a single `StubsInstaller::appendRefreshGlobs()` call (the addon's own `fragments/` + `lib/` live-reload globs), still gated on `viterex_addon` being available.
+
+### Migration
+
+For existing MASSIF projects:
+
+1. The scaffolded frontend already lives in the project (`src/templates`, `src/modules`, `src/assets`, tracked by git and the `developer` addon) — it is unaffected.
+2. Updating the `redaxo_massif` submodule to v3.0.0 removes the now-obsolete `src/addons/massif/frontend/` source tree; harmless.
+3. The *MASSIF Frontend* backend page is gone. Re-scaffold the frontend by running `create-viterex` with the `viterex-massif-preset` preset.
+4. `rex_config('massif','frontend_installed_at')` becomes an unused orphan and can be left as-is.
+
 ## **Version 2.0.0**
 
 Breaking release. Merges the previously standalone `redaxo-frontend-assets` repository into this addon as a `frontend/` folder, and adds an auto-install path that scaffolds those assets into the user's project root when `viterex_addon` is available.

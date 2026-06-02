@@ -1,5 +1,5 @@
 package: massif
-version: 2.0.0
+version: 3.0.0
 author: Yves Torres
 supportpage: massif.ch
 
@@ -32,10 +32,6 @@ page:
       package:
       pjax: true
       hidden: true
-    frontend:
-      title: 'MASSIF Frontend'
-      icon: rex-icon fa-rocket
-      customPage: true
 
 console_commands:
   massif:exec-php: console_massif_execute_php
