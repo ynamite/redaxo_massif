@@ -16,7 +16,7 @@ $controls = $this->getVar('controls', true);
 $prevIcon = $this->getVar('prevIcon', '<i class="icon">◀</i>');
 $nextIcon = $this->getVar('nextIcon', '<i class="icon">▶</i>');
 $wrap = $this->getVar('wrap', true);
-$classNames = $this->getVar('classNames', '');
+$className = $this->getVar('className', '');
 
 
 $reflection = new ReflectionMethod(Media\Media::class, 'factory');
@@ -27,7 +27,7 @@ $rest = array_diff_key($imageOptions, array_flip($paramNames));
 
 ?>
 <?php if ($wrap) { ?>
-  <div class="swiper<?php if ($classNames) echo ' ' . $classNames; ?>" data-swiper-type="<?php echo $swiperType; ?>">
+  <div class="swiper<?php if ($className) echo ' ' . $className; ?>" data-swiper-type="<?php echo $swiperType; ?>">
   <?php } ?>
   <div class="swiper-container">
     <div class="swiper-wrapper">
