@@ -28,59 +28,70 @@ if ($url_key && $url_key_val) {
 $from = max($firstPage + 1, $currentPage - $showMax);
 $to = min($lastPage - 1, $from + ($showMax * 2));
 $to = $to > $currentPage + $showMax ? $currentPage + $showMax : $to;
+
+$isPageActive = fn($page) => $pager->isActivePage($page) ? ' text-white bg-accent rounded-xs' : '';
 ?>
 <?php if ($pager->getRowCount() > $pager->getRowsPerPage()) : ?>
-    <nav class="page-pager">
-        <ul class="page-pager-list">
+    <div role="navigation" class="flex justify-between mt-4 pt-4 border-fg/10 border-t text-sm uppercase tracking-wider pager" aria-label="Pagination Navigation">
+
+        <div class="pager-info">
+            <?= sprintf('{{page}} %s/%s', $pager->getCurrentPage(), $pager->getLastPage()) ?>
+        </div>
+
+        <div class="[&_.pager-a]:block flex items-center gap-2 *:h-full *:aspect-square text-center pager-pages">
 
             <?php if (!$pager->isActivePage($firstPage)) { ?>
-                <li class="page-pager-prev">
-                    <a class="massif-pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $pager->getPrevPage()], $params)) . $anchor ?>" title="<?= $this->i18n('list_previous') ?>">
+                <div class="pager-prev">
+                    <a class="pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $pager->getPrevPage()], $params)) . $anchor ?>" title="<?= $this->i18n('list_previous') ?>">
                         <i class="fa-chevron-left far icon"></i>
                     </a>
-                </li>
+                </div>
             <?php } ?>
 
-            <li class="page-pager-page<?= $pager->isActivePage($firstPage) ? ' active' : '' ?>">
-                <a class="massif-pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $firstPage], $params)) . $anchor ?>">
+            <div class="pager-page<?= $isPageActive($firstPage) ?>">
+                <a class="pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $firstPage], $params)) . $anchor ?>">
                     <?= $firstPage ?>
                 </a>
-            </li>
+            </div>
 
             <?php if ($from > $firstPage + 1) : ?>
-                <li>
+                <div class="pager-page empty">
                     <span>…</span>
-                </li>
+                </div>
             <?php endif; ?>
 
             <?php for ($page = $from; $page <= $to; ++$page) : ?>
-                <li class="page-pager-page<?= $pager->isActivePage($page) ? ' active' : '' ?>">
-                    <a class="massif-pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $page], $params)) . $anchor ?>">
+                <div class="pager-page<?= $isPageActive($page) ?>">
+                    <a class="pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $page], $params)) . $anchor ?>">
                         <?= $page ?>
                     </a>
-                </li>
+                </div>
             <?php endfor; ?>
 
             <?php if ($to < $lastPage - 1) : ?>
-                <li class="page-pager-page">
+                <div class="pager-page">
                     <span>…</span>
-                </li>
+                </div>
             <?php endif; ?>
 
-            <li class="page-pager-page<?= $pager->isActivePage($lastPage) ? ' active' : '' ?>">
-                <a class="massif-pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $lastPage], $params)) . $anchor ?>">
+            <div class="pager-page<?= $isPageActive($lastPage) ?>">
+                <a class="pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $lastPage], $params)) . $anchor ?>">
                     <?= $lastPage ?>
                 </a>
-            </li>
+            </div>
 
             <?php if (!$pager->isActivePage($lastPage)) { ?>
-                <li class="page-pager-next">
-                    <a class="massif-pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $pager->getNextPage()], $params)) . $anchor ?>" title="<?= $this->i18n('list_next') ?>">
+                <div class="pager-next">
+                    <a class="pager-a" href="<?= $urlProvider->getUrl(array_merge([$pager->getCursorName() => $pager->getNextPage()], $params)) . $anchor ?>" title="<?= $this->i18n('list_next') ?>">
                         <i class="fa-chevron-right far icon"></i>
                     </a>
-                </li>
+                </div>
             <?php } ?>
+        </div>
 
-        </ul>
-    </nav>
-<?php endif;
+        <div class="pager-total">
+            <?= sprintf('%s {{articles}}', $pager->getRowCount()) ?>
+        </div>
+
+        </nav>
+    <?php endif;
