@@ -3,7 +3,7 @@
 /** @var rex_pager $pager */
 $pager = $this->getVar('pager', null);
 /** @var rex_url_provider_interface $urlProvider */
-$urlProvider = $this->getVar('urlprovider', null);
+$urlProvider = $this->getVar('urlprovider', rex_article::getCurrent());
 $url_key = $this->getVar('url_key', null);
 $url_key_val = $this->getVar('url_key_val', null);
 
