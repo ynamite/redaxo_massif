@@ -79,9 +79,24 @@ class Usability
       if ($tableName == $table) {
         $list->setColumnParams($field, ['func' => 'edit', 'data_id' => '###id###', 'table' => $table, \rex_csrf_token::PARAM => $_csrf_params]);
         $list->setColumnFormat($field, 'custom', function ($params) use ($field) {
-          if ($params['list']->getValue($field)) {
-            return $params['list']->getColumnLink($field, '<img src="index.php?rex_media_type=rex_media_small&rex_media_file=' . $params['list']->getValue($field) . '" class="thumbnail" style="max-width: 150px; margin-bottom: 0" />');
+          $raw = $params['list']->getValue($field);
+          $value = '';
+
+          if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+              $raw = $decoded[0]['value'] ?? ''; // yform shape: [{"value":"a.jpg,a.pdf"}, ...]
+            }
+            $value = trim(explode(',', $raw)[0]); // first filename, comma list or not
           }
+
+          if ($value !== '') {
+            return $params['list']->getColumnLink(
+              $field,
+              '<img src="index.php?rex_media_type=rex_media_small&rex_media_file=' . rex_escape($value) . '" class="thumbnail" style="max-width: 150px; margin-bottom: 0" />'
+            );
+          }
+
           return $params['list']->getColumnLink(
             $field,
             '<div style="width:80px; aspect-ratio: 1; background-color: #eee; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 24px;"><i class="fa fa-picture-o"></i></div>'
@@ -97,8 +112,17 @@ class Usability
         $field = is_array($field) ? $field : [$field];
         foreach ($field as $f) {
           $list->setColumnParams($f, ['func' => 'edit', 'data_id' => '###id###', 'table' => $table, \rex_csrf_token::PARAM => $_csrf_params]);
-          $list->setColumnFormat($f, 'custom', function ($params) use ($f) {
-            return $params['list']->getColumnLink($f, $params['list']->getValue($f));
+          $currentFormat = $list->getColumnFormat($f);
+          $type = $currentFormat[1][0] ?? null;
+          $list->setColumnFormat($f, 'custom', function ($params) use ($f, $currentFormat, $type) {
+            $value = $params['list']->getValue($f);
+            if ($currentFormat[0] == 'custom') {
+              $value = call_user_func($currentFormat[1], $params);
+              if (str_starts_with($type, 'rex_yform_value_lang_')) {
+                $value = explode(' | ', $value)[0];
+              }
+            }
+            return $params['list']->getColumnLink($f, $value);
           });
         }
       }
