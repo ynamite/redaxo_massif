@@ -10,7 +10,7 @@
  * @package massif
  */
 
-namespace Ynamite\Massif;
+namespace Ynamite\Massif\Misc;
 
 use rex_pager;
 
