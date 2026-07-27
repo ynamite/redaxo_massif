@@ -6,6 +6,7 @@ $pager = $this->getVar('pager', null);
 $urlProvider = $this->getVar('urlprovider', rex_article::getCurrent());
 $url_key = $this->getVar('url_key', null);
 $url_key_val = $this->getVar('url_key_val', null);
+$itemName = $this->getVar('itemName', '{{articles}}');
 
 $firstPage = $pager->getFirstPage();
 $currentPage = $pager->getCurrentPage();
@@ -90,7 +91,7 @@ $isPageActive = fn($page) => $pager->isActivePage($page) ? ' text-white bg-accen
         </div>
 
         <div class="pager-total">
-            <?= sprintf('%s {{articles}}', $pager->getRowCount()) ?>
+            <?= sprintf('%s %s', $pager->getRowCount(), $itemName) ?>
         </div>
 
         </nav>

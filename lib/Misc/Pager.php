@@ -17,9 +17,9 @@ use rex_pager;
 class Pager extends rex_pager
 {
 
-    protected $rowCount;
-    protected $rowsPerPage;
-    protected $cursorName;
+    protected ?int $rowCount;
+    protected int $rowsPerPage;
+    protected string $cursorName;
 
     /**
      * Constructs a rex_pager.

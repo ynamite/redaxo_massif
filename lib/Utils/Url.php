@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ynamite\Massif\Utils;
 
 use FriendsOfRedaxo\MForm\Utils\MFormOutputHelper;
+use Url as UrlManager;
 
 use Exception;
 
@@ -13,10 +14,10 @@ use rex_fragment;
 use rex_path;
 use rex_url;
 use rex_yform_manager_dataset;
-use Url as RedaxoUrl;
 
 class Url
 {
+
   /**
    * Parse a URL and return its components.
    *
@@ -65,7 +66,7 @@ class Url
    * Get a custom link from the given URL and parameters.
    *
    * @param string $url
-   * @param array $params
+   * @param array $_params
    * 
    * @return array
    */
@@ -98,7 +99,8 @@ class Url
           throw $e;
         }
         if ($entry) {
-          $profile = array_shift(RedaxoUrl\Profile::getByTableName($table));
+          $profiles = UrlManager\Profile::getByTableName($table);
+          $profile = array_shift($profiles);
           if ($profile) {
             $return['url'] = rex_getUrl(null, null, [$profile->getNamespace() => $id]);
             $return['type'] = 'ytable';
@@ -151,7 +153,7 @@ class Url
    * Parse a custom link from the given URL and parameters.
    *
    * @param string $url
-   * @param array $params
+   * @param string $label
    * 
    * @return array
    */
