@@ -81,6 +81,7 @@ class RexUrl
         self::$urlManagerData[$ns]['ns-id'] = $profile->getId();
         self::$urlManagerData[$ns]['ns'] = $profile->getNamespace();
         self::$urlManagerData[$ns]['table-name'] = $profile->getTableName();
+        self::$urlManagerData[$ns]['dataset'] = $manager->getDataset();
         // $pageClass .= ' url-manager-page url-profile-' . $profile->getNamespace();
         if ($manager->isUserPath()) {
           $segments = $manager->getUrl()->getSegments();
