@@ -93,7 +93,7 @@ class Usability
           if ($value !== '') {
             return $params['list']->getColumnLink(
               $field,
-              '<img src="index.php?rex_media_type=rex_media_small&rex_media_file=' . rex_escape($value) . '" class="thumbnail" style="max-width: 150px; margin-bottom: 0" />'
+              '<img src="index.php?rex_media_type=rex_media_small&rex_media_file=' . rex_escape($value) . '" class="thumbnail" loading="lazy" style="max-width: 150px; margin-bottom: 0" />'
             );
           }
 
