@@ -50,17 +50,17 @@ $rest = array_diff_key($imageOptions, array_flip($paramNames));
       } ?>
     </div>
     <?php if ($controls && rex::isFrontend()) { ?>
-      <div class="swiper-controls">
+      <div class="swiper-controls" x-data="swipers" x-cloak x-show="inited">
         <?php if ($dirNav) { ?>
-          <div class="absolute swiper-button-prev">
+          <div class="swiper-button-prev">
             <?php echo $prevIcon; ?>
           </div>
-          <div class="absolute swiper-button-next">
+          <div class="swiper-button-next">
             <?php echo $nextIcon; ?>
           </div>
         <?php } ?>
         <?php if ($pager) { ?>
-          <div class="absolute swiper-pagination"></div>
+          <div class="swiper-pagination"></div>
         <?php } ?>
       </div>
     <?php } ?>
