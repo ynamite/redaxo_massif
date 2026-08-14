@@ -1,12 +1,11 @@
 <?php
 
 use Ynamite\Massif\Utils;
-use Ynamite\Massif\Media;
+use Ynamite\Media\Image;
 
 $swiperType = $this->getVar('swiperType', 'default');
 $images = $this->getVar('images', []);
 $imageOptions = $this->getVar('imageOptions', []);
-$imageClassName = $this->getVar('imageClassName', '');
 $priorityFirstImage = $this->getVar('priorityFirstImage', true);
 $slideCallback = $this->getVar('slideCallback', null);
 $content = $this->getVar('content', '');
@@ -18,13 +17,6 @@ $nextIcon = $this->getVar('nextIcon', '<i class="icon">▶</i>');
 $wrap = $this->getVar('wrap', true);
 $className = $this->getVar('className', '');
 
-
-$reflection = new ReflectionMethod(Media\Media::class, 'factory');
-$params = $reflection->getParameters();
-$paramNames = array_filter(array_map(fn($p) => $p->getName() !== 'wrapperClassName' ? $p->getName() : null, $params));
-$args = array_intersect_key($imageOptions, array_flip($paramNames));
-$rest = array_diff_key($imageOptions, array_flip($paramNames));
-
 ?>
 <?php if ($wrap) { ?>
   <div class="swiper<?php if ($className) echo ' ' . $className; ?>" data-swiper-type="<?php echo $swiperType; ?>">
@@ -34,19 +26,19 @@ $rest = array_diff_key($imageOptions, array_flip($paramNames));
       <?php if ($content) echo $content;
       else foreach ($images as $key => $img) {
 
-        $resolvedArgs = array_merge($args, ['src' => $img, 'loading' => $args['loading'] ?? ($priorityFirstImage && $key == 0 ? 'eager' : 'lazy'), 'sizes' => $args['sizes'] ?? '100vw']);
-        $media = Media\Media::factory(...$resolvedArgs);
-        if (!$media) {
-          continue;
-        }
-        foreach ($rest as $key => $value) {
-          $media->setConfig($key, $value);
-        }
-        if ($slideCallback && is_callable($slideCallback)) {
-          $slideCallback($media, $key);
-        }
+        $image = Image::picture(
+          src: $img,
+          alt: $imageOptions['alt'] ?? '',
+          sizes: $imageOptions['sizes'] ?? '',
+          ratio: $imageOptions['ratio'] ?? null,
+          loading: $imageOptions['loading'] ?? ($priorityFirstImage && $key === 0 ? 'eager' : 'lazy'),
+          class: $imageOptions['class'] ?? null,
+          fit: $imageOptions['fit'] ?? null,
+          width: $imageOptions['width'] ?? null,
+          height: $imageOptions['height'] ?? null,
+        );
 
-        echo Utils\Rex::parse('massif-swiper-slide', ['idx' => $key, 'content' => $media->render()]);
+        echo Utils\Rex::parse('massif-swiper-slide', ['idx' => $key, 'content' => $image]);
       } ?>
     </div>
     <?php if ($controls && rex::isFrontend()) { ?>
