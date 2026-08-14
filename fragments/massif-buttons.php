@@ -3,7 +3,8 @@
 use Ynamite\Massif\Utils;
 
 $items = $this->getVar('items', '');
-$buttons = array_filter(json_decode(html_entity_decode($items, ENT_QUOTES | ENT_HTML5, 'UTF-8'), true)) ?? [];
+$array = json_decode(html_entity_decode($items, ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
+$buttons = is_array($array) ? array_filter($array) : [];
 
 if (count($buttons) > 0) {
 ?>
