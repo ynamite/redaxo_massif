@@ -37,7 +37,7 @@
 			for (const node of Array.from(from.childNodes)) {
 				if (node.nodeType === Node.TEXT_NODE) {
 					const text = node.nodeValue.replace(/[\r\n\t]+/g, " ");
-					if (text) to.appendChild(document.createTextNode(text));
+					if (text !== "") to.appendChild(document.createTextNode(text));
 					continue;
 				}
 				if (node.nodeType !== Node.ELEMENT_NODE) continue;

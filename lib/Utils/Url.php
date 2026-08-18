@@ -192,12 +192,14 @@ class Url
       $link = is_array($entry) ? ($entry['link'] ?? '') : $entry;
       // the custom link widget hands back an array in some configurations
       if (is_array($link)) $link = $link['link'] ?? $link['customlink_url'] ?? '';
-      if (!is_string($link) || '' === trim($link)) continue;
+      // scalar, not string: legacy values stored an article id as a JSON number
+      if (!is_scalar($link) || '' === trim((string) $link)) continue;
 
-      $parsed = self::parseCustomLink(trim($link));
+      $parsed = self::parseCustomLink(trim((string) $link));
       if ('' === (string) ($parsed['customlink_url'] ?? '')) continue;
 
-      $label = is_array($entry) ? trim((string) ($entry['label'] ?? '')) : '';
+      $rawLabel = is_array($entry) ? ($entry['label'] ?? '') : '';
+      $label = is_string($rawLabel) ? trim($rawLabel) : '';
       $buttons[] = [
         'url' => (string) $parsed['customlink_url'],
         'target' => (string) $parsed['customlink_target'],
