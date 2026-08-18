@@ -1,0 +1,68 @@
+/* MASSIF rich input — toolbar + single-line contenteditable for `<input data-rich>`.
+   Dark-theme selectors mirror be_style: explicit class, plus the system-preference
+   variant guarded on the light class. */
+
+.rich-input-bar {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 5px;
+}
+
+.rich-input-btn {
+	font-size: 12px;
+	line-height: 1.2;
+	min-width: 32px;
+	padding: 4px 8px;
+}
+
+.rich-input-btn[aria-pressed="true"] {
+	background-color: rgba(95, 163, 221, .2);
+	border-color: rgba(95, 163, 221, .55);
+}
+
+/* Single line on purpose: this replaces text inputs, Enter is blocked. */
+.rich-input-editor {
+	cursor: text;
+	height: auto;
+	min-height: 34px;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+
+/* WYSIWYG: what the editor sees is what the frontend renders. */
+.rich-input-editor em {
+	color: #5fa3dd;
+	font-style: italic;
+}
+
+.rich-input-editor strong {
+	font-weight: 700;
+}
+
+.rich-input-editor mark,
+.rich-input-btn mark {
+	background-color: rgba(255, 214, 0, .35);
+	border-radius: 2px;
+	color: inherit;
+	padding: 0 .15em;
+}
+
+body.rex-theme-dark .rich-input-editor em {
+	color: #7fb8e8;
+}
+
+body.rex-theme-dark .rich-input-editor mark,
+body.rex-theme-dark .rich-input-btn mark {
+	background-color: rgba(255, 214, 0, .22);
+}
+
+@media (prefers-color-scheme: dark) {
+	body:not(.rex-theme-light) .rich-input-editor em {
+		color: #7fb8e8;
+	}
+
+	body:not(.rex-theme-light) .rich-input-editor mark,
+	body:not(.rex-theme-light) .rich-input-btn mark {
+		background-color: rgba(255, 214, 0, .22);
+	}
+}

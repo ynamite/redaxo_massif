@@ -45,6 +45,7 @@ rex_api_function::register('upload_files', Form\Api\Upload::class);
 if (rex::isBackend() && rex::getUser()) {
     rex_view::addCssFile($this->getAssetsUrl('css/style.css'));
     rex_view::addJsFile($this->getAssetsUrl('js/scripts.js'));
+    rex_view::addJsFile($this->getAssetsUrl('js/rich-input.js'));
 }
 
 rex_fragment::addDirectory($this->getPath('fragments'));

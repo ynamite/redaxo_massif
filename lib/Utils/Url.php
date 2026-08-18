@@ -169,4 +169,42 @@ class Url
     $customLink['customlink_url'] = $customLink['customlink_url'] . ($hash ? '#' . $hash : '');
     return $customLink;
   }
+
+  /**
+   * Decode a button field (a REX_VALUE holding JSON) into ready-to-render buttons.
+   *
+   * Two storage shapes are accepted, so old slices keep working after a module
+   * switches its field over:
+   *  - legacy: `["rex://12", "…"]` — a flat list of links, label derived from the target
+   *  - mblock: `[{"link": "rex://12", "label": "Mehr erfahren"}, …]` — optional custom label
+   *
+   * @param string $value
+   *
+   * @return list<array{url: string, target: string, label: string}>
+   */
+  public static function parseButtons(string $value = ''): array
+  {
+    $decoded = json_decode(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
+    if (!is_array($decoded)) return [];
+
+    $buttons = [];
+    foreach ($decoded as $entry) {
+      $link = is_array($entry) ? ($entry['link'] ?? '') : $entry;
+      // the custom link widget hands back an array in some configurations
+      if (is_array($link)) $link = $link['link'] ?? $link['customlink_url'] ?? '';
+      if (!is_string($link) || '' === trim($link)) continue;
+
+      $parsed = self::parseCustomLink(trim($link));
+      if ('' === (string) ($parsed['customlink_url'] ?? '')) continue;
+
+      $label = is_array($entry) ? trim((string) ($entry['label'] ?? '')) : '';
+      $buttons[] = [
+        'url' => (string) $parsed['customlink_url'],
+        'target' => (string) $parsed['customlink_target'],
+        'label' => '' !== $label ? $label : (string) $parsed['customlink_text'],
+      ];
+    }
+
+    return $buttons;
+  }
 }
