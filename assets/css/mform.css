@@ -11,3 +11,6 @@
 	width: 100% !important;
 	text-align: left !important;
 }
+.mform-list-toolbar {
+	max-width: min-content;
+}
