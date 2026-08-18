@@ -117,10 +117,11 @@ if (rex::isBackend() && rex::getUser() && rex_plugin::get('yform', 'manager')) {
         $pages = $ep->getSubject();
         $highAddOns = [
             'project',
+            'media_manager',
             'metainfo',
+            'navbuilder',
             'massif_settings',
             'yform',
-            'media_manager',
         ];
         $highAddOnPages = [];
         $lowAddOnPages = [];
