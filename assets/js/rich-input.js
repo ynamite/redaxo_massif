@@ -11,9 +11,9 @@
 	"use strict";
 
 	const TAGS = {
-		strong: { title: "Fett", label: "F" },
-		em: { title: "Kursiv", label: "K" },
-		mark: { title: "Hervorheben", label: "H" },
+		strong: { title: "Fett", label: "Fett" },
+		em: { title: "Kursiv", label: "Kursiv" },
+		mark: { title: "Hervorheben", label: "Highlight" },
 	};
 	const ALL = Object.keys(TAGS);
 
