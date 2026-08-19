@@ -6,7 +6,7 @@ use Ynamite\Media\Image;
 $swiperType = $this->getVar('swiperType', 'default');
 $images = $this->getVar('images', []);
 $imageOptions = $this->getVar('imageOptions', []);
-$priorityFirstImage = $this->getVar('priorityFirstImage', true);
+$priorityFirstImage = ($imageOptions['fetchpriority'] ?? null) === 'high';
 $slideCallback = $this->getVar('slideCallback', null);
 $content = $this->getVar('content', '');
 $pager = $this->getVar('pager', false);
@@ -32,6 +32,7 @@ $className = $this->getVar('className', '');
           sizes: $imageOptions['sizes'] ?? '',
           ratio: $imageOptions['ratio'] ?? null,
           loading: $imageOptions['loading'] ?? ($priorityFirstImage && $key === 0 ? 'eager' : 'lazy'),
+          fetchPriority: $imageOptions['fetchpriority'] ?? 'auto',
           class: $imageOptions['class'] ?? null,
           fit: $imageOptions['fit'] ?? null,
           width: $imageOptions['width'] ?? null,
