@@ -19,6 +19,7 @@ class RexUrl
    *     ns-id: int,
    *     ns: string,
    *     table-name: ?string,
+   *     dataset: ?rex_yform_manager_dataset,
    *     user-path: ?string
    * }
    */
@@ -76,6 +77,11 @@ class RexUrl
     $manager = UrlManager\Url::resolveCurrent();
     if ($manager) {
       if ($profile = $manager->getProfile()) {
+        if ($ns && $profile->getNamespace() !== $ns) {
+          // requested namespace doesn't match the resolved profile — don't
+          // cache foreign data under the caller's key
+          return [];
+        }
         $ns = $ns ? $ns : $profile->getNamespace();
         self::$urlManagerData[$ns] = [];
         self::$urlManagerData[$ns]['url'] = $manager->getUrl()->getPath();
