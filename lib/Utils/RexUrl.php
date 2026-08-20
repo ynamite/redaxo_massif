@@ -27,12 +27,14 @@ class RexUrl
 
   /**
    * Check if the given dataset is online.
+   * Redirects to the notfound article (and exits) when the dataset is
+   * missing or offline.
    *
-   * @param rex_yform_manager_dataset $dataset
-   * 
+   * @param rex_yform_manager_dataset|null $dataset
+   *
    * @return bool
    */
-  public static function isOnline(rex_yform_manager_dataset $dataset): bool
+  public static function isOnline(?rex_yform_manager_dataset $dataset = null): bool
   {
     $isOnline = false;
     if ($dataset) {
