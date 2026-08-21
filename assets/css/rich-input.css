@@ -29,6 +29,14 @@
 	white-space: nowrap;
 }
 
+/* Textareas get the multiline variant: Enter inserts <br>, breaks are kept. */
+.rich-input-editor--multiline {
+	min-height: 96px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	white-space: normal;
+}
+
 /* WYSIWYG: what the editor sees is what the frontend renders. */
 .rich-input-editor em {
 	color: #5fa3dd;
