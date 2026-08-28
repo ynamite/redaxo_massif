@@ -227,7 +227,7 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
     $files = $this->getTempFiles();
     $zip = '';
     if (count($files) > 0) {
-      $zip = self::zipUploads($files);
+      $zip = $this->zipUploads($files);
     }
     return $zip;
   }
@@ -239,7 +239,8 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
     if (!is_dir($path)) {
       rex_dir::create($path);
     }
-    $filename = 'bewerbungsunterlagen-' . date('Y-m-d_His') . '.zip';
+    $prefix = $this->getElement('zip_name') ?: 'bewerbungsunterlagen';
+    $filename = $prefix . '-' . date('Y-m-d_His') . '.zip';
     $zip->open($path . $filename, ZipArchive::CREATE);
     foreach ($files as $file) {
       $zip->addFile($file, basename($file));
@@ -269,6 +270,7 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
         'min_file_size' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_sizes')],
         'tmp_folder' => ['type' => 'text',      'label' => 'Temporäres Verzeichnis'],
         'upload_folder' => ['type' => 'text',      'label' => 'Upload Verzeichnis'],
+        'zip_name' => ['type' => 'text',      'label' => 'Zip-Dateiname (Präfix)'],
         /*,
                 'required' => ['type' => 'boolean', 'label' => rex_i18n::msg('yform_values_upload_required')],
                 'messages' => ['type' => 'text',    'label' => rex_i18n::msg('yform_values_upload_messages')],

@@ -1,5 +1,19 @@
 # Changelog
 
+## **Version 3.1.0**
+
+### Added
+
+- **`multi_file_upload` yform value** — generic Dropzone multi-file upload (subclass of `mupload`) with configurable `zip_name` prefix and `upload_folder`; the dataset list links downloads through the new gated API.
+- **`massif_download` API** (`Form\Api\Download`) — backend-session-gated download for `mupload`/`multi_file_upload` values (`?rex-api-call=massif_download&table_name=…&field=…&data_id=…`). Resolves the path from the field's `upload_folder` element with a realpath containment check.
+
+### Changed
+
+- **`mupload`** — zip filename prefix is configurable via the new `zip_name` element (default stays `bewerbungsunterlagen`); `handleUploads()` now calls `$this->zipUploads()` so subclasses can override the zip step.
+- **`value.mupload.tpl.php`** — inline SVG for the remove icon instead of the project-level `icons/icon` fragment (removed a hidden addon→project dependency); the backend view links the stored file through `massif_download` instead of the session-scoped tmp URL and no longer renders the broken delete link.
+- **`Form::send_yform_email_template()`** — `multi_file_upload` added to the default `skip_field_types`.
+
+
 ## **Version 3.0.0**
 
 Breaking release. The `frontend/` half — MASSIF's page templates, content modules and asset sources — is extracted out of this addon. It now lives in the standalone **`viterex-massif-preset`** repo and is installed by `create-viterex`'s "Install preset frontend" pipeline task. This addon is backend-only again (media helpers, navigation builder, YForm extensions, MASSIF Settings, R4→R5 converter, MarkItUp/Redactor parsing, file uploads, the `MASSIF Auto-Effekt` media manager effect).

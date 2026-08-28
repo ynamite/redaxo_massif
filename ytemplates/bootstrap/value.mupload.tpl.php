@@ -34,7 +34,7 @@
                 <div class="file-size" data-dz-size>
                 </div>
                 <div data-dz-remove class="file-delete" title="Datei entfernen">
-                    <?= Ynamite\Massif\Utils\Rex::parse('icons/icon', ['icon' => 'plus', 'class' => 'rotate-45', 'width' => 12, 'height' => 12]); ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 1l10 10M11 1L1 11" /></svg>
                 </div>
             </div>
         </div>
@@ -71,51 +71,21 @@
     if (!isset($value)) {
         $value = $this->getValue();
     }
-    $class_group = 'form-group yform-element';
 
-    $class_label[] = 'control-label';
-    $field_before = '';
-    $field_after = '';
+    $downloadUrl = rex_url::backendController([
+        'rex-api-call' => 'massif_download',
+        'table_name' => rex_request('table_name', 'string'),
+        'field' => $this->getName(),
+        'data_id' => rex_request('data_id', 'int'),
+    ]);
 
-    $notice = $this->getElement('notice');
-
-    if (trim($this->getElement('grid')) != '') {
-        $grid = explode(',', trim($this->getElement('grid')));
-
-        if (isset($grid[0]) && $grid[0] != '') {
-            $class_label[] = trim($grid[0]);
-        }
-
-        if (isset($grid[1]) && $grid[1] != '') {
-            $field_before = '<div class="' . trim($grid[1]) . '">';
-            $field_after = '</div>';
-        }
+    echo '<div class="form-group yform-element" id="' . $this->getHTMLId() . '">
+    <label class="control-label" for="' . $this->getFieldId() . '">' . $this->getLabel() . '</label><br />';
+    if ($value) {
+        echo '<a href="' . $downloadUrl . '" download>' . rex_escape(basename($value)) . '</a>';
+    } else {
+        echo '–';
     }
-
-    $attributes = [
-        'href' => rex_yform_value_mupload::getDownloadUrl($value),
-        'download' => 'true',
-        'id' => $this->getFieldId()
-    ];
-
-
-    $attributesInput = [
-        'name' => $this->getFieldName(),
-        'type' => 'hidden',
-        'id' => $this->getFieldId(),
-        'value' => $value
-    ];
-
-    $attributes = $this->getAttributeElements($attributes, ['placeholder', 'autocomplete', 'pattern', 'required', 'disabled', 'readonly']);
-    $attributesInput = $this->getAttributeElements($attributesInput);
-    //'onclick', 'return confirm(\' [###type_id###, ###type_name###, ###name###] ' . rex_i18n::msg('yform_delete') . ' ?\')');
-
-    echo '<div class="' . $class_group . '" id="' . $this->getHTMLId() . '">
-    <label class="' . implode(' ', $class_label) . '" for="' . $this->getFieldId() . '">' . $this->getLabel() . '</label>
-    ' . $field_before . '<br /><a ' . implode(' ', $attributes) . '>' . basename($value) . '</a>' .
-        '<input ' . implode(' ', $attributesInput) . '/>' .
-        $notice . ' – ';
-    echo rex_yform_value_mupload::getDeleteLink(rex_request('data_id', 'int'), $value, false) . ' ';
-    echo $field_after .
-        '</div>';
+    echo '<input type="hidden" name="' . $this->getFieldName() . '" id="' . $this->getFieldId() . '" value="' . rex_escape($value, 'html_attr') . '" />
+    </div>';
 } ?>
