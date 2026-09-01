@@ -47,7 +47,7 @@
             </div>
         </div>
         <div hidden>
-            <input type="file" id="input-<?= $this->getHTMLId() ?>" name=" files[]" <?= implode(' ', $attributes) ?> multiple hidden inert data-max-file-size="<?= $this->MAX_FILE_SIZE ?>" data-accepted-files="<?= $this->getDropzoneFileTypes() ?>" />
+            <input type="file" id="input-<?= $this->getHTMLId() ?>" name="files[]" <?= implode(' ', $attributes) ?> multiple hidden inert data-max-file-size="<?= $this->MAX_FILE_SIZE ?>" data-accepted-files="<?= $this->getDropzoneFileTypes() ?>" />
         </div>
         <p class="file-info"><?= $this->getFormattedFileTypes() ?>, max <?= ceil(intval($this->MAX_FILE_SIZE) / 1000 / 1000) ?> MB pro Datei</p>
         <?php
