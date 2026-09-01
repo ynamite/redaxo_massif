@@ -19,7 +19,7 @@
 
 ?>
     <div class="form-group form-group-mupload <?php if ($warning_class) echo ' ' . $warning_class; ?>" id="<?= $this->getHTMLId() ?>">
-        <label for="fileupload has-icon"><?= $this->getLabel() ?></label>
+        <label for="input-<?= $this->getHTMLId() ?>" class="has-icon"><?= $this->getLabel() ?></label>
         <div data-dropzone-template>
             <div class="file-row">
                 <div>
@@ -34,7 +34,9 @@
                 <div class="file-size" data-dz-size>
                 </div>
                 <div data-dz-remove class="file-delete" title="Datei entfernen">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 1l10 10M11 1L1 11" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path d="M1 1l10 10M11 1L1 11" />
+                    </svg>
                 </div>
             </div>
         </div>
@@ -45,7 +47,7 @@
             </div>
         </div>
         <div hidden>
-            <input type="file" name="files[]" <?= implode(' ', $attributes) ?> multiple hidden inert data-max-file-size="<?= $this->MAX_FILE_SIZE ?>" data-accepted-files="<?= $this->getDropzoneFileTypes() ?>" />
+            <input type="file" id="input-<?= $this->getHTMLId() ?>" name=" files[]" <?= implode(' ', $attributes) ?> multiple hidden inert data-max-file-size="<?= $this->MAX_FILE_SIZE ?>" data-accepted-files="<?= $this->getDropzoneFileTypes() ?>" />
         </div>
         <p class="file-info"><?= $this->getFormattedFileTypes() ?>, max <?= ceil(intval($this->MAX_FILE_SIZE) / 1000 / 1000) ?> MB pro Datei</p>
         <?php
