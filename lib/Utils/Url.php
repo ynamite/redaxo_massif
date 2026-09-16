@@ -185,8 +185,12 @@ class Url
   public static function parseButtons(string $value = ''): array
   {
     $decoded = json_decode(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'), true);
-    if (!is_array($decoded)) return [];
-
+    if (!is_array($decoded)) {
+      $decoded = [$value];
+      if (empty($decoded)) {
+        return [];
+      }
+    }
     $buttons = [];
     foreach ($decoded as $entry) {
       $link = is_array($entry) ? ($entry['link'] ?? '') : $entry;
