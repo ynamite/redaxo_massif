@@ -19,7 +19,7 @@ $className = $this->getVar('className', '');
 
 ?>
 <?php if ($wrap) { ?>
-  <div class="swiper<?php if ($className) echo ' ' . $className; ?>" data-swiper-type="<?php echo $swiperType; ?>">
+  <div class="swiper<?php if ($className) echo ' ' . $className; ?>" x-data="swipers" data-swiper-type="<?php echo $swiperType; ?>">
   <?php } ?>
   <div class="swiper-container">
     <div class="swiper-wrapper">
@@ -43,7 +43,7 @@ $className = $this->getVar('className', '');
       } ?>
     </div>
     <?php if ($controls && rex::isFrontend()) { ?>
-      <div class="swiper-controls" x-data="swipers" x-cloak x-show="inited">
+      <div class="swiper-controls" x-cloak x-show="isInited">
         <?php if ($dirNav) { ?>
           <div class="swiper-button-prev">
             <?php echo $prevIcon; ?>
