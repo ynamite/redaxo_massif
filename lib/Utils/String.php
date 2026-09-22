@@ -46,4 +46,17 @@ class Strings
 
     return $trimmed_text;
   }
+
+  public static function truncate(string $text, int $length): string
+  {
+    if ($length >= \strlen($text)) {
+      return $text;
+    }
+
+    return preg_replace(
+      "/^(.{1,$length})(\s.*|$)/s",
+      '\\1...',
+      $text
+    );
+  }
 }
