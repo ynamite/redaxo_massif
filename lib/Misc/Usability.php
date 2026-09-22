@@ -7,6 +7,7 @@ use rex_extension;
 use rex_extension_point;
 use rex_fragment;
 use rex_i18n;
+use rex_media;
 
 class Usability
 {
@@ -21,6 +22,7 @@ class Usability
     $tableName = $table->getTableName();
 
     $addColumnLink = []; // ['rex_yf_member_links' => ['name', 'place'], 'rex_yf_team' => ['name', 'role']]
+    $addMediaLink = []; // ['rex_yf_member_links' => ['name', 'place'], 'rex_yf_team' => ['name', 'role']]
     $addColumnImage = []; // ['rex_yf_member_links' => 'logo', 'rex_yf_team' => 'img', 'rex_yf_gallery' => 'image']
     $removeColumnId = []; // ['rex_yf_member_links', 'rex_yf_team', 'rex_yf_ticker', 'rex_yf_sponsor', 'rex_yf_mail_log', 'rex_yf_job', 'rex_yf_time'];
     $checkboxesYformTables = [];
@@ -28,6 +30,7 @@ class Usability
 
     $epData = rex_extension::registerPoint(new rex_extension_point('MASSIF_USABILITY_LISTS', [
       'addColumnLink' => $addColumnLink,
+      'addMediaLink' => $addMediaLink,
       'addColumnImage' => $addColumnImage,
       'removeColumnId' => $removeColumnId,
       'checkboxesYformTables' => $checkboxesYformTables,
@@ -38,6 +41,7 @@ class Usability
       'list' => $list,
     ]));
     $addColumnLink = $epData['addColumnLink'];
+    $addMediaLink = $epData['addMediaLink'];
     $addColumnImage = $epData['addColumnImage'];
     $removeColumnId = $epData['removeColumnId'];
     $checkboxesYformTables = $epData['checkboxesYformTables'];
@@ -123,6 +127,28 @@ class Usability
               }
             }
             return $params['list']->getColumnLink($f, $value);
+          });
+        }
+      }
+    }
+
+    foreach ($addMediaLink as $table => $field) {
+      if ($tableName == $table) {
+        $field = is_array($field) ? $field : [$field];
+        foreach ($field as $f) {
+          $list->setColumnParams($f, ['func' => 'edit', 'data_id' => '###id###', 'table' => $table, \rex_csrf_token::PARAM => $_csrf_params]);
+          $currentFormat = $list->getColumnFormat($f);
+          $type = $currentFormat[1][0] ?? null;
+          $list->setColumnFormat($f, 'custom', function ($params) use ($f, $currentFormat, $type) {
+            $value = $params['list']->getValue($f);
+            $media = rex_media::get($value);
+            if ($currentFormat[0] == 'custom') {
+              $formattedValue = call_user_func($currentFormat[1], $params);
+              if (str_starts_with($type, 'rex_yform_value_lang_')) {
+                $formattedValue = explode(' | ', $value)[0];
+              }
+            }
+            return $media ? '<a href="' . $media->getUrl() . '" target="_blank">' . $formattedValue . '</a>' : '<a href="' . $value . '" target="_blank">' . $formattedValue . '</a>';
           });
         }
       }
