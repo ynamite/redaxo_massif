@@ -65,6 +65,11 @@ rex_extension::register('PACKAGES_INCLUDED', function (rex_extension_point $ep) 
         rex_addon::get('yform')->isAvailable()
     ) {
         rex_yform::addTemplatePath($this->getPath('ytemplates'));
+
+        // TinyMCE link_yform markers (rex-yf-foo://1) → real URLs
+        if (rex::isFrontend()) {
+            rex_extension::register('OUTPUT_FILTER', Utils\YFormLinks::ep(...));
+        }
     }
 
     // rex_extension::register('REDACTOR_PLUGIN_DIR', Redactor\Extension::register(...));

@@ -6,6 +6,7 @@
 
 - **`multi_file_upload` yform value** — generic Dropzone multi-file upload (subclass of `mupload`) with configurable `zip_name` prefix and `upload_folder`; the dataset list links downloads through the new gated API.
 - **`massif_download` API** (`Form\Api\Download`) — backend-session-gated download for `mupload`/`multi_file_upload` values (`?rex-api-call=massif_download&table_name=…&field=…&data_id=…`). Resolves the path from the field's `upload_folder` element with a realpath containment check.
+- **TinyMCE `link_yform` resolution** (`Utils\YFormLinks`) — frontend `OUTPUT_FILTER` that replaces `href="rex-yf-foo://1"` markers with real URLs, no per-table config: the dataset model's `getUrl()` first, then the url-addon profile of the table. Unresolvable markers are left untouched.
 
 ### Changed
 
