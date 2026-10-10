@@ -96,9 +96,14 @@ class Usability
           }
 
           if ($value !== '') {
+            // SVGs have no intrinsic size (they collapse without a width) and are often white or black on transparent:
+            // full cell width up to 150px on a mid grey, so light and dark logos both stay visible
+            $style = 'svg' === strtolower(pathinfo($value, PATHINFO_EXTENSION))
+              ? 'width: 100%; max-width: 150px; margin-bottom: 0; padding: 6px; background-color: #808080'
+              : 'max-width: 150px; margin-bottom: 0';
             return $params['list']->getColumnLink(
               $field,
-              '<img src="' . rex_escape(self::previewUrl($value)) . '" class="thumbnail" loading="lazy" style="max-width: 150px; margin-bottom: 0" />'
+              '<img src="' . rex_escape(self::previewUrl($value)) . '" class="thumbnail" loading="lazy" style="' . $style . '" />'
             );
           }
 

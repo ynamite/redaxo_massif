@@ -16,7 +16,7 @@
 
 ### Fixed
 
-- **YForm list image previews (`MASSIF_USABILITY_LISTS` → `addColumnImage`)** — SVGs showed a broken image because the `rex_media_small` media manager type can't render them. The new `Usability::previewUrl()` renders previews through `massif_media` when it is available: raster images are resized to 300px for the 150px preview, and SVG/GIF are passed through. Without `massif_media`, raster previews still use `rex_media_small` and SVGs use the raw media URL.
+- **YForm list image previews (`MASSIF_USABILITY_LISTS` → `addColumnImage`)** — SVGs showed a broken image because the `rex_media_small` media manager type can't render them. The new `Usability::previewUrl()` renders previews through `massif_media` when it is available: raster images are resized to 300px for the 150px preview, and SVG/GIF are passed through. Without `massif_media`, raster previews still use `rex_media_small` and SVGs use the raw media URL. SVG previews get the full cell width (up to 150px), because they have no intrinsic size, and a mid-grey background so light and dark logos both stay visible.
 
 
 ## **Version 3.0.0**
