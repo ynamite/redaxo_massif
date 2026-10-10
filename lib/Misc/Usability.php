@@ -99,7 +99,7 @@ class Usability
             // SVGs have no intrinsic size (they collapse without a width) and are often white or black on transparent:
             // full cell width up to 150px on a light/dark checkerboard, so light and dark logos both stay visible
             $style = 'svg' === strtolower(pathinfo($value, PATHINFO_EXTENSION))
-              ? 'width: 100%; max-width: 150px; margin-bottom: 0; padding: 6px; background: repeating-conic-gradient(#bbb 0 25%, #666 0 50%) 0 0 / 16px 16px'
+              ? 'width: 100%; max-width: 150px; margin-bottom: 0; padding: 6px; background: repeating-conic-gradient(#bbb 0 25%, #888 0 50%) 0 0 / 16px 16px'
               : 'max-width: 150px; margin-bottom: 0';
             return $params['list']->getColumnLink(
               $field,
