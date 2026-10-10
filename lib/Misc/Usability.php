@@ -3,6 +3,7 @@
 namespace Ynamite\Massif;
 
 use rex;
+use rex_addon;
 use rex_extension;
 use rex_extension_point;
 use rex_fragment;
@@ -97,7 +98,7 @@ class Usability
           if ($value !== '') {
             return $params['list']->getColumnLink(
               $field,
-              '<img src="index.php?rex_media_type=rex_media_small&rex_media_file=' . rex_escape($value) . '" class="thumbnail" loading="lazy" style="max-width: 150px; margin-bottom: 0" />'
+              '<img src="' . rex_escape(self::previewUrl($value)) . '" class="thumbnail" loading="lazy" style="max-width: 150px; margin-bottom: 0" />'
             );
           }
 
@@ -251,6 +252,25 @@ class Usability
       return self::getCustomColumn($name, $value, $params['list']->getValue('id'), $table);
     });
     return $list;
+  }
+
+  /**
+   * Thumbnail URL for list previews. massif_media when available (raster resized, SVG/GIF passed through);
+   * otherwise the media manager for raster files and the raw file for SVGs, which the media manager can't render.
+   */
+  public static function previewUrl(string $file): string
+  {
+    // only for files the pool knows: massif_media logs an ImageNotFoundException per missing file and returns ''
+    if (rex_addon::get('massif_media')->isAvailable() && rex_media::get($file)) {
+      $url = \Ynamite\Media\Image::url($file, width: 300); // 2x the 150px preview
+      if ($url !== '') {
+        return $url;
+      }
+    }
+    if ('svg' === strtolower(pathinfo($file, PATHINFO_EXTENSION))) {
+      return \rex_url::media($file);
+    }
+    return 'index.php?rex_media_type=rex_media_small&rex_media_file=' . rawurlencode($file);
   }
 
   public static function getCustomColumn($name, $value, $id, $table)

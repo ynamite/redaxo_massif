@@ -14,6 +14,10 @@
 - **`value.mupload.tpl.php`** — inline SVG for the remove icon instead of the project-level `icons/icon` fragment (removed a hidden addon→project dependency); the backend view links the stored file through `massif_download` instead of the session-scoped tmp URL and no longer renders the broken delete link.
 - **`Form::send_yform_email_template()`** — `multi_file_upload` added to the default `skip_field_types`.
 
+### Fixed
+
+- **YForm list image previews (`MASSIF_USABILITY_LISTS` → `addColumnImage`)** — SVGs showed a broken image because the `rex_media_small` media manager type can't render them. The new `Usability::previewUrl()` renders previews through `massif_media` when it is available: raster images are resized to 300px for the 150px preview, and SVG/GIF are passed through. Without `massif_media`, raster previews still use `rex_media_small` and SVGs use the raw media URL.
+
 
 ## **Version 3.0.0**
 
