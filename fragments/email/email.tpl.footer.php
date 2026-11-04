@@ -10,6 +10,6 @@
 <?php
 $recipient = $this->getVar('recipient', '');
 if ($recipient) echo $recipient;
-else echo '{{address_e-mail_html}}'; ?>
+else echo '{{address_email_formatted}}'; ?>
 <br />
 <?= \rex_yrewrite::getCurrentDomain() ?>
