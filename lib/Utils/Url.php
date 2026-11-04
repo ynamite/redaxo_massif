@@ -86,18 +86,20 @@ class Url
     $params = array_merge(['class' => ['cl-link']], $_params);
     $return['target'] = isset($params['target']) ? $params['target'] : '';
 
+    // the linkmap stores internal articles as redaxo://<id> (older widgets rex://<id>)
+    if (preg_match('~^(?:redaxo|rex)://(\d+)$~', $url, $match)) {
+      $url = $match[1];
+    }
+
     $ytable = explode('://', $url);
 
     $entry = null;
     if (is_array($ytable) && count($ytable) === 2) {
       $table = str_replace('-', '_', $ytable[0]);
       $id = intval($ytable[1]);
-      if ($id && $table) {
-        try {
-          $entry = rex_yform_manager_dataset::get($id, $table);
-        } catch (Exception $e) {
-          throw $e;
-        }
+      // only a real YForm table: "https://5x.example.com" would otherwise query a table named "https"
+      if ($id && $table && class_exists(rex_yform_manager_table::class) && rex_yform_manager_table::get($table)) {
+        $entry = rex_yform_manager_dataset::get($id, $table);
         if ($entry) {
           $profiles = UrlManager\Profile::getByTableName($table);
           $profile = array_shift($profiles);
