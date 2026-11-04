@@ -1,4 +1,5 @@
-.mform .form-group {
+/* :not(): MForm's conditional fields (setVisibleIf) hide a field with an inline display: none, which !important would override */
+.mform .form-group:not(.mform-conditional-hidden) {
 	display: block !important;
 }
 .mform .control-label {
