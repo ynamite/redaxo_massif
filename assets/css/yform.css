@@ -9,3 +9,65 @@
 	background: rgba(255, 255, 255, 0.3);
 	padding: 30px;
 }
+
+/* fields addon: tabs of fields_interactive (fields-interactive.js builds .fields-container-tabs > ul.nav-tabs +
+   .tab-content > .tab-pane). Bootstrap's boxed tabs fight both backend themes (a white active tab in the dark theme)
+   and glue the first field to the tab line. Underline tabs inherit the text colour, so light and dark both work. The doubled
+   class outranks be_style's `body.rex-theme-dark .nav-tabs > li > a:hover`. */
+.fields-container-tabs > .nav-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 28px;
+	margin: 0 0 24px;
+	border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+	padding: 0;
+	list-style: none;
+}
+
+.fields-container-tabs > .nav-tabs::before,
+.fields-container-tabs > .nav-tabs::after {
+	display: none;
+}
+
+.fields-container-tabs > .nav-tabs > li {
+	float: none;
+	margin: 0 0 -1px;
+}
+
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li > a,
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li > a:hover,
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li > a:focus,
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li.active > a,
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li.active > a:hover,
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li.active > a:focus {
+	margin: 0;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	border-radius: 0;
+	background: none;
+	padding: 10px 0 9px;
+	color: inherit;
+	text-decoration: none;
+}
+
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li > a {
+	opacity: 0.6;
+	transition: opacity 150ms, border-color 150ms;
+}
+
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li > a:hover {
+	opacity: 0.9;
+}
+
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li.active > a,
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li.active > a:hover,
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li.active > a:focus {
+	border-bottom-color: currentcolor;
+	font-weight: 600;
+	opacity: 1;
+}
+
+.fields-container-tabs.fields-container-tabs > .nav-tabs > li > a:focus-visible {
+	outline: 2px solid currentcolor;
+	outline-offset: 2px;
+}
