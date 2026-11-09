@@ -30,6 +30,25 @@ $moduleCategories = [
 $items = $this->getVar("items");
 $newItems = [];
 
+$moduleNumber = static fn(array $item): int => (int)str_replace('* ', '', substr($item['title'], 0, 4));
+
+// Modules numbered 60–69 are once per page: hide those the article (current clang and revision) already uses.
+$articleId = rex_request('article_id', 'int');
+$clangId = rex_request('clang', 'int');
+$clangId = rex_clang::exists($clangId) ? $clangId : rex_clang::getStartId();
+$revision = rex_plugin::get('structure', 'version')->isAvailable() ? rex_article_revision::getSessionArticleRevision($articleId) : 0;
+$usedModules = array_map('intval', array_column(rex_sql::factory()->getArray(
+    'SELECT DISTINCT module_id FROM ' . rex::getTable('article_slice') . ' WHERE article_id = ? AND clang_id = ? AND revision = ?',
+    [$articleId, $clangId, $revision]
+), 'module_id'));
+$items = array_filter($items, static function (array $item) use ($moduleNumber, $usedModules): bool {
+    if (!isset($item['title'], $item['id'])) {
+        return true;
+    }
+    $number = $moduleNumber($item);
+    return $number < 60 || $number > 69 || !in_array((int)$item['id'], $usedModules, true);
+});
+
 $lastCatWritten = '';
 $catIdx = 0;
 
@@ -41,7 +60,7 @@ foreach ($moduleCategories as $catIdx => $cat) {
         if (!isset($item['title']) || !isset($item['id'])) {
             continue;
         }
-        $numericalValue = (int)str_replace('* ', '', substr($item['title'], 0, 4));
+        $numericalValue = $moduleNumber($item);
         if ($numericalValue >= $identifier && $numericalValue < $nextIdentifier) {
             if ($lastCatWritten != $cat) {
                 $newItems[] = ['header' => $cat['name']];
