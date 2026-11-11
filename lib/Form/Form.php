@@ -76,11 +76,15 @@ class Form
     $renderMail = static function (string $template, array $values) use ($form_elements): string {
       // Keep visitor braces out of the template processors without changing header/log values.
       $prefix = '0' . bin2hex(random_bytes(16));
-      array_walk_recursive($values, static function (&$value) use ($prefix): void {
-        if (is_string($value)) {
-          $value = strtr($value, ['{' => $prefix . 'open', '}' => $prefix . 'close']);
-        }
-      });
+      foreach ($form_elements as $key => $label) {
+        $visitorValues = array_intersect_key($values, [$key => true, $key . '_LABELS' => true]);
+        array_walk_recursive($visitorValues, static function (&$value) use ($prefix): void {
+          if (is_string($value)) {
+            $value = strtr($value, ['{' => $prefix . 'open', '}' => $prefix . 'close']);
+          }
+        });
+        $values = array_replace($values, $visitorValues);
+      }
       $body = sprogdown(settings_utils::replaceStrings(massif_utils\Rex::parse($template, ['values' => $values, 'form_elements' => $form_elements])));
       return strtr($body, [$prefix . 'open' => '&#123;', $prefix . 'close' => '&#125;']);
     };
@@ -117,7 +121,7 @@ class Form
       "mail_to" => $recipient,
       "mail_to_name" => $fromName,
       "subject" => $subject,
-      "body" => strip_tags($mailBody),
+      "body" => html_entity_decode(strip_tags($mailBody), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
       "body_html" => $mailBody,
       'attachments' => isset($values['attachments']) ? $values['attachments'] : [],
     ];
@@ -131,7 +135,7 @@ class Form
       $template['user']['mail_reply_to_name'] = $fromName;
       $template['user']['mail_to'] = $values['email'];
       $template['user']['mail_to_name'] = trim($values['fname'] . ' ' . $values['lname']) ? $values['fname'] . ' ' . $values['lname'] : $values['email'];
-      $template['user']['body'] = strip_tags($mailBody);
+      $template['user']['body'] = html_entity_decode(strip_tags($mailBody), ENT_QUOTES | ENT_HTML5, 'UTF-8');
       $template['user']['body_html'] = $mailBody;
     }
 
