@@ -3,8 +3,10 @@
 namespace Ynamite\Massif;
 
 use rex;
+use rex_exception;
+use rex_logger;
 use rex_sql;
-use rex_var_dumper;
+use rex_yform_action_abstract;
 use rex_yform_email_template;
 use Ynamite\Massif\Utils as massif_utils;
 use Ynamite\MassifSettings\Utils as settings_utils;
@@ -16,7 +18,7 @@ class Form
 	*	send email with template
 	*/
 
-  public static function send_yform_email_template($from, $fromName, $recipient, $subject, $values, $_form_elements, $params = [])
+  public static function send_yform_email_template($from, $fromName, $recipient, $subject, $values, $_form_elements, $params = []): bool
   {
 
     if (rex::isDebugMode()) {
@@ -122,13 +124,28 @@ class Form
       $template['user']['body_html'] = $mailBody;
     }
 
+    $sent = true;
     foreach ($template as $tpl) {
 
       if (!rex_yform_email_template::sendMail($tpl, $tpl['name'])) {
-        rex_var_dumper::dump('E-Mail konnte nicht gesendet werden.');
-        rex_var_dumper::dump($tpl);
+        $sent = false;
       }
     }
-    return true;
+    if (!$sent) {
+      rex_logger::factory()->log('warning', 'Form mail not sent: ' . $subject);
+    }
+    return $sent;
+  }
+
+  public static function fail(rex_yform_action_abstract $action, string $message, string $field = 'submit'): never
+  {
+    foreach ($action->params['values'] as $index => $value) {
+      if ($value->getName() === $field) {
+        $action->params['warning'][$index] = $action->params['error_class'];
+        $action->params['warning_messages'][$index] = $message;
+        break;
+      }
+    }
+    throw new rex_exception($message);
   }
 }

@@ -38,28 +38,23 @@
   $yform->setValidateField('empty', ["confirm", "Bitte bestätigen!"]);
 
   // $yform->setValueField('html', ['required', '<p class="text-smaller form-required typo-margin">* {{Pflichtfelder}}</p>']);
-  $yform->setValueField('html', ['required', '<p class="btn-set"><button class="btn-ghost" type="submit" value="Senden"><span>Senden</span></button></p>']);
+  $yform->setValueField('html', ['submit', '<div class="form-group" id="yform-' . $form_name . '-submit"><p class="btn-set"><button class="btn-ghost" type="submit" value="Senden"><span>Senden</span></button></p></div>']);
 
   $yform->setValueField('spam_protection', array("honeypot", "Bitte nicht ausfüllen.", "Ihre Anfrage wurde als Spam erkannt und gelöscht. Bitte versuchen Sie es in einigen Minuten erneut oder wenden Sie sich persönlich an uns.", 0));
 
   //$yform->setActionField('html', ['<div class="alert" data-redirect="'.rex_getUrl(19).'" data-modal></div>' ] );
+  $yform->setActionField('callback', [function (rex_yform_action_abstract $action) use ($from, $fromName, $recipient, $subject, $email_template, $send_user_mail) {
+    $values = $action->params['value_pool']['email'];
+    $form_elements = $action->params['form_elements'];
+    $params = ['template' => $email_template, 'send_user_email' => $send_user_mail];
+    if (!Form::send_yform_email_template($from, $fromName, $recipient, $subject, $values, $form_elements, $params)) {
+      Form::fail($action, 'Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später noch einmal.');
+    }
+  }]);
   $yform->setActionField('html', ['<div class="alert success">' . $response . '</div>']);
 
 
   $yformOut = $yform->getForm();
-
-  $formSent = ($yform->getObjectparams('send') && !$yform->getObjectparams('warning_messages'));
-
-
-  if ($formSent) {
-
-    $values = $yform->objparams['value_pool']['email'];
-    $form_elements = $yform->objparams['form_elements'];
-    $params = ['template' => $email_template, 'send_user_email' => $send_user_mail];
-    Form::send_yform_email_template($from, $fromName, $recipient, $subject, $values, $form_elements, $params);
-  } else {
-    //echo '<h3 class="h2 centered form-title">Wir freuen uns auf<br />Ihre Kontaktaufnahme!</h3>';
-  }
 
   ?>
   <div class="rex-yform-wrap">
