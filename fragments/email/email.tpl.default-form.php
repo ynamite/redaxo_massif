@@ -28,8 +28,8 @@ $styleTable = 'font-size: 1rem; vertical-align:top;';
 				if ($value) {
 			?>
 					<tr>
-						<td style="<?= $styleLabel ?>"><?= $label ?>:</td>
-						<td><?= $value ?></td>
+						<td style="<?= $styleLabel ?>"><?= rex_escape($label) ?>:</td>
+						<td><?= nl2br(rex_escape((string) $value)) ?></td>
 					</tr>
 			<?php }
 			} ?>

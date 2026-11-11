@@ -3,8 +3,10 @@
 namespace Ynamite\Massif;
 
 use rex;
+use rex_exception;
+use rex_logger;
 use rex_sql;
-use rex_var_dumper;
+use rex_yform_action_abstract;
 use rex_yform_email_template;
 use Ynamite\Massif\Utils as massif_utils;
 use Ynamite\MassifSettings\Utils as settings_utils;
@@ -16,7 +18,7 @@ class Form
 	*	send email with template
 	*/
 
-  public static function send_yform_email_template($from, $fromName, $recipient, $subject, $values, $_form_elements, $params = [])
+  public static function send_yform_email_template($from, $fromName, $recipient, $subject, $values, $_form_elements, $params = []): bool
   {
 
     if (rex::isDebugMode()) {
@@ -71,7 +73,22 @@ class Form
 
 
 
-    $mailBody = sprogdown(settings_utils::replaceStrings(massif_utils\Rex::parse($settings['template'], ['values' => $values, 'form_elements' => $form_elements])));
+    $renderMail = static function (string $template, array $values) use ($form_elements): string {
+      // Keep visitor braces out of the template processors without changing header/log values.
+      $prefix = '0' . bin2hex(random_bytes(16));
+      foreach ($form_elements as $key => $label) {
+        $visitorValues = array_intersect_key($values, [$key => true, $key . '_LABELS' => true]);
+        array_walk_recursive($visitorValues, static function (&$value) use ($prefix): void {
+          if (is_string($value)) {
+            $value = strtr($value, ['{' => $prefix . 'open', '}' => $prefix . 'close']);
+          }
+        });
+        $values = array_replace($values, $visitorValues);
+      }
+      $body = sprogdown(settings_utils::replaceStrings(massif_utils\Rex::parse($template, ['values' => $values, 'form_elements' => $form_elements])));
+      return strtr($body, [$prefix . 'open' => '&#123;', $prefix . 'close' => '&#125;']);
+    };
+    $mailBody = $renderMail($settings['template'], $values);
 
     if ($settings['log'] && $settings['log_table']) {
 
@@ -104,7 +121,7 @@ class Form
       "mail_to" => $recipient,
       "mail_to_name" => $fromName,
       "subject" => $subject,
-      "body" => strip_tags($mailBody),
+      "body" => html_entity_decode(strip_tags($mailBody), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
       "body_html" => $mailBody,
       'attachments' => isset($values['attachments']) ? $values['attachments'] : [],
     ];
@@ -112,23 +129,38 @@ class Form
 
     if ($settings['send_user_email'] && $values['email']) {
       $values['is_user'] = true;
-      $mailBody = sprogdown(settings_utils::replaceStrings(massif_utils\Rex::parse($settings['template_user'], ['values' => $values, 'form_elements' => $form_elements])));
+      $mailBody = $renderMail($settings['template_user'], $values);
       $template['user'] = $template['admin'];
       $template['user']['mail_reply_to'] = $settings['user_reply_to'];
       $template['user']['mail_reply_to_name'] = $fromName;
       $template['user']['mail_to'] = $values['email'];
       $template['user']['mail_to_name'] = trim($values['fname'] . ' ' . $values['lname']) ? $values['fname'] . ' ' . $values['lname'] : $values['email'];
-      $template['user']['body'] = strip_tags($mailBody);
+      $template['user']['body'] = html_entity_decode(strip_tags($mailBody), ENT_QUOTES | ENT_HTML5, 'UTF-8');
       $template['user']['body_html'] = $mailBody;
     }
 
+    $sent = true;
     foreach ($template as $tpl) {
 
       if (!rex_yform_email_template::sendMail($tpl, $tpl['name'])) {
-        rex_var_dumper::dump('E-Mail konnte nicht gesendet werden.');
-        rex_var_dumper::dump($tpl);
+        $sent = false;
       }
     }
-    return true;
+    if (!$sent) {
+      rex_logger::factory()->log('warning', 'Form mail not sent: ' . $subject);
+    }
+    return $sent;
+  }
+
+  public static function fail(rex_yform_action_abstract $action, string $message, string $field = 'submit'): never
+  {
+    foreach ($action->params['values'] as $index => $value) {
+      if ($value->getName() === $field) {
+        $action->params['warning'][$index] = $action->params['error_class'];
+        $action->params['warning_messages'][$index] = $message;
+        break;
+      }
+    }
+    throw new rex_exception($message);
   }
 }
