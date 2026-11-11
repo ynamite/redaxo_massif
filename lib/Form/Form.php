@@ -73,7 +73,18 @@ class Form
 
 
 
-    $mailBody = sprogdown(settings_utils::replaceStrings(massif_utils\Rex::parse($settings['template'], ['values' => $values, 'form_elements' => $form_elements])));
+    $renderMail = static function (string $template, array $values) use ($form_elements): string {
+      // Keep visitor braces out of the template processors without changing header/log values.
+      $prefix = '0' . bin2hex(random_bytes(16));
+      array_walk_recursive($values, static function (&$value) use ($prefix): void {
+        if (is_string($value)) {
+          $value = strtr($value, ['{' => $prefix . 'open', '}' => $prefix . 'close']);
+        }
+      });
+      $body = sprogdown(settings_utils::replaceStrings(massif_utils\Rex::parse($template, ['values' => $values, 'form_elements' => $form_elements])));
+      return strtr($body, [$prefix . 'open' => '&#123;', $prefix . 'close' => '&#125;']);
+    };
+    $mailBody = $renderMail($settings['template'], $values);
 
     if ($settings['log'] && $settings['log_table']) {
 
@@ -114,7 +125,7 @@ class Form
 
     if ($settings['send_user_email'] && $values['email']) {
       $values['is_user'] = true;
-      $mailBody = sprogdown(settings_utils::replaceStrings(massif_utils\Rex::parse($settings['template_user'], ['values' => $values, 'form_elements' => $form_elements])));
+      $mailBody = $renderMail($settings['template_user'], $values);
       $template['user'] = $template['admin'];
       $template['user']['mail_reply_to'] = $settings['user_reply_to'];
       $template['user']['mail_reply_to_name'] = $fromName;
