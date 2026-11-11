@@ -51,7 +51,7 @@ class Form
       if (isset($settings['replace_labels'][$el[1]])) {
         $el[2] = $settings['replace_labels'][$el[1]];
       }
-      $form_elements[$el[1]] = str_replace('*', '', $el[2]);
+      $form_elements[$el[1]] = trim(str_replace('*', '', $el[2]));
     }
     unset($_form_elements);
 
@@ -140,14 +140,12 @@ class Form
     }
 
     $sent = true;
-    foreach ($template as $tpl) {
+    foreach ($template as $kind => $tpl) {
 
       if (!rex_yform_email_template::sendMail($tpl, $tpl['name'])) {
         $sent = false;
+        rex_logger::factory()->log('warning', 'Form mail not sent: ' . $subject . '; template=' . $settings[$kind === 'user' ? 'template_user' : 'template'] . '; recipient=' . $tpl['mail_to']);
       }
-    }
-    if (!$sent) {
-      rex_logger::factory()->log('warning', 'Form mail not sent: ' . $subject);
     }
     return $sent;
   }
@@ -158,9 +156,10 @@ class Form
       if ($value->getName() === $field) {
         $action->params['warning'][$index] = $action->params['error_class'];
         $action->params['warning_messages'][$index] = $message;
-        break;
+        throw new rex_exception($message);
       }
     }
+    $action->params['warning_messages'][] = $message;
     throw new rex_exception($message);
   }
 }

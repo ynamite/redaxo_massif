@@ -55,6 +55,8 @@
 
 
   $yformOut = $yform->getForm();
+  // Shield visitor values from Sprog without altering YForm's inline scripts.
+  $yformOut = preg_replace_callback('~<input\b[^>]*>|<textarea\b[^>]*>.*?</textarea>~si', static fn (array $match): string => strtr($match[0], ['{' => '&#123;', '}' => '&#125;']), $yformOut);
 
   ?>
   <div class="rex-yform-wrap">

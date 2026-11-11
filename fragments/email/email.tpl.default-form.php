@@ -14,7 +14,7 @@ $styleTable = 'font-size: 1rem; vertical-align:top;';
 <div class="content" style="font-size: 1rem;">
 	<br />
 	<?php if (isset($values['is_user']) && $values['is_user']) {
-		echo str_replace('_fname_,', ucwords($values['fname']), $values['user_text']);
+		echo str_replace('_fname_,', strtr(rex_escape(ucwords((string) $values['fname'])), ['{' => '&#123;', '}' => '&#125;']), $values['user_text']);
 	} else { ?>
 		<h3>Anfrage von <?= \rex_yrewrite::getCurrentDomain() ?></h3>
 		<br />
