@@ -5,6 +5,7 @@ namespace Ynamite\Massif\Form\Api;
 use rex;
 use rex_api_exception;
 use rex_api_function;
+use rex_file;
 use rex_path;
 use rex_request;
 use rex_response;
@@ -57,7 +58,7 @@ class Download extends rex_api_function
     }
 
     rex_response::cleanOutputBuffers();
-    rex_response::sendFile($path, 'application/zip', 'attachment');
+    rex_response::sendFile($path, rex_file::mimeType($path) ?: 'application/octet-stream', 'attachment');
     exit;
   }
 }

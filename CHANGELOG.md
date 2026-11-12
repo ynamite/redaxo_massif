@@ -4,6 +4,12 @@
 
 ### Changed
 
+- **`mupload` / `multi_file_upload` cleanup** — stored uploads are now kept for **90 days** (`UPLOAD_RETENTION_DAYS`), temp uploads for 1 day (`TMP_RETENTION_DAYS`).
+
+### Fixed
+
+- **`mupload` cleanup never deleted anything nested** — `cleanFiles()` only looked at the top level, but zips live in per-user subfolders and temp uploads in per-session subfolders, so neither was ever removed by age (only top-level files in the upload folder were, after a single day). It now recurses and removes emptied folders. The post-zip temp cleanup also used a relative path and was a no-op; it now resolves via `rex_path::data()`.
+
 - **`Form::send_yform_email_template()`** — no longer forces the recipient to `studio@massif.ch` in debug mode. Redirection on dev/staging is now phpmailer's job: enable `detour_mode` and set `test_address` in the phpmailer settings of each non-production database. **Upgrade note:** projects that relied on the old redirect send to real recipients from dev/staging until detour mode is enabled there.
 
 ## **Version 3.1.0**

@@ -15,6 +15,8 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
   protected float $MAX_FILE_SIZE = 15e+6;
   protected float $MIN_FILE_SIZE = 1;
   protected array $files = [];
+  protected const TMP_RETENTION_DAYS = 1;
+  protected const UPLOAD_RETENTION_DAYS = 90;
 
   public function getDropzoneFileTypes()
   {
@@ -75,7 +77,7 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
     $this->MIN_FILE_SIZE = floatval($this->getElement('min_file_size')) ?: $this->MIN_FILE_SIZE;
 
     $this->cleanFiles(rex_path::data($this->TMP_DIR));
-    $this->cleanFiles(rex_path::data($this->UPLOAD_DIR));
+    $this->cleanFiles(rex_path::data($this->UPLOAD_DIR), false, static::UPLOAD_RETENTION_DAYS);
 
     $this->files = $this->getTempFiles();
 
@@ -148,33 +150,21 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
   }
 
 
-  private function cleanFiles($path, $force = false)
+  /**
+   * Deletes files older than $days below $path (recursively: session tmp folders and
+   * per-user zip folders are subdirectories) and removes directories left empty.
+   */
+  private function cleanFiles(string $path, bool $force = false, int $days = self::TMP_RETENTION_DAYS): void
   {
-
-    $files = glob($path . "*");
-
-    $now   = time();
-    $days  = 1;
-    $timeToKeep = 60 * 60 * 24 * $days;
-
-    foreach ($files as $file) {
-      if ($now - filemtime($file) >= $timeToKeep || $force) {
-        if (!is_dir($file)) {
-          rex_file::delete($file);
-        } else {
-          // delete dir if empty
-          $innerFiles = glob($file . "/*");
-          if (count($innerFiles) == 0) {
-            rex_dir::delete($file);
-          }
-        }
-      }
+    $maxAge = 60 * 60 * 24 * $days;
+    foreach (glob(rtrim($path, '/') . '/*') ?: [] as $file) {
       if (is_dir($file)) {
-        // delete dir if empty
-        $innerFiles = glob($file . "/*");
-        if (count($innerFiles) == 0) {
+        $this->cleanFiles($file, $force, $days);
+        if (!glob($file . '/*')) {
           rex_dir::delete($file);
         }
+      } elseif ($force || time() - filemtime($file) >= $maxAge) {
+        rex_file::delete($file);
       }
     }
   }
@@ -247,7 +237,7 @@ class rex_yform_value_mupload extends rex_yform_value_abstract
     }
     $zip->close();
     $this->cleanFiles($this->getUserTempFilePath(), true);
-    $this->cleanFiles($this->TMP_DIR);
+    $this->cleanFiles(rex_path::data($this->TMP_DIR));
     return self::getUserFolder() . $filename;
   }
 
