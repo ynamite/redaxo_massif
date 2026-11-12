@@ -34,7 +34,7 @@
   $yform->setValidateField('empty', ["mobile", "Bitte ausfüllen!"]);
 
 
-  $yform->setValueField('checkbox', array("confirm", 'Ich bin mit den <a href="' . rex_getUrl(22) . '" onclick="window.open(\'' . rex_getUrl(22, null, ['popup' => '1']) . '\',\'popup\',\'width=760,height=600\'); return false;" data-no-swup>Datenschutzbestimmungen</a> einverstanden.*', 0, 'no_db'));
+  $yform->setValueField('checkbox', array("confirm", 'Ich bin mit den <a href="' . rex_getUrl(22) . '" target="_blank" rel="noopener" data-no-swup>Datenschutzbestimmungen</a> einverstanden.*', 0, 'no_db'));
   $yform->setValidateField('empty', ["confirm", "Bitte bestätigen!"]);
 
   // $yform->setValueField('html', ['required', '<p class="text-smaller form-required typo-margin">* {{Pflichtfelder}}</p>']);
