@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **`Form::send_yform_email_template()`** — no longer forces the recipient to `studio@massif.ch` in debug mode. Redirection on dev/staging is now phpmailer's job: enable `detour_mode` and set `test_address` in the phpmailer settings of each non-production database. **Upgrade note:** projects that relied on the old redirect send to real recipients from dev/staging until detour mode is enabled there.
+
 ## **Version 3.1.0**
 
 ### Added

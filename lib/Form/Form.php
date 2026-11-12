@@ -2,7 +2,6 @@
 
 namespace Ynamite\Massif;
 
-use rex;
 use rex_exception;
 use rex_logger;
 use rex_sql;
@@ -21,9 +20,7 @@ class Form
   public static function send_yform_email_template($from, $fromName, $recipient, $subject, $values, $_form_elements, $params = []): bool
   {
 
-    if (rex::isDebugMode()) {
-      $recipient = 'studio@massif.ch';
-    }
+    // Dev/staging recipients are redirected by phpmailer's detour mode (rex_mailer), not here.
 
     $values['recipient'] = $recipient;
 
